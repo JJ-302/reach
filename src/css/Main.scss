@@ -1,0 +1,43 @@
+@import './variables';
+@import './mixin';
+
+.mainContainer {
+  background-color: $white;
+  width: calc(100vw - #{$sidebar-width});
+}
+
+.header {
+  border-bottom: solid 1px $grey;
+  height: $header-height;
+}
+
+.gantt {
+  display: flex;
+  height: calc(100vh - #{$header-height});
+  &-index {
+    &-header {
+      display: flex;
+      padding: 10px 0;
+      border-bottom: solid 1px $grey;
+      &__name {
+        @include base-label($width: 150px, $text-align: left);
+      }
+      &__startDate {
+        @include base-label($width: 100px);
+      }
+      &__endDate {
+        @extend .gantt-index-header__startDate;
+      }
+      &__duration {
+        @include base-label($width: 80px);
+      }
+      &__progress {
+        @include base-label($width: 80px);
+      }
+    }
+  }
+  &-schedule {
+    background-color: #eee;
+    flex-grow: 1;
+  }
+}
