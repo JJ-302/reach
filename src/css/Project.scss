@@ -1,0 +1,11 @@
+@import './variables';
+
+.project {
+  border-bottom: solid 1px $grey;
+  .project__name {
+    display: flex;
+    padding: 10px 0;
+    padding-left: 5px;
+    border-bottom: solid 1px $light-grey;
+  }
+}
