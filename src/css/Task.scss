@@ -1,0 +1,23 @@
+@import './mixin';
+
+.task {
+  display: flex;
+  border-bottom: solid 1px $light-grey;
+  padding: 5px 0;
+  font-size: 14px;
+  &__name {
+    @include base-label($width: 150px, $text-align: left);
+  }
+  &__startDate {
+    @include base-label($width: 100px);
+  }
+  &__endDate {
+    @extend .task__startDate;
+  }
+  &__duration {
+    @include base-label($width: 80px);
+  }
+  &__progress {
+    @include base-label($width: 80px);
+  }
+}
