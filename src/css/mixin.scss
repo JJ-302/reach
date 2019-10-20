@@ -1,0 +1,8 @@
+@import './variables';
+
+@mixin base-label($width, $text-align: center) {
+  box-sizing: border-box;
+  width: $width;
+  padding: 0 10px;
+  text-align: $text-align;
+}
