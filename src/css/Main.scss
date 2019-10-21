@@ -14,11 +14,21 @@
 .gantt {
   display: flex;
   height: calc(100vh - #{$header-height});
+  overflow: scroll;
   &-index {
+    position: sticky;
+    left: 0;
+    z-index: 5;
     &-header {
       display: flex;
-      padding: 10px 0;
+      align-items: center;
+      height: 40px;
+      border-right: solid 1px $grey;
       border-bottom: solid 1px $grey;
+      background-color: $white;
+      position: sticky;
+      top: 0;
+      z-index: 5;
       &__name {
         @include base-label($width: 150px, $text-align: left);
       }
@@ -37,7 +47,28 @@
     }
   }
   &-schedule {
-    background-color: #eee;
     flex-grow: 1;
+    &-header {
+      @extend .gantt-index-header;
+      position: sticky;
+      top: 0;
+      z-index: 4;
+      &__date {
+        height: 40px;
+        line-height: 20px;
+        text-align: center;
+        font-size: 12px;
+        padding: 0 8px;
+        border-right: solid 1px $grey;
+        &--sun {
+          @extend .gantt-schedule-header__date;
+          background-color: $background-sun;
+        }
+        &--sat {
+          @extend .gantt-schedule-header__date;
+          background-color: $background-sat;
+        }
+      }
+    }
   }
 }
