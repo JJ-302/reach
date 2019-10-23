@@ -2,7 +2,7 @@ import React from 'react'
 import Moment from 'moment'
 import '../css/Project.scss'
 
-const baseChartWidth = 35
+const baseChartWidth = 45
 
 const calcOffset = (content) => {
   const start = Moment('2019-01-01')
