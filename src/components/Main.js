@@ -126,7 +126,7 @@ export default class Main extends PureComponent {
             <div className="gantt-schedule-header">
               <Schedule scheduleType={scheduleType} />
             </div>
-            <Gantt projects={Data} />
+            <Gantt projects={Data} scheduleType={scheduleType} />
           </div>
         </div>
       </div>
