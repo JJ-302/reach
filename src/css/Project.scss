@@ -1,25 +1,24 @@
 @import './variables';
+@import './mixin';
 
 .project {
   border-bottom: solid 1px $grey;
   background-color: $white;
   border-right: solid 1px $grey;
   .project__name {
-    display: flex;
+    @include chart-bar();
     position: sticky;
     top: 40px;
-    padding: 10px 0;
     padding-left: 5px;
-    border-bottom: solid 1px $light-grey;
     z-index: 3;
     background-color: $white;
   }
   &--gantt {
     @extend .project;
     width: 100%;
-    background-color: #ccc;
   }
   &__chart {
-    @extend .project__name;
+    background-color: #eee;
+    border-radius: 3px;
   }
 }

@@ -6,3 +6,12 @@
   padding: 0 10px;
   text-align: $text-align;
 }
+
+@mixin chart-bar() {
+  display: flex;
+  height: 30px;
+  box-sizing: border-box;
+  border-bottom: solid 1px $light-grey;
+  padding: 5px 0;
+  font-size: 14px;
+}
