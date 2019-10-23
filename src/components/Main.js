@@ -1,4 +1,6 @@
-import React from 'react'
+import React, { PureComponent } from 'react'
+import Moment from 'moment'
+
 import Project from './Project'
 import Gantt from './Gantt'
 import '../css/Main.scss'
@@ -21,17 +23,30 @@ const whatDayIsToday = (day) => {
   }
 }
 
-const Schedule = () => {
-  const days = []
-  for (let day = date.startDate; day <= date.endtDate; day.add(1, 'days')) {
-    const modifire = `gantt-schedule-header__date${whatDayIsToday(day)}`
-    days.push(
-      <div className={modifire} key={day.format('YYYYMMDD')}>
-        {day.format('MMM D')}
+const scheduleAttr = (day, scheduleType) => {
+  const attr = {}
+  if (scheduleType === 'days') {
+    attr.formatDate = day.format('MMM D')
+    attr.className = `gantt-schedule-header__date${whatDayIsToday(day)}`
+  } else {
+    const startOfWeek = day.startOf('week').add(1, 'day')
+    attr.formatDate = `W${day.format('W')} ${startOfWeek.format('M/D')}`
+    attr.className = 'gantt-schedule-header__week'
+  }
+  return attr
+}
+
+const Schedule = ({ scheduleType }) => {
+  const schedules = []
+  for (let day = Moment(date.startDate); day <= date.endDate; day.add(1, scheduleType)) {
+    const attr = scheduleAttr(day, scheduleType)
+    schedules.push(
+      <div className={attr.className} key={day.format('YYYYMMDD')}>
+        {attr.formatDate}
       </div>,
     )
   }
-  return days
+  return schedules
 }
 
 const Avatars = () => {
@@ -41,41 +56,80 @@ const Avatars = () => {
   return avatars
 }
 
-const Header = () => (
-  <div className="header">
-    <div className="switchView">
-      <div className="switchView__week">Week</div>
-      <div className="switchView__divider">|</div>
-      <div className="switchView__day">Day</div>
-    </div>
-    <div className="member">
-      <Avatars />
-    </div>
-  </div>
-)
-
-const Main = () => (
-  <div className="mainContainer">
-    <Header />
-    <div className="gantt">
-      <div className="gantt-index">
-        <div className="gantt-index-header">
-          <div className="gantt-index-header__name">Name</div>
-          <div className="gantt-index-header__startDate">StartDate</div>
-          <div className="gantt-index-header__endDate">EndDate</div>
-          <div className="gantt-index-header__duration">Duration</div>
-          <div className="gantt-index-header__progress">Progress</div>
+const Header = (props) => {
+  const { scheduleType, onClick } = props
+  const className = { weeks: 'switchView__button', days: 'switchView__button' }
+  if (scheduleType === 'weeks') {
+    className.weeks += '--disable'
+  } else if (scheduleType === 'days') {
+    className.days += '--disable'
+  }
+  return (
+    <div className="header">
+      <div className="switchView">
+        <div
+          className={className.weeks}
+          onClick={() => onClick('weeks')}
+          onKeyUp={() => onClick('weeks')}
+          role="link"
+          tabIndex="0"
+        >
+          Week
         </div>
-        <Project projects={Data} />
-      </div>
-      <div className="gantt-schedule">
-        <div className="gantt-schedule-header">
-          <Schedule />
+        <div className="switchView__divider">|</div>
+        <div
+          className={className.days}
+          onClick={() => onClick('days')}
+          onKeyUp={() => onClick('days')}
+          role="link"
+          tabIndex="0"
+        >
+          Day
         </div>
-        <Gantt projects={Data} />
+      </div>
+      <div className="member">
+        <Avatars />
       </div>
     </div>
-  </div>
-)
+  )
+}
 
-export default Main
+export default class Main extends PureComponent {
+  constructor(props) {
+    super(props)
+    this.state = {
+      scheduleType: 'days',
+    }
+  }
+
+  changeScheduleType = (scheduleType) => {
+    this.setState({ scheduleType })
+  }
+
+  render() {
+    const { scheduleType } = this.state
+    return (
+      <div className="mainContainer">
+        <Header scheduleType={scheduleType} onClick={this.changeScheduleType} />
+        <div className="gantt">
+          <div className="gantt-index">
+            <div className="gantt-index-header">
+              <div className="gantt-index-header__name">Name</div>
+              <div className="gantt-index-header__startDate">StartDate</div>
+              <div className="gantt-index-header__endDate">EndDate</div>
+              <div className="gantt-index-header__duration">Duration</div>
+              <div className="gantt-index-header__progress">Progress</div>
+            </div>
+            <Project projects={Data} />
+          </div>
+          <div className="gantt-schedule">
+            <div className="gantt-schedule-header">
+              <Schedule scheduleType={scheduleType} />
+            </div>
+            <Gantt projects={Data} />
+          </div>
+        </div>
+      </div>
+    )
+  }
+}
