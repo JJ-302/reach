@@ -11,11 +11,25 @@
   &__endDate {
     @extend .task__startDate;
   }
+  &__extend {
+    @extend .task__startDate;
+  }
   &__duration {
     @include base-label($width: 80px);
   }
-  &__progress {
-    @include base-label($width: 80px);
+  &__inCharge {
+    @include base-label($width: 100px);
+    display: flex;
+    overflow-x: scroll;
+    &::-webkit-scrollbar {
+      display: none;
+    }
+  }
+  &__avatar {
+    height: 18px;
+    width: 18px;
+    border-radius: 50%;
+    margin-left: 2px;
   }
   &__chart {
     background-color: #eee;

@@ -117,8 +117,9 @@ export default class Main extends PureComponent {
               <div className="gantt-index-header__name">Name</div>
               <div className="gantt-index-header__startDate">StartDate</div>
               <div className="gantt-index-header__endDate">EndDate</div>
+              <div className="gantt-index-header__extend">Extend</div>
               <div className="gantt-index-header__duration">Duration</div>
-              <div className="gantt-index-header__progress">Progress</div>
+              <div className="gantt-index-header__inCharge">InCharge</div>
             </div>
             <Project projects={Data} />
           </div>

@@ -70,11 +70,14 @@
       &__endDate {
         @extend .gantt-index-header__startDate;
       }
+      &__extend {
+        @extend .gantt-index-header__startDate;
+      }
       &__duration {
         @include base-label($width: 80px);
       }
-      &__progress {
-        @include base-label($width: 80px);
+      &__inCharge {
+        @include base-label($width: 100px);
       }
     }
   }
