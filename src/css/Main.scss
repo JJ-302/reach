@@ -7,8 +7,29 @@
 }
 
 .header {
+  display: flex;
   border-bottom: solid 1px $grey;
   height: $header-height;
+  .switchView {
+    display: flex;
+    align-items: center;
+    padding: 0 20px;
+    &__divider {
+      margin: 0 10px;
+    }
+  }
+  .member {
+    display: flex;
+    align-items: center;
+    flex-grow: 1;
+    overflow-x: scroll;
+    &__avatar {
+      height: 35px;
+      width: 35px;
+      border-radius: 50%;
+      margin-left: 10px;
+    }
+  }
 }
 
 .gantt {

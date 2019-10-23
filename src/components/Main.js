@@ -5,6 +5,7 @@ import '../css/Main.scss'
 
 import Data from '../TemporalyData'
 import date from '../TemporalyDateRange'
+import members from '../TemporalyMembers'
 
 const sun = 0
 const sat = 6
@@ -33,9 +34,29 @@ const Schedule = () => {
   return days
 }
 
+const Avatars = () => {
+  const avatars = members.map((member) => (
+    <img key={member.name} src={member.avatar} alt={member.name} className="member__avatar" />
+  ))
+  return avatars
+}
+
+const Header = () => (
+  <div className="header">
+    <div className="switchView">
+      <div className="switchView__week">Week</div>
+      <div className="switchView__divider">|</div>
+      <div className="switchView__day">Day</div>
+    </div>
+    <div className="member">
+      <Avatars />
+    </div>
+  </div>
+)
+
 const Main = () => (
   <div className="mainContainer">
-    <div className="header" />
+    <Header />
     <div className="gantt">
       <div className="gantt-index">
         <div className="gantt-index-header">
