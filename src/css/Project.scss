@@ -13,8 +13,4 @@
     z-index: 3;
     background-color: $white;
   }
-  &--gantt {
-    @extend .project;
-    width: 100%;
-  }
 }

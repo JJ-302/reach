@@ -31,7 +31,7 @@ const Gantt = (props) => {
     const chartWidth = baseChartWidth * project.duration
     const offset = calcOffset(project)
     return (
-      <div key={project.name} className="project--gantt">
+      <div key={project.name} className="project">
         <div style={{ paddingLeft: offset }} className="project__name">
           <ChartBar chartWidth={chartWidth} data={project} />
         </div>
