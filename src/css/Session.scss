@@ -1,4 +1,5 @@
 @import './variables';
+@import './mixin';
 
 .background {
   display: flex;
@@ -17,42 +18,20 @@
   height: 300px;
   padding: 30px 150px;
   background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
   &__title {
-    color: $white;
+    @include form-title();
     margin-bottom: 40px;
-    font-size: 20px;
   }
   &__email {
-    height: 20px;
-    width: 100%;
-    outline: none;
-    border: none;
-    background-color: transparent;
-    border-bottom: solid 1px $white;
-    color: $white;
+    @include text-input();
     margin-bottom: 30px;
-    padding-left: 5px;
-    &::placeholder {
-      color: #ddd;
-    }
   }
   &__password {
     @extend .session__email;
   }
   &__submit {
-    width: 200px;
-    border: solid 2px $white;
-    border-radius: 20px;
-    background-color: transparent;
-    outline: none;
-    text-align: center;
-    text-decoration: none;
-    color: $white;
-    padding: 8px 30px;
-    margin-top: 10px;
-    &:active {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
+    @include button();
   }
   &__switch {
     color: $white;
