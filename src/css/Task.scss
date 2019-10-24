@@ -4,6 +4,9 @@
   @include chart-bar();
   &__name {
     @include base-label($width: 150px, $text-align: left);
+    white-space: nowrap;
+    overflow-x: hidden;
+    text-overflow: ellipsis;
   }
   &__startDate {
     @include base-label($width: 100px);
@@ -30,9 +33,5 @@
     width: 18px;
     border-radius: 50%;
     margin-left: 2px;
-  }
-  &__chart {
-    background-color: #eee;
-    border-radius: 3px;
   }
 }

@@ -11,7 +11,7 @@ const Avatars = ({ members }) => {
 const Task = (props) => {
   const tasks = props.tasks.map((task) => (
     <div key={task.id} className="task">
-      <div className="task__name">{task.title}</div>
+      <div className="task__name">{task.name}</div>
       <div className="task__startDate">{task.startDate}</div>
       <div className="task__endDate">{task.endDate}</div>
       <div className="task__extend">{task.extend}</div>

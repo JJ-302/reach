@@ -1,5 +1,7 @@
 import React from 'react'
 import Moment from 'moment'
+
+import ChartBar from './ChartBar'
 import '../css/Project.scss'
 
 import date from '../TemporalyDateRange'
@@ -31,7 +33,7 @@ const Gantt = (props) => {
     return (
       <div key={project.name} className="project--gantt">
         <div style={{ paddingLeft: offset }} className="project__name">
-          <div style={{ width: chartWidth }} className="project__chart" />
+          <ChartBar chartWidth={chartWidth} data={project} />
         </div>
         <Task tasks={project.tasks} scheduleType={props.scheduleType} />
       </div>
@@ -47,7 +49,7 @@ const Task = (props) => {
     const chartWidth = baseChartWidth * diff
     return (
       <div key={task.id} style={{ paddingLeft: offset }} className="task">
-        <div style={{ width: chartWidth }} className="task__chart" />
+        <ChartBar chartWidth={chartWidth} data={task} />
       </div>
     )
   })
