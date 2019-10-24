@@ -1,3 +1,4 @@
+@import './variables';
 @import './mixin';
 
 .modalOverlay {
@@ -35,5 +36,46 @@
   }
   &__button {
     @include button();
+  }
+  &__label {
+    box-sizing: border-box;
+    color: $white;
+    align-self: flex-start;
+    font-size: 12px;
+    margin-bottom: 5px;
+    padding-left: 5px;
+  }
+}
+
+.colorPallet {
+  display: flex;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-bottom: 20px;
+  &__edge {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 30px;
+    width: 30px;
+    border-radius: 50%;
+    background-color: $white;
+    margin: 2px;
+  }
+  &__body {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-sizing: border-box;
+    height: 28px;
+    width: 28px;
+    border-radius: 50%;
+    &--selected {
+      @extend .colorPallet__body;
+      &::after {
+        content: '✔︎';
+        color: white;
+      }
+    }
   }
 }

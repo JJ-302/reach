@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import ProjectForm from './ProjectForm'
+import ResourceForm from './ResourceForm'
 import '../css/SideBar.scss'
 
 export default class SideBar extends Component {
@@ -30,7 +31,11 @@ export default class SideBar extends Component {
           className="sidebar__icon"
           onClick={() => this.openModal('project')}
         />
-        <FontAwesomeIcon icon={['fas', 'tags']} className="sidebar__icon" />
+        <FontAwesomeIcon
+          icon={['fas', 'tags']}
+          className="sidebar__icon"
+          onClick={() => this.openModal('resource')}
+        />
         {modalVisible && <Form formType={formType} closeModal={this.closeModal} />}
       </div>
     )
@@ -42,6 +47,8 @@ const Form = (props) => {
   switch (formType) {
     case 'project':
       return <ProjectForm action="Create" closeModal={closeModal} />
+    case 'resource':
+      return <ResourceForm action="Create" closeModal={closeModal} />
     default:
       return null
   }
