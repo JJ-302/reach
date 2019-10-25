@@ -65,7 +65,7 @@
         @include base-label($width: 150px, $text-align: left);
       }
       &__startDate {
-        @include base-label($width: 100px);
+        @include base-label($width: 90px);
       }
       &__endDate {
         @extend .gantt-index-header__startDate;

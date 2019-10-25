@@ -9,11 +9,11 @@
 
 @mixin chart-bar() {
   display: flex;
-  height: 30px;
+  height: 25px;
   box-sizing: border-box;
   border-bottom: solid 1px $light-grey;
   padding: 5px 0;
-  font-size: 14px;
+  font-size: 12px;
 }
 
 @mixin form-title() {
