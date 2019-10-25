@@ -22,6 +22,10 @@ class Project extends Component {
     this.setState({ isVisible: false })
   }
 
+  refreshTasks = (tasks) => {
+    this.setState({ tasks })
+  }
+
   render() {
     const { project } = this.props
     const { tasks, isVisible } = this.state
@@ -36,7 +40,8 @@ class Project extends Component {
           />
         </div>
         <Task tasks={tasks} />
-        {isVisible && <TaskForm closeModal={this.closeModal} />}
+        {isVisible
+          && <TaskForm tasks={tasks} onRefresh={this.refreshTasks} closeModal={this.closeModal} />}
       </div>
     )
   }

@@ -51,6 +51,24 @@ export default class TaskForm extends Component {
     this.setState({ description })
   }
 
+  createTask = () => {
+    const { tasks, onRefresh } = this.props
+    const task = {
+      id: '6666',
+      name: 'task_1',
+      startDate: '2019/01/01',
+      endDate: '2019/11/30',
+      duration: 10,
+      percentComplete: 50,
+      member_tasks: [
+        { name: 'member_1', avatar: 'https://placeimg.com/140/140/any' },
+        { name: 'member_2', avatar: 'https://placeimg.com/140/140/any' },
+      ],
+    }
+    tasks.push(task)
+    onRefresh(tasks)
+  }
+
   render() {
     const { closeModal } = this.props
     const {
@@ -108,7 +126,7 @@ export default class TaskForm extends Component {
             onChange={this.onChangeDescription}
           />
         </div>
-        <button type="button" className="taskForm__button">
+        <button type="button" onClick={this.createTask} className="taskForm__button">
           Add
         </button>
       </div>
