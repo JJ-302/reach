@@ -32,7 +32,7 @@ const Gantt = (props) => {
     const offset = calcOffset(project)
     return (
       <div key={project.name} className="project">
-        <div style={{ paddingLeft: offset }} className="project__name">
+        <div style={{ paddingLeft: offset }} className="projectHeader">
           <ChartBar chartWidth={chartWidth} data={project} />
         </div>
         <Task tasks={project.tasks} scheduleType={props.scheduleType} />

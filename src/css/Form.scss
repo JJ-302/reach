@@ -79,3 +79,108 @@
     }
   }
 }
+
+.taskForm {
+  width: 660px;
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  padding: 30px 50px;
+  position: fixed;
+  top: 55px;
+  left: 660px;
+  box-shadow: $box-shadow;
+  border-radius: 5px;
+  background-color: rgba(0, 0, 0, 0.7);
+  color: $white;
+  overflow-y: scroll;
+  @media (max-width: 1370px) {
+    width: calc(100vw - 760px);
+  }
+  @media (max-height: 605px) {
+    top: auto;
+    bottom: 0;
+  }
+  &__close {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    color: $white;
+    font-size: 20px;
+    cursor: pointer;
+  }
+  &__title {
+    @extend .modalForm__title;
+  }
+  &__button {
+    @include button();
+  }
+  &Row {
+    width: 100%;
+    margin-bottom: 20px;
+    &__label {
+      padding-left: 2px;
+      margin-bottom: 2px;
+      font-size: 12px;
+    }
+    &__name {
+      @include text-input();
+    }
+    &__date {
+      @include text-input();
+      cursor: pointer;
+    }
+    &__inCharge {
+      display: flex;
+      flex-wrap: wrap;
+      height: 180px;
+      overflow-y: scroll;
+      @media (max-height: 755px) {
+        flex-wrap: nowrap;
+        height: auto;
+      }
+      .avatar {
+        display: flex;
+        flex-direction: column;
+        width: 50px;
+        margin: 3px;
+        padding: 0 3px;
+        &__wrapper {
+          position: relative;
+          height: 50px;
+          width: 50px;
+          border-radius: 50%;
+          cursor: pointer;
+        }
+        &__image {
+          @extend .avatar__wrapper;
+        }
+        &__selected {
+          @extend .avatar__wrapper;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          background: rgba(0, 0, 0, 0.6);
+          position: absolute;
+          top: 0;
+          left: 0;
+          &::after {
+            content: '✔︎';
+            color: white;
+          }
+        }
+        &__name {
+          width: 100%;
+          font-size: 10px;
+          word-wrap: break-word;
+        }
+      }
+    }
+    &__description {
+      @include textarea();
+      @media (max-height: 655px) {
+        height: 50px;
+      }
+    }
+  }
+}
