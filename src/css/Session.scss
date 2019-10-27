@@ -15,13 +15,44 @@
   flex-direction: column;
   align-items: center;
   width: 300px;
-  height: 300px;
   padding: 30px 150px;
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 5px;
   &__title {
     @include form-title();
     margin-bottom: 40px;
+  }
+  &__avatar {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.5);
+    margin-bottom: 5px;
+  }
+  &__fileIcon {
+    font-size: 40px;
+    color: $grey;
+  }
+  &__preview {
+    position: absolute;
+    height: 100px;
+    width: 100px;
+    border-radius: 50%;
+  }
+  &__fileLabel {
+    color: $white;
+    margin-bottom: 30px;
+  }
+  &__fileField {
+    display: none;
+  }
+  &__name {
+    @include text-input();
+    margin-bottom: 30px;
   }
   &__email {
     @include text-input();
