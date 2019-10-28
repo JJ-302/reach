@@ -5,9 +5,10 @@ import Project from './Project'
 import Gantt from './Gantt'
 import '../css/Main.scss'
 
+import Utils from '../Utils'
+
 import Data from '../TemporalyData'
 import date from '../TemporalyDateRange'
-import members from '../TemporalyMembers'
 
 const sun = 0
 const sat = 6
@@ -49,15 +50,15 @@ const Schedule = ({ scheduleType }) => {
   return schedules
 }
 
-const Avatars = () => {
-  const avatars = members.map((member) => (
-    <img key={member.name} src={member.avatar} alt={member.name} className="member__avatar" />
+const Avatars = ({ users }) => {
+  const avatars = users.map((user) => (
+    <img key={user.id} src={user.avatar} alt={user.name} className="member__avatar" />
   ))
   return avatars
 }
 
 const Header = (props) => {
-  const { scheduleType, onClick } = props
+  const { users, scheduleType, onClick } = props
   const className = { weeks: 'switchView__button', days: 'switchView__button' }
   if (scheduleType === 'weeks') {
     className.weeks += '--disable'
@@ -88,7 +89,7 @@ const Header = (props) => {
         </div>
       </div>
       <div className="member">
-        <Avatars />
+        <Avatars users={users} />
       </div>
     </div>
   )
@@ -97,9 +98,30 @@ const Header = (props) => {
 export default class Main extends PureComponent {
   constructor(props) {
     super(props)
+    this.getUserIndex()
     this.state = {
+      users: [],
       scheduleType: 'days',
     }
+  }
+
+  getUserIndex = () => {
+    const url = Utils.buildRequestUrl('/initials')
+    const token = localStorage.getItem('token')
+    fetch(url, {
+      method: 'GET',
+      headers: { 'X-Reach-token': token },
+    })
+      .then((_res) => _res.json())
+      .then((res) => {
+        const { is_authenticated, users } = res
+        if (is_authenticated) {
+          this.setState({ users })
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
   }
 
   changeScheduleType = (scheduleType) => {
@@ -107,10 +129,10 @@ export default class Main extends PureComponent {
   }
 
   render() {
-    const { scheduleType } = this.state
+    const { scheduleType, users } = this.state
     return (
       <div className="mainContainer">
-        <Header scheduleType={scheduleType} onClick={this.changeScheduleType} />
+        <Header users={users} scheduleType={scheduleType} onClick={this.changeScheduleType} />
         <div className="gantt">
           <div className="gantt-index">
             <div className="gantt-index-header">
