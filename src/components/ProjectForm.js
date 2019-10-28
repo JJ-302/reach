@@ -1,14 +1,42 @@
 import React, { Component } from 'react'
 
+import Utils from '../Utils'
+import ErrorMessage from './Error'
 import '../css/Form.scss'
 
 export default class ProjectForm extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      name: props.name,
-      description: props.description,
+      name: '',
+      description: '',
+      errors: [],
     }
+  }
+
+  handleCreate = () => {
+    const { name, description } = this.state
+    const url = Utils.buildRequestUrl('/projects')
+    const token = localStorage.getItem('token')
+    const params = { name, description }
+    fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Reach-token': token },
+      body: JSON.stringify(params),
+    })
+      .then((_res) => _res.json())
+      .then((res) => {
+        const { is_created, errors } = res
+        if (is_created) {
+          const { closeModal } = this.props
+          closeModal()
+        } else {
+          this.setState({ errors })
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
   }
 
   onChangeName = (event) => {
@@ -27,7 +55,7 @@ export default class ProjectForm extends Component {
 
   render() {
     const { closeModal, action } = this.props
-    const { name, description } = this.state
+    const { name, description, errors } = this.state
     return (
       <div className="modalOverlay" onClick={closeModal}>
         <div className="modalForm" onClick={this.onClickOverlay}>
@@ -35,6 +63,7 @@ export default class ProjectForm extends Component {
             {action}
             Project
           </div>
+          {errors.length !== 0 && <ErrorMessage action="Project creation" errors={errors} />}
           <input
             type="text"
             className="modalForm__textInput"
@@ -48,7 +77,7 @@ export default class ProjectForm extends Component {
             value={description}
             onChange={this.onChangeDescription}
           />
-          <button type="button" onClick={closeModal} className="modalForm__button">
+          <button type="button" onClick={this.handleCreate} className="modalForm__button">
             {action}
           </button>
         </div>
