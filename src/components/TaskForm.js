@@ -120,6 +120,7 @@ export default class TaskForm extends Component {
           const { tasks, onRefresh } = this.props
           tasks.push(task)
           onRefresh(tasks)
+          this.setState({ errors: [] })
         } else {
           this.setState({ errors })
         }
@@ -164,6 +165,7 @@ export default class TaskForm extends Component {
             onChange={this.onChangeResource}
             className="taskFormRow__resource"
           >
+            <option key="default" value={null} aria-label="...select" />
             <Resources resources={resources} />
           </select>
           <div className="taskFormRow__divide" />
