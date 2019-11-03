@@ -7,11 +7,11 @@ import '../css/Main.scss'
 
 import Utils from '../Utils'
 
-import Data from '../TemporalyData'
-import date from '../TemporalyDateRange'
-
 const sun = 0
 const sat = 6
+const startDate = Utils.dateRangeStart()
+const endDate = Utils.dateRangeEnd()
+
 
 const whatDayIsToday = (day) => {
   switch (day.get('day')) {
@@ -30,7 +30,7 @@ const scheduleAttr = (day, scheduleType) => {
     attr.formatDate = day.format('MMM D')
     attr.className = `gantt-schedule-header__date${whatDayIsToday(day)}`
   } else {
-    const startOfWeek = day.startOf('week').add(1, 'day')
+    const startOfWeek = day.startOf('week')
     attr.formatDate = `W${day.format('W')} ${startOfWeek.format('M/D')}`
     attr.className = 'gantt-schedule-header__week'
   }
@@ -39,7 +39,7 @@ const scheduleAttr = (day, scheduleType) => {
 
 const Schedule = ({ scheduleType }) => {
   const schedules = []
-  for (let day = Moment(date.startDate); day <= date.endDate; day.add(1, scheduleType)) {
+  for (let day = Moment(startDate); day <= endDate; day.add(1, scheduleType)) {
     const attr = scheduleAttr(day, scheduleType)
     schedules.push(
       <div className={attr.className} key={day.format('YYYYMMDD')}>
@@ -98,25 +98,28 @@ const Header = (props) => {
 export default class Main extends PureComponent {
   constructor(props) {
     super(props)
-    this.getUserIndex()
     this.state = {
       users: [],
+      projects: [],
       scheduleType: 'days',
     }
   }
 
+  componentDidMount() {
+    this.getUserIndex()
+  }
+
   getUserIndex = () => {
-    const url = Utils.buildRequestUrl('/initials')
+    const url = Utils.buildRequestUrl('/projects')
     const token = localStorage.getItem('token')
     fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': token },
     })
       .then((_res) => _res.json())
-      .then((res) => {
-        const { is_authenticated, users } = res
+      .then(({ is_authenticated, users, projects }) => {
         if (is_authenticated) {
-          this.setState({ users })
+          this.setState({ users, projects })
         }
       })
       .catch(() => {
@@ -129,7 +132,7 @@ export default class Main extends PureComponent {
   }
 
   render() {
-    const { scheduleType, users } = this.state
+    const { scheduleType, users, projects } = this.state
     return (
       <div className="mainContainer">
         <Header users={users} scheduleType={scheduleType} onClick={this.changeScheduleType} />
@@ -143,13 +146,13 @@ export default class Main extends PureComponent {
               <div className="gantt-index-header__duration">Duration</div>
               <div className="gantt-index-header__inCharge">InCharge</div>
             </div>
-            <Project projects={Data} />
+            <Project projects={projects} />
           </div>
           <div className="gantt-schedule">
             <div className="gantt-schedule-header">
               <Schedule scheduleType={scheduleType} />
             </div>
-            <Gantt projects={Data} scheduleType={scheduleType} />
+            <Gantt projects={projects} scheduleType={scheduleType} />
           </div>
         </div>
       </div>

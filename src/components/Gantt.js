@@ -3,21 +3,19 @@ import Moment from 'moment'
 
 import ChartBar from './ChartBar'
 import '../css/Project.scss'
+import Utils from '../Utils'
 
-import date from '../TemporalyDateRange'
-
+const start = Utils.dateRangeStart()
 const baseChartWidth = 45
 
 const calcOffset = (content) => {
-  const start = Moment(date.startDate)
   const offset = Moment(content.startDate, 'YYYY/MM/DD').diff(start, 'days')
-  return offset * baseChartWidth
+  return (offset + 1) * baseChartWidth
 }
 
 const calcOffsetForWeeks = (content) => {
-  const start = Moment(date.startDate).startOf('week')
   const offset = Moment(content.startDate, 'YYYY/MM/DD').startOf('week').diff(start, 'weeks')
-  return offset * baseChartWidth
+  return (offset + 1) * baseChartWidth
 }
 
 const calcChartWidthForWeeks = (task) => {
@@ -26,26 +24,24 @@ const calcChartWidthForWeeks = (task) => {
   return Math.ceil(endDate.diff(startDate, 'weeks', true))
 }
 
-const Gantt = (props) => {
-  const projects = props.projects.map((project) => {
-    const chartWidth = baseChartWidth * project.duration
-    const offset = calcOffset(project)
-    return (
-      <div key={project.name} className="project">
-        <div style={{ paddingLeft: offset }} className="projectHeader">
-          <ChartBar chartWidth={chartWidth} data={project} />
-        </div>
-        <Task tasks={project.tasks} scheduleType={props.scheduleType} />
-      </div>
-    )
-  })
-  return projects
-}
+const isBefore = (task) => Moment(task.startDate, 'YYYY/MM/DD').isBefore(start)
+
+const Gantt = (props) => (
+  props.projects.map((project) => (
+    <div key={project.name} className="project">
+      <div className="projectHeader" />
+      <Task tasks={project.tasks} scheduleType={props.scheduleType} />
+    </div>
+  ))
+)
 
 const Task = (props) => {
   const tasks = props.tasks.map((task) => {
-    const diff = props.scheduleType === 'days' ? task.duration : calcChartWidthForWeeks(task)
     const offset = props.scheduleType === 'days' ? calcOffset(task) : calcOffsetForWeeks(task)
+    let diff = props.scheduleType === 'days' ? task.duration : calcChartWidthForWeeks(task)
+    if (isBefore(task)) {
+      diff -= start.diff(Moment(task.startDate, 'YYYY/MM/DD'), 'days')
+    }
     const chartWidth = baseChartWidth * diff
     return (
       <div key={task.id} style={{ paddingLeft: offset }} className="task">

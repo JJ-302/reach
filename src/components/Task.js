@@ -17,7 +17,7 @@ const Task = (props) => {
       <div className="task__extend">{task.extend}</div>
       <div className="task__duration">{task.duration}</div>
       <div className="task__inCharge">
-        <Avatars members={task.member_tasks} />
+        <Avatars members={task.users} />
       </div>
     </div>
   ))

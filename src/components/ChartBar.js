@@ -27,7 +27,7 @@ export default class ChartBar extends Component {
     const { isHover, offsetX, offsetY } = this.state
     return (
       <div
-        style={{ width: chartWidth }}
+        style={{ width: chartWidth, backgroundColor: data.resource.color }}
         className="chartbar"
         onMouseEnter={this.onMouseEnter}
         onMouseLeave={this.onMouseLeave}
