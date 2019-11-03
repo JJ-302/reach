@@ -1,10 +1,11 @@
 import React, { Component } from 'react'
 import DatePicker from 'react-datepicker'
+import Moment from 'moment'
 import 'react-datepicker/dist/react-datepicker.css'
 
+import ErrorMessage from './Error'
 import '../css/Form.scss'
-
-import members from '../TemporalyMembers'
+import Utils from '../Utils'
 
 const notExist = -1
 
@@ -12,17 +13,50 @@ export default class TaskForm extends Component {
   constructor(props) {
     super(props)
     this.state = {
+      token: '',
+      resources: [],
+      users: [],
       name: '',
+      resource: '',
       startDate: null,
       endDate: null,
       inCharge: [],
       description: '',
+      errors: [],
     }
+  }
+
+  componentDidMount() {
+    this.getTaskFormValue()
+  }
+
+  getTaskFormValue = () => {
+    const token = localStorage.getItem('token')
+    const url = Utils.buildRequestUrl('/tasks/new')
+    fetch(url, {
+      method: 'GET',
+      headers: { 'X-Reach-token': token },
+    })
+      .then((_res) => _res.json())
+      .then((res) => {
+        const { is_authenticated, resources, users } = res
+        if (is_authenticated) {
+          this.setState({ resources, users, token })
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
   }
 
   onChangeName = (event) => {
     const name = event.target.value
     this.setState({ name })
+  }
+
+  onChangeResource = (event) => {
+    const resource = event.target.value
+    this.setState({ resource })
   }
 
   onChangeStartDate = (date) => {
@@ -52,37 +86,68 @@ export default class TaskForm extends Component {
   }
 
   createTask = () => {
-    const { tasks, onRefresh } = this.props
-    const task = {
-      id: '6666',
-      name: 'task_1',
-      startDate: '2019/01/01',
-      endDate: '2019/11/30',
-      duration: 10,
-      percentComplete: 50,
-      member_tasks: [
-        { name: 'member_1', avatar: 'https://placeimg.com/140/140/any' },
-        { name: 'member_2', avatar: 'https://placeimg.com/140/140/any' },
-      ],
-    }
-    tasks.push(task)
-    onRefresh(tasks)
-  }
-
-  render() {
-    const { closeModal } = this.props
     const {
+      token,
       name,
+      resource,
       startDate,
       endDate,
       inCharge,
       description,
     } = this.state
 
+    const url = Utils.buildRequestUrl('/tasks')
+    const duration = Moment(endDate).diff(Moment(startDate), 'days')
+    const params = {
+      name,
+      description,
+      duration,
+      resource_id: resource,
+      project_id: 1,
+      start_date: startDate,
+      end_date: endDate,
+      user_ids: inCharge,
+    }
+
+    fetch(url, {
+      method: 'POST',
+      headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
+      body: JSON.stringify(params),
+    })
+      .then((_res) => _res.json())
+      .then(({ is_created, errors, task }) => {
+        if (is_created) {
+          const { tasks, onRefresh } = this.props
+          tasks.push(task)
+          onRefresh(tasks)
+        } else {
+          this.setState({ errors })
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
+  }
+
+  render() {
+    const { closeModal } = this.props
+    const {
+      users,
+      resources,
+      resource,
+      name,
+      startDate,
+      endDate,
+      inCharge,
+      description,
+      errors,
+    } = this.state
+
     return (
       <div className="taskForm">
         <div className="taskForm__close" onClick={closeModal}>×</div>
         <div className="taskForm__title">Add Task</div>
+        {errors.length !== 0 && <ErrorMessage action="Task creation" errors={errors} />}
         <div className="taskFormRow">
           <div className="taskFormRow__label">Name</div>
           <input
@@ -91,6 +156,17 @@ export default class TaskForm extends Component {
             value={name}
             onChange={this.onChangeName}
           />
+        </div>
+        <div className="taskFormRow">
+          <div className="taskFormRow__label">Resource</div>
+          <select
+            value={resource}
+            onChange={this.onChangeResource}
+            className="taskFormRow__resource"
+          >
+            <Resources resources={resources} />
+          </select>
+          <div className="taskFormRow__divide" />
         </div>
         <div className="taskFormRow">
           <div className="taskFormRow__label">Start date</div>
@@ -115,7 +191,7 @@ export default class TaskForm extends Component {
         <div className="taskFormRow">
           <div className="taskFormRow__label">In charge</div>
           <div className="taskFormRow__inCharge">
-            <Users inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
+            <Users users={users} inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
           </div>
         </div>
         <div className="taskFormRow">
@@ -134,9 +210,17 @@ export default class TaskForm extends Component {
   }
 }
 
+const Resources = (props) => {
+  const { resources } = props
+  const options = resources.map((resource) => (
+    <option key={resource.id} value={resource.id}>{resource.name}</option>
+  ))
+  return options
+}
+
 const Users = (props) => {
-  const { onClickAvatar, inCharge } = props
-  const users = members.map((user) => {
+  const { users, onClickAvatar, inCharge } = props
+  return users.map((user) => {
     const targetIndex = inCharge.indexOf(String(user.id))
     return (
       <div key={user.id} className="avatar">
@@ -148,5 +232,4 @@ const Users = (props) => {
       </div>
     )
   })
-  return users
 }
