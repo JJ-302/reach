@@ -26,9 +26,10 @@ export default class ProjectForm extends Component {
     })
       .then((_res) => _res.json())
       .then((res) => {
-        const { is_created, errors } = res
+        const { is_created, errors, project } = res
         if (is_created) {
-          const { closeModal } = this.props
+          const { closeModal, refresh } = this.props
+          refresh(project)
           closeModal()
         } else {
           this.setState({ errors })

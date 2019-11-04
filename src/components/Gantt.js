@@ -30,13 +30,13 @@ const Gantt = (props) => (
   props.projects.map((project) => (
     <div key={project.name} className="project">
       <div className="projectHeader" />
-      <Task tasks={project.tasks} scheduleType={props.scheduleType} />
+      {project.tasks && <Task tasks={project.tasks} scheduleType={props.scheduleType} />}
     </div>
   ))
 )
 
-const Task = (props) => {
-  const tasks = props.tasks.map((task) => {
+const Task = (props) => (
+  props.tasks.map((task) => {
     const offset = props.scheduleType === 'days' ? calcOffset(task) : calcOffsetForWeeks(task)
     let diff = props.scheduleType === 'days' ? task.duration : calcChartWidthForWeeks(task)
     if (isBefore(task)) {
@@ -49,7 +49,6 @@ const Task = (props) => {
       </div>
     )
   })
-  return tasks
-}
+)
 
 export default Gantt

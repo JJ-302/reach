@@ -9,7 +9,6 @@ class Project extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      tasks: props.project.tasks,
       isVisible: false,
     }
   }
@@ -28,7 +27,8 @@ class Project extends Component {
 
   render() {
     const { project } = this.props
-    const { tasks, isVisible } = this.state
+    const { tasks } = project
+    const { isVisible } = this.state
     return (
       <div key={project.name} className="project">
         <div className="projectHeader">
@@ -39,19 +39,19 @@ class Project extends Component {
             onClick={this.openModal}
           />
         </div>
-        <Task tasks={tasks} />
+        {tasks && <Task tasks={tasks} />}
         {isVisible
-          && <TaskForm tasks={tasks} onRefresh={this.refreshTasks} closeModal={this.closeModal} />}
+          && <TaskForm tasks={tasks} closeModal={this.closeModal} />}
       </div>
     )
   }
 }
 
 const Projects = (props) => {
-  const projects = props.projects.map((project) => (
+  const { projects } = props
+  return projects.map((project) => (
     <Project project={project} key={project.name} />
   ))
-  return projects
 }
 
 export default Projects

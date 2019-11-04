@@ -1,55 +1,54 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import ProjectForm from './ProjectForm'
 import ResourceForm from './ResourceForm'
 import '../css/SideBar.scss'
 
-export default class SideBar extends Component {
+export default class SideBar extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      modalVisible: false,
-      formType: '',
+      projectFormVisible: false,
+      resourceFormVisible: false,
     }
   }
 
-  openModal = (formType) => {
-    this.setState({ modalVisible: true, formType })
+  openProjectForm = () => {
+    this.setState({ projectFormVisible: true })
   }
 
-  closeModal = () => {
-    this.setState({ modalVisible: false })
+  closeProjectForm = () => {
+    this.setState({ projectFormVisible: false })
+  }
+
+  openResourceForm = () => {
+    this.setState({ resourceFormVisible: true })
+  }
+
+  closeResourceForm = () => {
+    this.setState({ resourceFormVisible: false })
   }
 
   render() {
-    const { modalVisible, formType } = this.state
+    const { projectFormVisible, resourceFormVisible } = this.state
+    const { refreshProject } = this.props
     return (
       <div className="sidebar">
         <FontAwesomeIcon
           icon={['fas', 'plus']}
           className="sidebar__icon"
-          onClick={() => this.openModal('project')}
+          onClick={this.openProjectForm}
         />
         <FontAwesomeIcon
           icon={['fas', 'tags']}
           className="sidebar__icon"
-          onClick={() => this.openModal('resource')}
+          onClick={this.openResourceForm}
         />
-        {modalVisible && <Form formType={formType} closeModal={this.closeModal} />}
+        {projectFormVisible
+          && <ProjectForm action="Create" refresh={refreshProject} closeModal={this.closeProjectForm} />}
+        {resourceFormVisible && <ResourceForm action="Create" closeModal={this.closeResourceForm} />}
       </div>
     )
-  }
-}
-
-const Form = (props) => {
-  const { formType, closeModal } = props
-  switch (formType) {
-    case 'project':
-      return <ProjectForm action="Create" closeModal={closeModal} />
-    case 'resource':
-      return <ResourceForm action="Create" closeModal={closeModal} />
-    default:
-      return null
   }
 }

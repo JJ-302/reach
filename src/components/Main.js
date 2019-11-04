@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react'
 import Moment from 'moment'
 
+import SideBar from './SideBar'
 import Project from './Project'
 import Gantt from './Gantt'
 import '../css/Main.scss'
@@ -131,28 +132,38 @@ export default class Main extends PureComponent {
     this.setState({ scheduleType })
   }
 
+  refreshProject = (project) => {
+    const { projects } = this.state
+    const projectsCopy = projects.slice()
+    projectsCopy.push(project)
+    this.setState({ projects: projectsCopy })
+  }
+
   render() {
     const { scheduleType, users, projects } = this.state
     return (
-      <div className="mainContainer">
-        <Header users={users} scheduleType={scheduleType} onClick={this.changeScheduleType} />
-        <div className="gantt">
-          <div className="gantt-index">
-            <div className="gantt-index-header">
-              <div className="gantt-index-header__name">Name</div>
-              <div className="gantt-index-header__startDate">StartDate</div>
-              <div className="gantt-index-header__endDate">EndDate</div>
-              <div className="gantt-index-header__extend">Extend</div>
-              <div className="gantt-index-header__duration">Duration</div>
-              <div className="gantt-index-header__inCharge">InCharge</div>
+      <div className="App">
+        <SideBar refreshProject={this.refreshProject} />
+        <div className="mainContainer">
+          <Header users={users} scheduleType={scheduleType} onClick={this.changeScheduleType} />
+          <div className="gantt">
+            <div className="gantt-index">
+              <div className="gantt-index-header">
+                <div className="gantt-index-header__name">Name</div>
+                <div className="gantt-index-header__startDate">StartDate</div>
+                <div className="gantt-index-header__endDate">EndDate</div>
+                <div className="gantt-index-header__extend">Extend</div>
+                <div className="gantt-index-header__duration">Duration</div>
+                <div className="gantt-index-header__inCharge">InCharge</div>
+              </div>
+              <Project refreshProject={this.refreshProject} projects={projects} />
             </div>
-            <Project projects={projects} />
-          </div>
-          <div className="gantt-schedule">
-            <div className="gantt-schedule-header">
-              <Schedule scheduleType={scheduleType} />
+            <div className="gantt-schedule">
+              <div className="gantt-schedule-header">
+                <Schedule scheduleType={scheduleType} />
+              </div>
+              <Gantt projects={projects} scheduleType={scheduleType} />
             </div>
-            <Gantt projects={projects} scheduleType={scheduleType} />
           </div>
         </div>
       </div>

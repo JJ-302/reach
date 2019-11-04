@@ -6,11 +6,9 @@ import {
   Redirect,
 } from 'react-router-dom'
 
-import SideBar from './SideBar'
 import Main from './Main'
 import SignIn from './SignIn'
 import SignUp from './SignUp'
-import '../css/App.scss'
 
 class Home extends Component {
   constructor(props) {
@@ -24,14 +22,7 @@ class Home extends Component {
 
   render() {
     const { isAuthenticated } = this.state
-    return (
-      isAuthenticated ? (
-        <div className="App">
-          <SideBar />
-          <Main />
-        </div>
-      ) : <Redirect to="/signin" />
-    )
+    return isAuthenticated ? <Main /> : <Redirect to="/signin" />
   }
 }
 
