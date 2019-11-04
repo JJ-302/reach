@@ -1,10 +1,10 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 
 import Utils from '../Utils'
 import ErrorMessage from './Error'
 import '../css/Form.scss'
 
-export default class ProjectForm extends Component {
+export default class ProjectForm extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {

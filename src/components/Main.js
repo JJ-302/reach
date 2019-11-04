@@ -51,12 +51,11 @@ const Schedule = ({ scheduleType }) => {
   return schedules
 }
 
-const Avatars = ({ users }) => {
-  const avatars = users.map((user) => (
+const Avatars = ({ users }) => (
+  users.map((user) => (
     <img key={user.id} src={user.avatar} alt={user.name} className="member__avatar" />
   ))
-  return avatars
-}
+)
 
 const Header = (props) => {
   const { users, scheduleType, onClick } = props
@@ -71,8 +70,9 @@ const Header = (props) => {
       <div className="switchView">
         <div
           className={className.weeks}
-          onClick={() => onClick('weeks')}
-          onKeyUp={() => onClick('weeks')}
+          onClick={onClick}
+          onKeyUp={onClick}
+          data-type="weeks"
           role="link"
           tabIndex="0"
         >
@@ -81,8 +81,9 @@ const Header = (props) => {
         <div className="switchView__divider">|</div>
         <div
           className={className.days}
-          onClick={() => onClick('days')}
-          onKeyUp={() => onClick('days')}
+          onClick={onClick}
+          onKeyUp={onClick}
+          data-type="days"
           role="link"
           tabIndex="0"
         >
@@ -102,7 +103,7 @@ export default class Main extends PureComponent {
     this.state = {
       users: [],
       projects: [],
-      scheduleType: 'days',
+      type: 'days',
     }
   }
 
@@ -128,8 +129,9 @@ export default class Main extends PureComponent {
       })
   }
 
-  changeScheduleType = (scheduleType) => {
-    this.setState({ scheduleType })
+  changeScheduleType = (event) => {
+    const { type } = event.target.dataset
+    this.setState({ type })
   }
 
   refreshProject = (project) => {
@@ -147,12 +149,12 @@ export default class Main extends PureComponent {
   }
 
   render() {
-    const { scheduleType, users, projects } = this.state
+    const { type, users, projects } = this.state
     return (
       <div className="App">
         <SideBar refreshProject={this.refreshProject} />
         <div className="mainContainer">
-          <Header users={users} scheduleType={scheduleType} onClick={this.changeScheduleType} />
+          <Header users={users} scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
             <div className="gantt-index">
               <div className="gantt-index-header">
@@ -167,9 +169,9 @@ export default class Main extends PureComponent {
             </div>
             <div className="gantt-schedule">
               <div className="gantt-schedule-header">
-                <Schedule scheduleType={scheduleType} />
+                <Schedule scheduleType={type} />
               </div>
-              <Gantt projects={projects} scheduleType={scheduleType} />
+              <Gantt projects={projects} scheduleType={type} />
             </div>
           </div>
         </div>

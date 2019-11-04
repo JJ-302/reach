@@ -1,8 +1,8 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 
 import '../css/ChartBar.scss'
 
-export default class ChartBar extends Component {
+export default class ChartBar extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {

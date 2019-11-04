@@ -212,17 +212,14 @@ export default class TaskForm extends Component {
   }
 }
 
-const Resources = (props) => {
-  const { resources } = props
-  const options = resources.map((resource) => (
+const Resources = ({ resources }) => (
+  resources.map((resource) => (
     <option key={resource.id} value={resource.id}>{resource.name}</option>
   ))
-  return options
-}
+)
 
-const Users = (props) => {
-  const { users, onClickAvatar, inCharge } = props
-  return users.map((user) => {
+const Users = ({ users, onClickAvatar, inCharge }) => (
+  users.map((user) => {
     const targetIndex = inCharge.indexOf(String(user.id))
     return (
       <div key={user.id} className="avatar">
@@ -234,4 +231,4 @@ const Users = (props) => {
       </div>
     )
   })
-}
+)

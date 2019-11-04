@@ -1,15 +1,14 @@
 import React from 'react'
 import '../css/Task.scss'
 
-const Avatars = ({ members }) => {
-  const avatars = members.map((member) => (
+const Avatars = ({ members }) => (
+  members.map((member) => (
     <img key={member.name} src={member.avatar} alt={member.name} className="task__avatar" />
   ))
-  return avatars
-}
+)
 
-const Task = (props) => {
-  const tasks = props.tasks.map((task) => (
+const Task = (props) => (
+  props.tasks.map((task) => (
     <div key={task.id} className="task">
       <div className="task__name">{task.name}</div>
       <div className="task__startDate">{task.startDate}</div>
@@ -21,7 +20,6 @@ const Task = (props) => {
       </div>
     </div>
   ))
-  return tasks
-}
+)
 
 export default Task

@@ -1,12 +1,11 @@
-import React, { Component } from 'react'
+import React, { PureComponent } from 'react'
 
 import Utils from '../Utils'
 import ErrorMessage from './Error'
 
-export default class ResourceForm extends Component {
+export default class ResourceForm extends PureComponent {
   constructor(props) {
     super(props)
-    this.getIndexColors()
     this.state = {
       name: '',
       token: '',
@@ -14,6 +13,10 @@ export default class ResourceForm extends Component {
       pickedColor: '',
       errors: [],
     }
+  }
+
+  componentDidMount() {
+    this.getIndexColors()
   }
 
   getIndexColors = () => {
@@ -24,9 +27,9 @@ export default class ResourceForm extends Component {
       headers: { 'X-Reach-token': token },
     })
       .then((_res) => _res.json())
-      .then((res) => {
-        if (res.is_authenticated) {
-          this.setState({ colors: res.colors, token })
+      .then(({ is_authenticated, colors }) => {
+        if (is_authenticated) {
+          this.setState({ colors, token })
         }
       })
       .catch(() => {
@@ -113,8 +116,8 @@ export default class ResourceForm extends Component {
   }
 }
 
-const ColorPallets = ({ colors, pickedColor, onPickColor }) => {
-  const colorPallets = colors.map((color) => {
+const ColorPallets = ({ colors, pickedColor, onPickColor }) => (
+  colors.map((color) => {
     const modifier = pickedColor === String(color.id) ? '--selected' : ''
     const className = `colorPallet__body${modifier}`
     return (
@@ -128,5 +131,4 @@ const ColorPallets = ({ colors, pickedColor, onPickColor }) => {
       </div>
     )
   })
-  return colorPallets
-}
+)
