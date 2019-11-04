@@ -21,18 +21,14 @@ class Project extends Component {
     this.setState({ isVisible: false })
   }
 
-  refreshTasks = (tasks) => {
-    this.setState({ tasks })
-  }
-
   render() {
-    const { project } = this.props
-    const { tasks } = project
+    const { project, index, refreshTask } = this.props
+    const { tasks, name, id } = project
     const { isVisible } = this.state
     return (
-      <div key={project.name} className="project">
+      <div key={name} className="project">
         <div className="projectHeader">
-          <div className="projectHeader__name">{project.name}</div>
+          <div className="projectHeader__name">{name}</div>
           <FontAwesomeIcon
             icon={['fas', 'plus']}
             className="projectHeader__addTask"
@@ -41,16 +37,16 @@ class Project extends Component {
         </div>
         {tasks && <Task tasks={tasks} />}
         {isVisible
-          && <TaskForm tasks={tasks} closeModal={this.closeModal} />}
+          && <TaskForm id={id} refresh={refreshTask} index={index} closeModal={this.closeModal} />}
       </div>
     )
   }
 }
 
 const Projects = (props) => {
-  const { projects } = props
-  return projects.map((project) => (
-    <Project project={project} key={project.name} />
+  const { projects, refreshTask } = props
+  return projects.map((project, index) => (
+    <Project refreshTask={refreshTask} project={project} key={project.name} index={index} />
   ))
 }
 

@@ -139,6 +139,13 @@ export default class Main extends PureComponent {
     this.setState({ projects: projectsCopy })
   }
 
+  refreshTask = (task, index) => {
+    const { projects } = this.state
+    const projectsCopy = projects.slice()
+    projectsCopy[index].tasks.push(task)
+    this.setState({ projects: projectsCopy })
+  }
+
   render() {
     const { scheduleType, users, projects } = this.state
     return (
@@ -156,7 +163,7 @@ export default class Main extends PureComponent {
                 <div className="gantt-index-header__duration">Duration</div>
                 <div className="gantt-index-header__inCharge">InCharge</div>
               </div>
-              <Project refreshProject={this.refreshProject} projects={projects} />
+              <Project refreshTask={this.refreshTask} projects={projects} />
             </div>
             <div className="gantt-schedule">
               <div className="gantt-schedule-header">

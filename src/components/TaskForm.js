@@ -86,6 +86,7 @@ export default class TaskForm extends Component {
   }
 
   createTask = () => {
+    const { id } = this.props
     const {
       token,
       name,
@@ -103,7 +104,7 @@ export default class TaskForm extends Component {
       description,
       duration,
       resource_id: resource,
-      project_id: 1,
+      project_id: id,
       start_date: startDate,
       end_date: endDate,
       user_ids: inCharge,
@@ -117,9 +118,8 @@ export default class TaskForm extends Component {
       .then((_res) => _res.json())
       .then(({ is_created, errors, task }) => {
         if (is_created) {
-          const { tasks, onRefresh } = this.props
-          tasks.push(task)
-          onRefresh(tasks)
+          const { refresh, index } = this.props
+          refresh(task, index)
           this.setState({ errors: [] })
         } else {
           this.setState({ errors })
