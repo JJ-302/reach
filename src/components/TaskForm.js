@@ -27,7 +27,12 @@ export default class TaskForm extends Component {
   }
 
   componentDidMount() {
-    this.getTaskFormValue()
+    const { taskID, action } = this.props
+    if (action === 'new') {
+      this.getTaskFormValue()
+    } else if (action === 'edit') {
+      this.editTaskFormValue(taskID)
+    }
   }
 
   getTaskFormValue = () => {
@@ -42,6 +47,44 @@ export default class TaskForm extends Component {
         const { is_authenticated, resources, users } = res
         if (is_authenticated) {
           this.setState({ resources, users, token })
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
+  }
+
+  editTaskFormValue = (taskID) => {
+    const token = localStorage.getItem('token')
+    const url = Utils.buildRequestUrl(`/tasks/${taskID}/edit`)
+    fetch(url, {
+      method: 'GET',
+      headers: { 'X-Reach-token': token },
+    })
+      .then((_res) => _res.json())
+      .then((res) => {
+        const { is_authenticated, resources, users } = res
+        if (is_authenticated) {
+          const {
+            description,
+            startDate,
+            endDate,
+            name,
+            userIds,
+            resourceId,
+          } = res.task
+
+          const stringUserIds = userIds.map((userId) => String(userId))
+          this.setState({
+            resources,
+            users,
+            name,
+            description,
+            startDate: new Date(startDate),
+            endDate: new Date(endDate),
+            inCharge: stringUserIds,
+            resource: resourceId,
+          })
         }
       })
       .catch(() => {

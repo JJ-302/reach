@@ -2,6 +2,10 @@
 
 .task {
   @include chart-bar();
+  cursor: pointer;
+  &:hover {
+    background-color: rgba(220, 220, 220, 0.3);
+  }
   &__name {
     @include base-label($width: 150px, $text-align: left);
     white-space: nowrap;

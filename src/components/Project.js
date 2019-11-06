@@ -13,7 +13,9 @@ class Project extends Component {
     }
   }
 
-  openModal = () => {
+  openModal = (event) => {
+    this.id = event.currentTarget.dataset.id || null
+    this.action = event.currentTarget.dataset.action
     this.setState({ isVisible: true })
   }
 
@@ -31,13 +33,23 @@ class Project extends Component {
           <div className="projectHeader__name">{name}</div>
           <FontAwesomeIcon
             icon={['fas', 'plus']}
+            data-action="new"
             className="projectHeader__addTask"
             onClick={this.openModal}
           />
         </div>
-        {tasks && <Task tasks={tasks} />}
+        {tasks && <Task tasks={tasks} onClick={this.openModal} />}
         {isVisible
-          && <TaskForm id={id} refresh={refreshTask} index={index} closeModal={this.closeModal} />}
+          && (
+            <TaskForm
+              id={id}
+              action={this.action}
+              taskID={this.id}
+              refresh={refreshTask}
+              index={index}
+              closeModal={this.closeModal}
+            />
+          )}
       </div>
     )
   }

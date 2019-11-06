@@ -9,7 +9,7 @@ const Avatars = ({ members }) => (
 
 const Task = (props) => (
   props.tasks.map((task) => (
-    <div key={task.id} className="task">
+    <div key={task.id} data-action="edit" data-id={task.id} className="task" onClick={props.onClick}>
       <div className="task__name">{task.name}</div>
       <div className="task__startDate">{task.startDate}</div>
       <div className="task__endDate">{task.endDate}</div>
