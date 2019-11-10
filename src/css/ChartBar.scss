@@ -8,6 +8,7 @@
 .window {
   position: fixed;
   min-width: 200px;
+  max-width: 300px;
   background: rgba(0, 0, 0, 0.7);
   z-index: 50;
   box-shadow: $box-shadow;
@@ -17,6 +18,12 @@
   &Row {
     display: flex;
     justify-content: space-between;
+    margin-bottom: 10px;
+    &__label {
+      width: 75px;
+    }
+  }
+  &Col {
     margin-bottom: 10px;
     &__label {
       width: 75px;

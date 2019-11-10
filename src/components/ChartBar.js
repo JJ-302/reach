@@ -38,6 +38,10 @@ export default class ChartBar extends PureComponent {
   }
 }
 
+const Members = ({ users }) => (
+  users.map((user) => <div key={user.name} className="windowMembers__name">{user.name}</div>)
+)
+
 const Window = ({ data, offsetX, offsetY }) => (
   <div className="window" style={{ top: offsetY, left: offsetX }}>
     <div className="windowRow">
@@ -62,7 +66,13 @@ const Window = ({ data, offsetX, offsetY }) => (
     </div>
     <div className="windowRow">
       <div className="windowRow__label">InCharge:</div>
-      <div className="window__member" />
+      <div className="windowMembers">
+        <Members users={data.users} />
+      </div>
+    </div>
+    <div className="windowCol">
+      <div className="windowCol__label">Description:</div>
+      <div className="windowCol__description">{data.description}</div>
     </div>
   </div>
 )
