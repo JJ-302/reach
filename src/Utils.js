@@ -6,6 +6,17 @@ export default class Utils {
     return baseUrl + apiEndpoint
   }
 
+  static preparingRequest(action, id) {
+    switch (action) {
+      case 'new':
+        return { uriPattern: '/tasks', method: 'POST' }
+      case 'edit':
+        return { uriPattern: `/tasks/${id}`, method: 'PUT' }
+      default:
+        return null
+    }
+  }
+
   static dateRangeStart() {
     return Moment(new Date()).subtract(2, 'weeks')
   }

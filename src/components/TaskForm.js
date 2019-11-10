@@ -13,7 +13,6 @@ export default class TaskForm extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      token: '',
       resources: [],
       users: [],
       name: '',
@@ -36,17 +35,17 @@ export default class TaskForm extends Component {
   }
 
   getTaskFormValue = () => {
-    const token = localStorage.getItem('token')
+    this.token = localStorage.getItem('token')
     const url = Utils.buildRequestUrl('/tasks/new')
     fetch(url, {
       method: 'GET',
-      headers: { 'X-Reach-token': token },
+      headers: { 'X-Reach-token': this.token },
     })
       .then((_res) => _res.json())
       .then((res) => {
         const { is_authenticated, resources, users } = res
         if (is_authenticated) {
-          this.setState({ resources, users, token })
+          this.setState({ resources, users })
         }
       })
       .catch(() => {
@@ -55,11 +54,11 @@ export default class TaskForm extends Component {
   }
 
   editTaskFormValue = (taskID) => {
-    const token = localStorage.getItem('token')
+    this.token = localStorage.getItem('token')
     const url = Utils.buildRequestUrl(`/tasks/${taskID}/edit`)
     fetch(url, {
       method: 'GET',
-      headers: { 'X-Reach-token': token },
+      headers: { 'X-Reach-token': this.token },
     })
       .then((_res) => _res.json())
       .then((res) => {
@@ -129,9 +128,8 @@ export default class TaskForm extends Component {
   }
 
   createTask = () => {
-    const { id } = this.props
+    const { id, taskID, action } = this.props
     const {
-      token,
       name,
       resource,
       startDate,
@@ -140,7 +138,11 @@ export default class TaskForm extends Component {
       description,
     } = this.state
 
-    const url = Utils.buildRequestUrl('/tasks')
+    const request = Utils.preparingRequest(action, taskID)
+    if (request === null) {
+      return
+    }
+    const url = Utils.buildRequestUrl(request.uriPattern)
     const duration = Moment(endDate).diff(Moment(startDate), 'days')
     const params = {
       name,
@@ -153,16 +155,21 @@ export default class TaskForm extends Component {
       user_ids: inCharge,
     }
 
+    if (action === 'edit') {
+      params.extend = endDate
+      delete params.end_date
+    }
+
     fetch(url, {
-      method: 'POST',
-      headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
+      method: request.method,
+      headers: { 'X-Reach-token': this.token, 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
     })
       .then((_res) => _res.json())
       .then(({ is_created, errors, task }) => {
         if (is_created) {
           const { refresh, index } = this.props
-          refresh(task, index)
+          refresh(task, index, action)
           this.setState({ errors: [] })
         } else {
           this.setState({ errors })
@@ -174,7 +181,8 @@ export default class TaskForm extends Component {
   }
 
   render() {
-    const { closeModal } = this.props
+    const { closeModal, action } = this.props
+    const title = action === 'edit' ? 'Update' : 'Add'
     const {
       users,
       resources,
@@ -190,7 +198,10 @@ export default class TaskForm extends Component {
     return (
       <div className="taskForm">
         <div className="taskForm__close" onClick={closeModal}>×</div>
-        <div className="taskForm__title">Add Task</div>
+        <div className="taskForm__title">
+          {title}
+          Task
+        </div>
         {errors.length !== 0 && <ErrorMessage action="Task creation" errors={errors} />}
         <div className="taskFormRow">
           <div className="taskFormRow__label">Name</div>
@@ -248,7 +259,7 @@ export default class TaskForm extends Component {
           />
         </div>
         <button type="button" onClick={this.createTask} className="taskForm__button">
-          Add
+          {title}
         </button>
       </div>
     )

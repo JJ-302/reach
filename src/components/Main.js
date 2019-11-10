@@ -141,11 +141,25 @@ export default class Main extends PureComponent {
     this.setState({ projects: projectsCopy })
   }
 
-  refreshTask = (task, index) => {
+  refreshTask = (task, index, action) => {
     const { projects } = this.state
-    const projectsCopy = projects.slice()
-    projectsCopy[index].tasks.push(task)
-    this.setState({ projects: projectsCopy })
+    if (action === 'new') {
+      const projectsCopy = projects.slice()
+      projectsCopy[index].tasks.push(task)
+      this.setState({ projects: projectsCopy })
+    } else if (action === 'edit') {
+      const tasksCopy = projects[index].tasks.map((existingTask) => (
+        existingTask.id === task.id ? task : existingTask
+      ))
+      const projectsCopy = projects.map((_project, i) => {
+        const project = _project
+        if (index === i) {
+          project.tasks = tasksCopy
+        }
+        return project
+      })
+      this.setState({ projects: projectsCopy })
+    }
   }
 
   render() {
