@@ -67,6 +67,12 @@
       position: sticky;
       top: 0;
       z-index: 5;
+      span {
+        cursor: pointer;
+        &:hover {
+          color: $indigo;
+        }
+      }
       &__name {
         @include base-label($width: 150px, $text-align: left);
       }
@@ -117,5 +123,79 @@
         padding: 0 5px;
       }
     }
+  }
+}
+
+.search {
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px 30px;
+  box-shadow: $box-shadow;
+  border-radius: 3px;
+  background-color: rgba(0, 0, 0, 0.8);
+  &--name {
+    @extend .search;
+    position: absolute;
+    top: 40px;
+    left: 5px;
+  }
+  &--start {
+    @extend .search;
+    position: absolute;
+    top: 40px;
+    left: 150px;
+  }
+  &--end {
+    @extend .search;
+    position: absolute;
+    top: 40px;
+    left: 250px;
+  }
+  &--extend {
+    @extend .search;
+    position: absolute;
+    top: 40px;
+    left: 350px;
+  }
+  &--duration {
+    @extend .search;
+    position: absolute;
+    top: 40px;
+    left: 430px;
+  }
+  &__label {
+    color: $white;
+    margin-top: 30px;
+    margin-bottom: 3px;
+    font-size: 12px;
+  }
+  &__project {
+    @include text-input();
+    border: none;
+    width: 140px;
+  }
+  &__divide {
+    width: 100%;
+    height: 1px;
+    border-bottom: solid 1px $white;
+  }
+  &__task {
+    @include text-input();
+  }
+  &__dateWrapper {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+  }
+  &__dateRange {
+    @include text-input();
+    cursor: pointer;
+    margin-top: 10px;
+  }
+  &__order {
+    @include text-input();
+    border: none;
+    width: 140px;
   }
 }

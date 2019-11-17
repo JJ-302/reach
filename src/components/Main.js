@@ -2,6 +2,7 @@ import React, { PureComponent } from 'react'
 import Moment from 'moment'
 
 import SideBar from './SideBar'
+import GanttIndexHeader from './GanttIndexHeader'
 import Project from './Project'
 import Gantt from './Gantt'
 import '../css/Main.scss'
@@ -134,11 +135,13 @@ export default class Main extends PureComponent {
     this.setState({ type })
   }
 
+  updateProject = (projectsCopy) => this.setState({ projects: projectsCopy })
+
   refreshProject = (project) => {
     const { projects } = this.state
     const projectsCopy = projects.slice()
     projectsCopy.push(project)
-    this.setState({ projects: projectsCopy })
+    this.updateProject(projectsCopy)
   }
 
   refreshTask = (task, index, action) => {
@@ -146,7 +149,7 @@ export default class Main extends PureComponent {
     if (action === 'new') {
       const projectsCopy = projects.slice()
       projectsCopy[index].tasks.push(task)
-      this.setState({ projects: projectsCopy })
+      this.updateProject(projectsCopy)
     } else if (action === 'edit') {
       const tasksCopy = projects[index].tasks.map((existingTask) => (
         existingTask.id === task.id ? task : existingTask
@@ -158,7 +161,7 @@ export default class Main extends PureComponent {
         }
         return project
       })
-      this.setState({ projects: projectsCopy })
+      this.updateProject(projectsCopy)
     }
   }
 
@@ -171,14 +174,7 @@ export default class Main extends PureComponent {
           <Header users={users} scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
             <div className="gantt-index">
-              <div className="gantt-index-header">
-                <div className="gantt-index-header__name">Name</div>
-                <div className="gantt-index-header__startDate">StartDate</div>
-                <div className="gantt-index-header__endDate">EndDate</div>
-                <div className="gantt-index-header__extend">Extend</div>
-                <div className="gantt-index-header__duration">Duration</div>
-                <div className="gantt-index-header__inCharge">InCharge</div>
-              </div>
+              <GanttIndexHeader projects={projects} updateProject={this.updateProject} />
               <Project refreshTask={this.refreshTask} projects={projects} />
             </div>
             <div className="gantt-schedule">
