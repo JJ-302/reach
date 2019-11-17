@@ -4,6 +4,8 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 import Utils from '../Utils'
 
+const notExist = -1
+
 export default class GanttIndexHeader extends Component {
   constructor(props) {
     super(props)
@@ -12,6 +14,7 @@ export default class GanttIndexHeader extends Component {
       searchByNameVisible: false,
       searchByDateVisible: false,
       searchByDurationVisible: false,
+      searchByUsersVisible: false,
       dateType: '',
       projectId: '',
       taskName: '',
@@ -25,6 +28,7 @@ export default class GanttIndexHeader extends Component {
       orderStartDate: '',
       orderEndDate: '',
       orderExtend: '',
+      inCharge: [],
     }
   }
 
@@ -42,6 +46,7 @@ export default class GanttIndexHeader extends Component {
       orderStartDate,
       orderEndDate,
       orderExtend,
+      inCharge,
     } = this.state
 
     const url = Utils.buildRequestUrl('/tasks/search')
@@ -52,9 +57,9 @@ export default class GanttIndexHeader extends Component {
       end_date: { from: endDateFrom, to: endDateTo, order: orderEndDate },
       extend: { from: extendFrom, to: extendTo, order: orderExtend },
       duration: { order: orderDuration },
+      in_charge: inCharge,
     }
 
-    console.log(params)
     fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -65,8 +70,8 @@ export default class GanttIndexHeader extends Component {
         const { updateProject } = this.props
         updateProject(projects)
       })
-      .catch((err) => {
-        console.log('error: ', err)
+      .catch(() => {
+        // TODO
       })
   }
 
@@ -119,6 +124,7 @@ export default class GanttIndexHeader extends Component {
       searchByNameVisible: !searchByNameVisible,
       searchByDateVisible: false,
       searchByDurationVisible: false,
+      searchByUsersVisible: false,
     })
   }
 
@@ -128,6 +134,7 @@ export default class GanttIndexHeader extends Component {
     this.setState({
       searchByNameVisible: false,
       searchByDurationVisible: false,
+      searchByUsersVisible: false,
       searchByDateVisible: !searchByDateVisible,
       dateType: type,
     })
@@ -139,6 +146,17 @@ export default class GanttIndexHeader extends Component {
       searchByDurationVisible: !searchByDurationVisible,
       searchByNameVisible: false,
       searchByDateVisible: false,
+      searchByUsersVisible: false,
+    })
+  }
+
+  onClickInCharge = () => {
+    const { searchByUsersVisible } = this.state
+    this.setState({
+      searchByUsersVisible: !searchByUsersVisible,
+      searchByNameVisible: false,
+      searchByDateVisible: false,
+      searchByDurationVisible: false,
     })
   }
 
@@ -226,16 +244,32 @@ export default class GanttIndexHeader extends Component {
     this.search()
   }
 
+  onClickAvatar = async (event) => {
+    const { inCharge } = this.state
+    const inChargeCopy = inCharge
+    const { id } = event.currentTarget.dataset
+    const targetIndex = inCharge.indexOf(id)
+    if (targetIndex === notExist) {
+      inChargeCopy.push(id)
+    } else {
+      inChargeCopy.splice(targetIndex, 1)
+    }
+    await this.setState({ inCharge: inChargeCopy })
+    this.search()
+  }
+
   render() {
-    const { projects } = this.props
+    const { projects, users } = this.props
     const {
       searchByNameVisible,
       searchByDateVisible,
       searchByDurationVisible,
+      searchByUsersVisible,
       projectId,
       taskName,
       dateType,
       orderDuration,
+      inCharge,
     } = this.state
 
     const dateProps = this.sortingByDateRange(dateType)
@@ -264,7 +298,9 @@ export default class GanttIndexHeader extends Component {
         <div className="gantt-index-header__duration">
           <span onClick={this.onClickDuration}>Duration</span>
         </div>
-        <div className="gantt-index-header__inCharge">InCharge</div>
+        <div className="gantt-index-header__inCharge">
+          <span onClick={this.onClickInCharge}>InCharge</span>
+        </div>
         {searchByNameVisible && (
           <SearchByName
             projectId={projectId}
@@ -287,6 +323,9 @@ export default class GanttIndexHeader extends Component {
         )}
         {searchByDurationVisible && (
           <SearchByDuration onChangeOrder={this.onChangeOrder} selected={orderDuration} />
+        )}
+        {searchByUsersVisible && (
+          <SearchByUsers users={users} inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
         )}
       </div>
     )
@@ -385,3 +424,27 @@ const SearchByName = (props) => {
     </div>
   )
 }
+
+const Users = ({ users, onClickAvatar, inCharge }) => (
+  users.map((user) => {
+    const targetIndex = inCharge.indexOf(String(user.id))
+    return (
+      <div key={user.id} className="avatar">
+        <div data-id={user.id} onClick={onClickAvatar} className="avatar__wrapper">
+          <img src={user.avatar} alt={user.name} className="avatar__image" />
+          {targetIndex !== notExist && <div className="avatar__selected" />}
+        </div>
+        <div className="avatar__name">{user.name}</div>
+      </div>
+    )
+  })
+)
+
+const SearchByUsers = ({ users, inCharge, onClickAvatar }) => (
+  <div className="search--user">
+    <div className="search__label">Search by users</div>
+    <div className="search__usersWrapper">
+      <Users users={users} inCharge={inCharge} onClickAvatar={onClickAvatar} />
+    </div>
+  </div>
+)

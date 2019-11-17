@@ -164,6 +164,12 @@
     top: 40px;
     left: 430px;
   }
+  &--user {
+    @extend .search;
+    position: absolute;
+    top: 40px;
+    right: 10px;
+  }
   &__label {
     color: $white;
     margin-top: 30px;
@@ -197,5 +203,47 @@
     @include text-input();
     border: none;
     width: 140px;
+  }
+  &__usersWrapper {
+    display: flex;
+    padding-top: 20px;
+    max-height: 70vh;
+    overflow-y: scroll;
+    width: 360px;
+    flex-wrap: wrap;
+    .avatar {
+      width: 180px;
+      display: flex;
+      margin-bottom: 10px;
+      align-items: center;
+      &__name {
+        color: $white;
+      }
+      &__wrapper {
+        position: relative;
+        height: 50px;
+        width: 50px;
+        border-radius: 50%;
+        margin-right: 10px;
+        cursor: pointer;
+      }
+      &__image {
+        @extend .avatar__wrapper;
+      }
+      &__selected {
+        @extend .avatar__wrapper;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(0, 0, 0, 0.6);
+        position: absolute;
+        top: 0;
+        left: 0;
+        &::after {
+          content: '✔︎';
+          color: white;
+        }
+      }
+    }
   }
 }
