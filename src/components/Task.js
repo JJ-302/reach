@@ -2,9 +2,15 @@ import React from 'react'
 import '../css/Task.scss'
 
 const Avatars = ({ members }) => (
-  members.map((member) => (
-    <img key={member.name} src={member.avatar} alt={member.name} className="task__avatar" />
-  ))
+  members.map((member, i) => {
+    if (i > 3) {
+      return null
+    }
+    if (i < 3) {
+      return <img key={member.name} src={member.avatar} alt={member.name} className="task__avatar" />
+    }
+    return <div key={String(i)} className="task__avatar--length">{members.length}</div>
+  })
 )
 
 const Task = (props) => (

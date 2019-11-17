@@ -26,16 +26,26 @@
   }
   &__inCharge {
     @include base-label($width: 100px);
+    padding-right: 0;
     display: flex;
-    overflow-x: scroll;
     &::-webkit-scrollbar {
       display: none;
     }
   }
   &__avatar {
-    height: 14px;
-    width: 14px;
+    height: 20px;
+    width: 20px;
     border-radius: 50%;
     margin-left: 2px;
+    &--length {
+      @extend .task__avatar;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: $grey;
+      color: $white;
+      font-weight: bold;
+      font-size: 8px;
+    }
   }
 }
