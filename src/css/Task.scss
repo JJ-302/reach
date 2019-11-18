@@ -6,6 +6,24 @@
   &:hover {
     background-color: rgba(220, 220, 220, 0.3);
   }
+  &__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 20px;
+    height: 100%;
+    color: red;
+    cursor: default;
+  }
+  &__delete {
+    cursor: pointer;
+  }
+  &__resource {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
   &__name {
     @include base-label($width: 150px, $text-align: left);
     white-space: nowrap;

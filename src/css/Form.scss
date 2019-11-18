@@ -89,16 +89,16 @@
   padding: 30px 50px;
   position: fixed;
   top: 10px;
-  left: 660px;
+  left: 680px;
   box-shadow: $box-shadow;
   border-radius: 5px;
   background-color: $overlay;
   color: $white;
   overflow-y: scroll;
   @media (max-width: 1370px) {
-    width: calc(100vw - 760px);
+    width: calc(100vw - 780px);
   }
-  @media (max-height: 605px) {
+  @media (max-height: 625px) {
     top: auto;
     bottom: 0;
   }

@@ -30,6 +30,11 @@ export default class SideBar extends PureComponent {
     this.setState({ resourceFormVisible: false })
   }
 
+  changeMode = () => {
+    const { changeMode } = this.props
+    changeMode()
+  }
+
   render() {
     const { projectFormVisible, resourceFormVisible } = this.state
     const { refreshProject } = this.props
@@ -39,6 +44,11 @@ export default class SideBar extends PureComponent {
           icon={['fas', 'plus']}
           className="sidebar__icon"
           onClick={this.openProjectForm}
+        />
+        <FontAwesomeIcon
+          icon={['fas', 'minus']}
+          className="sidebar__icon"
+          onClick={this.changeMode}
         />
         <FontAwesomeIcon
           icon={['fas', 'tags']}

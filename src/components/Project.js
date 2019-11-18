@@ -24,7 +24,13 @@ class Project extends Component {
   }
 
   render() {
-    const { project, index, refreshTask } = this.props
+    const {
+      project,
+      index,
+      refreshTask,
+      destroyMode,
+    } = this.props
+
     const { tasks, name, id } = project
     const { isVisible } = this.state
     return (
@@ -38,7 +44,15 @@ class Project extends Component {
             onClick={this.openModal}
           />
         </div>
-        {tasks && <Task tasks={tasks} onClick={this.openModal} />}
+        {tasks && (
+          <Task
+            destroyMode={destroyMode}
+            index={index}
+            refresh={refreshTask}
+            tasks={tasks}
+            onClick={this.openModal}
+          />
+        )}
         {isVisible
           && (
             <TaskForm
@@ -56,9 +70,15 @@ class Project extends Component {
 }
 
 const Projects = (props) => {
-  const { projects, refreshTask } = props
+  const { projects, refreshTask, mode } = props
   return projects.map((project, index) => (
-    <Project refreshTask={refreshTask} project={project} key={project.name} index={index} />
+    <Project
+      refreshTask={refreshTask}
+      project={project}
+      key={project.name}
+      index={index}
+      destroyMode={mode}
+    />
   ))
 }
 

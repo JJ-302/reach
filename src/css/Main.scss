@@ -87,6 +87,19 @@
           color: $indigo;
         }
       }
+      &__resource {
+        width: 20px;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        .resourceIcon {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: linear-gradient(to bottom, $blue, $indigo, $pink);
+        }
+      }
       &__name {
         @include base-label($width: 150px, $text-align: left);
       }

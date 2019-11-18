@@ -375,6 +375,9 @@ export default class GanttIndexHeader extends Component {
 
     return (
       <div className="gantt-index-header">
+        <div className="gantt-index-header__resource">
+          <div className="resourceIcon" />
+        </div>
         <div className="gantt-index-header__name">
           {projectId === '' && taskName === ''
             ? <span className="gantt-index-header__label" onClick={this.onClickName}>Name</span>

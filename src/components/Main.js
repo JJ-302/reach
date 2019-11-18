@@ -104,6 +104,7 @@ export default class Main extends PureComponent {
       resources: [],
       projects: [],
       type: 'days',
+      destroyMode: false,
     }
   }
 
@@ -134,6 +135,11 @@ export default class Main extends PureComponent {
     this.setState({ type })
   }
 
+  changeMode = () => {
+    const { destroyMode } = this.state
+    this.setState({ destroyMode: !destroyMode })
+  }
+
   updateProject = (projectsCopy) => this.setState({ projects: projectsCopy })
 
   refreshProject = (project) => {
@@ -161,20 +167,38 @@ export default class Main extends PureComponent {
         return project
       })
       this.updateProject(projectsCopy)
+    } else if (action === 'destroy') {
+      const tasksCopy = projects[index].tasks.filter((existingTask) => (
+        existingTask.id !== task.id
+      ))
+      const projectsCopy = projects.map((_project, i) => {
+        const project = _project
+        if (index === i) {
+          project.tasks = tasksCopy
+        }
+        return project
+      })
+      this.updateProject(projectsCopy)
     }
   }
 
   render() {
-    const { type, projects, resources } = this.state
+    const {
+      type,
+      projects,
+      resources,
+      destroyMode,
+    } = this.state
+
     return (
       <div className="App">
-        <SideBar refreshProject={this.refreshProject} />
+        <SideBar refreshProject={this.refreshProject} changeMode={this.changeMode} />
         <div className="mainContainer">
           <Header resources={resources} scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
             <div className="gantt-index">
               <GanttIndexHeader projects={projects} updateProject={this.updateProject} />
-              <Project refreshTask={this.refreshTask} projects={projects} />
+              <Project refreshTask={this.refreshTask} projects={projects} mode={destroyMode} />
             </div>
             <div className="gantt-schedule">
               <div className="gantt-schedule-header">
