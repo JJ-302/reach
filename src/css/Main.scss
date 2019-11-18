@@ -35,16 +35,30 @@
       margin: 0 10px;
     }
   }
-  .member {
+  .resource {
     display: flex;
     align-items: center;
     flex-grow: 1;
     overflow-x: scroll;
-    &__avatar {
-      height: 35px;
-      width: 35px;
-      border-radius: 50%;
+    &__wrapper {
+      display: flex;
+      flex-direction: column;
       margin-left: 10px;
+      align-items: center;
+      width: fit-content;
+      max-width: 100px;
+    }
+    &__icon {
+      height: 30px;
+      width: 30px;
+      border-radius: 50%;
+    }
+    &__name {
+      font-size: 12px;
+      max-width: 100px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: center;
     }
   }
 }

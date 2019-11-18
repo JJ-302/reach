@@ -11,6 +11,7 @@ export default class GanttIndexHeader extends Component {
     super(props)
     this.token = localStorage.getItem('token')
     this.state = {
+      users: [],
       searchByNameVisible: false,
       searchByDateVisible: false,
       searchByDurationVisible: false,
@@ -30,6 +31,27 @@ export default class GanttIndexHeader extends Component {
       orderExtend: '',
       inCharge: [],
     }
+  }
+
+  componentDidMount() {
+    this.getUserIndex()
+  }
+
+  getUserIndex = () => {
+    const url = Utils.buildRequestUrl('/users')
+    fetch(url, {
+      method: 'GET',
+      headers: { 'X-Reach-token': this.token },
+    })
+      .then((_res) => _res.json())
+      .then(({ users, is_authenticated }) => {
+        if (is_authenticated) {
+          this.setState({ users })
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
   }
 
   search = () => {
@@ -319,8 +341,9 @@ export default class GanttIndexHeader extends Component {
   stopPropagation = (event) => event.stopPropagation()
 
   render() {
-    const { projects, users } = this.props
+    const { projects } = this.props
     const {
+      users,
       searchByNameVisible,
       searchByDateVisible,
       searchByDurationVisible,

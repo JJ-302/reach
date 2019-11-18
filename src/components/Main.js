@@ -52,14 +52,8 @@ const Schedule = ({ scheduleType }) => {
   return schedules
 }
 
-const Avatars = ({ users }) => (
-  users.map((user) => (
-    <img key={user.id} src={user.avatar} alt={user.name} className="member__avatar" />
-  ))
-)
-
 const Header = (props) => {
-  const { users, scheduleType, onClick } = props
+  const { scheduleType, onClick, resources } = props
   const className = { weeks: 'switchView__button', days: 'switchView__button' }
   if (scheduleType === 'weeks') {
     className.weeks += '--disable'
@@ -91,8 +85,13 @@ const Header = (props) => {
           Day
         </div>
       </div>
-      <div className="member">
-        <Avatars users={users} />
+      <div className="resource">
+        {resources.map((resource) => (
+          <div key={resource.id} className="resource__wrapper">
+            <div className="resource__icon" style={{ backgroundColor: resource.color }} />
+            <div className="resource__name">{resource.name}</div>
+          </div>
+        ))}
       </div>
     </div>
   )
@@ -102,17 +101,17 @@ export default class Main extends PureComponent {
   constructor(props) {
     super(props)
     this.state = {
-      users: [],
+      resources: [],
       projects: [],
       type: 'days',
     }
   }
 
   componentDidMount() {
-    this.getUserIndex()
+    this.getProjectIndex()
   }
 
-  getUserIndex = () => {
+  getProjectIndex = () => {
     const url = Utils.buildRequestUrl('/projects')
     const token = localStorage.getItem('token')
     fetch(url, {
@@ -120,9 +119,9 @@ export default class Main extends PureComponent {
       headers: { 'X-Reach-token': token },
     })
       .then((_res) => _res.json())
-      .then(({ is_authenticated, users, projects }) => {
+      .then(({ is_authenticated, projects, resources }) => {
         if (is_authenticated) {
-          this.setState({ users, projects })
+          this.setState({ projects, resources })
         }
       })
       .catch(() => {
@@ -166,19 +165,15 @@ export default class Main extends PureComponent {
   }
 
   render() {
-    const { type, users, projects } = this.state
+    const { type, projects, resources } = this.state
     return (
       <div className="App">
         <SideBar refreshProject={this.refreshProject} />
         <div className="mainContainer">
-          <Header users={users} scheduleType={type} onClick={this.changeScheduleType} />
+          <Header resources={resources} scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
             <div className="gantt-index">
-              <GanttIndexHeader
-                users={users}
-                projects={projects}
-                updateProject={this.updateProject}
-              />
+              <GanttIndexHeader projects={projects} updateProject={this.updateProject} />
               <Project refreshTask={this.refreshTask} projects={projects} />
             </div>
             <div className="gantt-schedule">
