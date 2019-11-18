@@ -197,7 +197,11 @@ export default class Main extends PureComponent {
           <Header resources={resources} scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
             <div className="gantt-index">
-              <GanttIndexHeader projects={projects} updateProject={this.updateProject} />
+              <GanttIndexHeader
+                resources={resources}
+                projects={projects}
+                updateProject={this.updateProject}
+              />
               <Project refreshTask={this.refreshTask} projects={projects} mode={destroyMode} />
             </div>
             <div className="gantt-schedule">

@@ -16,6 +16,7 @@ export default class GanttIndexHeader extends Component {
       searchByDateVisible: false,
       searchByDurationVisible: false,
       searchByUsersVisible: false,
+      searchByResourceVisible: false,
       dateType: '',
       projectId: '',
       taskName: '',
@@ -30,6 +31,7 @@ export default class GanttIndexHeader extends Component {
       orderEndDate: '',
       orderExtend: '',
       inCharge: [],
+      selectedResources: [],
     }
   }
 
@@ -69,6 +71,7 @@ export default class GanttIndexHeader extends Component {
       orderEndDate,
       orderExtend,
       inCharge,
+      selectedResources,
     } = this.state
 
     const url = Utils.buildRequestUrl('/tasks/search')
@@ -80,6 +83,7 @@ export default class GanttIndexHeader extends Component {
       extend: { from: extendFrom, to: extendTo, order: orderExtend },
       duration: { order: orderDuration },
       in_charge: inCharge,
+      resources: selectedResources,
     }
 
     fetch(url, {
@@ -140,46 +144,30 @@ export default class GanttIndexHeader extends Component {
     }
   }
 
+  onClickResource = () => {
+    const { searchByResourceVisible } = this.state
+    this.setState({ searchByResourceVisible: !searchByResourceVisible })
+  }
+
   onClickName = () => {
     const { searchByNameVisible } = this.state
-    this.setState({
-      searchByNameVisible: !searchByNameVisible,
-      searchByDateVisible: false,
-      searchByDurationVisible: false,
-      searchByUsersVisible: false,
-    })
+    this.setState({ searchByNameVisible: !searchByNameVisible })
   }
 
   onClickDate = (event) => {
     const { type } = event.currentTarget.dataset
     const { searchByDateVisible } = this.state
-    this.setState({
-      searchByNameVisible: false,
-      searchByDurationVisible: false,
-      searchByUsersVisible: false,
-      searchByDateVisible: !searchByDateVisible,
-      dateType: type,
-    })
+    this.setState({ searchByDateVisible: !searchByDateVisible, dateType: type })
   }
 
   onClickDuration = () => {
     const { searchByDurationVisible } = this.state
-    this.setState({
-      searchByDurationVisible: !searchByDurationVisible,
-      searchByNameVisible: false,
-      searchByDateVisible: false,
-      searchByUsersVisible: false,
-    })
+    this.setState({ searchByDurationVisible: !searchByDurationVisible })
   }
 
   onClickInCharge = () => {
     const { searchByUsersVisible } = this.state
-    this.setState({
-      searchByUsersVisible: !searchByUsersVisible,
-      searchByNameVisible: false,
-      searchByDateVisible: false,
-      searchByDurationVisible: false,
-    })
+    this.setState({ searchByUsersVisible: !searchByUsersVisible })
   }
 
   onChangeOrder = async (event) => {
@@ -280,6 +268,20 @@ export default class GanttIndexHeader extends Component {
     this.search()
   }
 
+  onClickResourceIcon = async (event) => {
+    const { selectedResources } = this.state
+    const selectedResourcesCopy = selectedResources
+    const { id } = event.currentTarget.dataset
+    const targetIndex = selectedResources.indexOf(id)
+    if (targetIndex === notExist) {
+      selectedResourcesCopy.push(id)
+    } else {
+      selectedResourcesCopy.splice(targetIndex, 1)
+    }
+    await this.setState({ selectedResources: selectedResourcesCopy })
+    this.search()
+  }
+
   clearSearchName = async () => {
     await this.setState({
       taskName: '',
@@ -335,19 +337,21 @@ export default class GanttIndexHeader extends Component {
       searchByDateVisible: false,
       searchByDurationVisible: false,
       searchByUsersVisible: false,
+      searchByResourceVisible: false,
     })
   }
 
   stopPropagation = (event) => event.stopPropagation()
 
   render() {
-    const { projects } = this.props
+    const { projects, resources } = this.props
     const {
       users,
       searchByNameVisible,
       searchByDateVisible,
       searchByDurationVisible,
       searchByUsersVisible,
+      searchByResourceVisible,
       projectId,
       taskName,
       dateType,
@@ -362,8 +366,10 @@ export default class GanttIndexHeader extends Component {
       orderExtend,
       orderDuration,
       inCharge,
+      selectedResources,
     } = this.state
 
+    const resourceIconClass = selectedResources.length === 0 ? 'resourceIcon' : 'resourceIcon--selected'
     const dateProps = this.sortingByDateRange(dateType)
     const {
       rangeStart,
@@ -376,7 +382,7 @@ export default class GanttIndexHeader extends Component {
     return (
       <div className="gantt-index-header">
         <div className="gantt-index-header__resource">
-          <div className="resourceIcon" />
+          <div className={resourceIconClass} onClick={this.onClickResource} />
         </div>
         <div className="gantt-index-header__name">
           {projectId === '' && taskName === ''
@@ -457,6 +463,16 @@ export default class GanttIndexHeader extends Component {
               </div>
             )}
         </div>
+        {searchByResourceVisible && (
+          <div className="overlay" onClick={this.closeAllModal}>
+            <SearchByResource
+              resources={resources}
+              selectedResources={selectedResources}
+              onClickResource={this.onClickResourceIcon}
+              stopPropagation={this.stopPropagation}
+            />
+          </div>
+        )}
         {searchByNameVisible && (
           <div className="overlay" onClick={this.closeAllModal}>
             <SearchByName
@@ -630,6 +646,43 @@ const SearchByUsers = (props) => {
       <div className="search__label">Search by users</div>
       <div className="search__usersWrapper">
         <Users users={users} inCharge={inCharge} onClickAvatar={onClickAvatar} />
+      </div>
+    </div>
+  )
+}
+
+const Resources = ({ resources, selectedResources, onClickResource }) => (
+  resources.map((resource) => {
+    const targetIndex = selectedResources.indexOf(String(resource.id))
+    return (
+      <div key={resource.id} className="resource">
+        <div data-id={resource.id} onClick={onClickResource} className="resource__wrapper">
+          <div className="resource__icon" style={{ backgroundColor: resource.color }} />
+          {targetIndex !== notExist && <div className="resource__selected" />}
+        </div>
+        <div className="resource__name">{resource.name}</div>
+      </div>
+    )
+  })
+)
+
+const SearchByResource = (props) => {
+  const {
+    resources,
+    selectedResources,
+    onClickResource,
+    stopPropagation,
+  } = props
+
+  return (
+    <div className="search--resource" onClick={stopPropagation}>
+      <div className="search__label">Search by resource</div>
+      <div className="search__resourceWrapper">
+        <Resources
+          resources={resources}
+          selectedResources={selectedResources}
+          onClickResource={onClickResource}
+        />
       </div>
     </div>
   )

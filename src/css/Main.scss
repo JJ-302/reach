@@ -98,6 +98,17 @@
           height: 16px;
           border-radius: 50%;
           background: linear-gradient(to bottom, $blue, $indigo, $pink);
+          &--selected {
+            @extend .resourceIcon;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            &::after {
+              content: '✔︎';
+              font-size: 10px;
+              color: white;
+            }
+          }
         }
       }
       &__name {
@@ -198,6 +209,12 @@
   box-shadow: $box-shadow;
   border-radius: 3px;
   background-color: rgba(0, 0, 0, 0.8);
+  &--resource {
+    @extend .search;
+    position: absolute;
+    top: 90px;
+    left: 50px;
+  }
   &--name {
     @extend .search;
     position: absolute;
@@ -307,6 +324,24 @@
           content: '✔︎';
           color: white;
         }
+      }
+    }
+  }
+  &__resourceWrapper {
+    @extend .search__usersWrapper;
+    .resource {
+      @extend .avatar;
+      &__name {
+        @extend .avatar__name;
+      }
+      &__wrapper {
+        @extend .avatar__wrapper;
+      }
+      &__icon {
+        @extend .avatar__wrapper;
+      }
+      &__selected {
+        @extend .avatar__selected;
       }
     }
   }
