@@ -67,7 +67,7 @@
       position: sticky;
       top: 0;
       z-index: 5;
-      span {
+      &__label {
         cursor: pointer;
         &:hover {
           color: $indigo;
@@ -86,10 +86,19 @@
         @extend .gantt-index-header__startDate;
       }
       &__duration {
-        @include base-label($width: 80px);
+        @include base-label($width: 90px);
       }
       &__inCharge {
         @include base-label($width: 100px);
+      }
+      .overlay {
+        height: 100vh;
+        width: 100vw;
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        right: 0;
+        left: 0;
       }
     }
   }
@@ -126,6 +135,34 @@
   }
 }
 
+.selected {
+  display: flex;
+  align-items: center;
+  background-color: $indigo;
+  color: $white;
+  padding: 2px 5px;
+  border-radius: 15px;
+  width: fit-content;
+  &__label {
+    cursor: pointer;
+    font-size: 12px;
+    &:hover {
+      color: $grey;
+    }
+  }
+  &__clear {
+    font-size: 16px;
+    margin-left: 10px;
+    margin-bottom: 2px;
+    color: $white;
+    font-weight: bold;
+    cursor: pointer;
+    &:hover {
+      color: $pink;
+    }
+  }
+}
+
 .search {
   box-sizing: border-box;
   display: flex;
@@ -137,38 +174,38 @@
   &--name {
     @extend .search;
     position: absolute;
-    top: 40px;
-    left: 5px;
+    top: 90px;
+    left: 50px;
   }
   &--start {
     @extend .search;
     position: absolute;
-    top: 40px;
-    left: 150px;
+    top: 90px;
+    left: 200px;
   }
   &--end {
     @extend .search;
     position: absolute;
-    top: 40px;
-    left: 250px;
+    top: 90px;
+    left: 300px;
   }
   &--extend {
     @extend .search;
     position: absolute;
-    top: 40px;
-    left: 350px;
+    top: 90px;
+    left: 400px;
   }
   &--duration {
     @extend .search;
     position: absolute;
-    top: 40px;
-    left: 430px;
+    top: 90px;
+    left: 480px;
   }
   &--user {
     @extend .search;
     position: absolute;
-    top: 40px;
-    right: 10px;
+    top: 90px;
+    left: 260px;
   }
   &__label {
     color: $white;

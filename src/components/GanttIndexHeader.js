@@ -258,6 +258,66 @@ export default class GanttIndexHeader extends Component {
     this.search()
   }
 
+  clearSearchName = async () => {
+    await this.setState({
+      taskName: '',
+      projectId: '',
+      searchByNameVisible: false,
+    })
+    this.search()
+  }
+
+  clearSearchStartDate = async () => {
+    await this.setState({
+      startDateFrom: '',
+      startDateTo: '',
+      orderStartDate: '',
+      searchByDateVisible: false,
+    })
+    this.search()
+  }
+
+  clearSearchEndDate = async () => {
+    await this.setState({
+      endDateFrom: '',
+      endDateTo: '',
+      orderEndDate: '',
+      searchByDateVisible: false,
+    })
+    this.search()
+  }
+
+  clearSearchExtend = async () => {
+    await this.setState({
+      extendFrom: '',
+      extendTo: '',
+      orderExtend: '',
+      searchByDateVisible: false,
+    })
+    this.search()
+  }
+
+  clearSearchDuration = async () => {
+    await this.setState({ orderDuration: '', searchByDurationVisible: false })
+    this.search()
+  }
+
+  clearSearchInCharge = async () => {
+    await this.setState({ inCharge: [], searchByUsersVisible: false })
+    this.search()
+  }
+
+  closeAllModal = () => {
+    this.setState({
+      searchByNameVisible: false,
+      searchByDateVisible: false,
+      searchByDurationVisible: false,
+      searchByUsersVisible: false,
+    })
+  }
+
+  stopPropagation = (event) => event.stopPropagation()
+
   render() {
     const { projects, users } = this.props
     const {
@@ -268,6 +328,15 @@ export default class GanttIndexHeader extends Component {
       projectId,
       taskName,
       dateType,
+      startDateFrom,
+      startDateTo,
+      endDateFrom,
+      endDateTo,
+      extendFrom,
+      extendTo,
+      orderStartDate,
+      orderEndDate,
+      orderExtend,
       orderDuration,
       inCharge,
     } = this.state
@@ -284,48 +353,128 @@ export default class GanttIndexHeader extends Component {
     return (
       <div className="gantt-index-header">
         <div className="gantt-index-header__name">
-          <span onClick={this.onClickName}>Name</span>
+          {projectId === '' && taskName === ''
+            ? <span className="gantt-index-header__label" onClick={this.onClickName}>Name</span>
+            : (
+              <div className="selected">
+                <span className="selected__label" onClick={this.onClickName}>Name</span>
+                <span className="selected__clear" onClick={this.clearSearchName}>×</span>
+              </div>
+            )}
         </div>
+
         <div className="gantt-index-header__startDate">
-          <span data-type="start" onClick={this.onClickDate}>StartDate</span>
+          {startDateFrom === '' && startDateTo === '' && orderStartDate === ''
+            ? (
+              <span className="gantt-index-header__label" data-type="start" onClick={this.onClickDate}>
+                StartDate
+              </span>
+            ) : (
+              <div className="selected">
+                <span className="selected__label" data-type="start" onClick={this.onClickDate}>
+                  StartDate
+                </span>
+                <span className="selected__clear" onClick={this.clearSearchStartDate}>×</span>
+              </div>
+            )}
         </div>
+
         <div className="gantt-index-header__endDate">
-          <span data-type="end" onClick={this.onClickDate}>EndDate</span>
+          {endDateFrom === '' && endDateTo === '' && orderEndDate === ''
+            ? (
+              <span className="gantt-index-header__label" data-type="end" onClick={this.onClickDate}>
+                EndDate
+              </span>
+            ) : (
+              <div className="selected">
+                <span className="selected__label" data-type="end" onClick={this.onClickDate}>
+                  EndDate
+                </span>
+                <span className="selected__clear" onClick={this.clearSearchEndDate}>×</span>
+              </div>
+            )}
         </div>
+
         <div className="gantt-index-header__extend">
-          <span data-type="extend" onClick={this.onClickDate}>Extend</span>
+          {extendFrom === '' && extendTo === '' && orderExtend === ''
+            ? (
+              <span className="gantt-index-header__label" data-type="extend" onClick={this.onClickDate}>
+                Extend
+              </span>
+            ) : (
+              <div className="selected">
+                <span className="selected__label" data-type="extend" onClick={this.onClickDate}>
+                  Extend
+                </span>
+                <span className="selected__clear" onClick={this.clearSearchExtend}>×</span>
+              </div>
+            )}
         </div>
+
         <div className="gantt-index-header__duration">
-          <span onClick={this.onClickDuration}>Duration</span>
+          {orderDuration === ''
+            ? <span className="gantt-index-header__label" onClick={this.onClickDuration}>Duration</span>
+            : (
+              <div className="selected">
+                <span className="selected__label" onClick={this.onClickDuration}>Duration</span>
+                <span className="selected__clear" onClick={this.clearSearchDuration}>×</span>
+              </div>
+            )}
         </div>
         <div className="gantt-index-header__inCharge">
-          <span onClick={this.onClickInCharge}>InCharge</span>
+          {inCharge.length === 0
+            ? <span className="gantt-index-header__label" onClick={this.onClickInCharge}>InCharge</span>
+            : (
+              <div className="selected">
+                <span className="selected__label" onClick={this.onClickInCharge}>InCharge</span>
+                <span className="selected__clear" onClick={this.clearSearchInCharge}>×</span>
+              </div>
+            )}
         </div>
         {searchByNameVisible && (
-          <SearchByName
-            projectId={projectId}
-            projects={projects}
-            onChangeProject={this.onChangeProject}
-            taskName={taskName}
-            onChangeTask={this.onChangeTask}
-          />
+          <div className="overlay" onClick={this.closeAllModal}>
+            <SearchByName
+              projectId={projectId}
+              projects={projects}
+              onChangeProject={this.onChangeProject}
+              taskName={taskName}
+              onChangeTask={this.onChangeTask}
+              stopPropagation={this.stopPropagation}
+            />
+          </div>
         )}
         {searchByDateVisible && (
-          <SearchByDate
-            dateType={dateType}
-            rangeStart={rangeStart}
-            rangeEnd={rangeEnd}
-            onChangeRangeStart={onChangeRangeStart}
-            onChangeRangeEnd={onChangeRangeEnd}
-            onChangeOrder={this.onChangeOrder}
-            selected={order}
-          />
+          <div className="overlay" onClick={this.closeAllModal}>
+            <SearchByDate
+              dateType={dateType}
+              rangeStart={rangeStart}
+              rangeEnd={rangeEnd}
+              onChangeRangeStart={onChangeRangeStart}
+              onChangeRangeEnd={onChangeRangeEnd}
+              onChangeOrder={this.onChangeOrder}
+              selected={order}
+              stopPropagation={this.stopPropagation}
+            />
+          </div>
         )}
         {searchByDurationVisible && (
-          <SearchByDuration onChangeOrder={this.onChangeOrder} selected={orderDuration} />
+          <div className="overlay" onClick={this.closeAllModal}>
+            <SearchByDuration
+              onChangeOrder={this.onChangeOrder}
+              selected={orderDuration}
+              stopPropagation={this.stopPropagation}
+            />
+          </div>
         )}
         {searchByUsersVisible && (
-          <SearchByUsers users={users} inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
+          <div className="overlay" onClick={this.closeAllModal}>
+            <SearchByUsers
+              users={users}
+              inCharge={inCharge}
+              onClickAvatar={this.onClickAvatar}
+              stopPropagation={this.stopPropagation}
+            />
+          </div>
         )}
       </div>
     )
@@ -347,10 +496,10 @@ const OrderBy = (props) => {
 }
 
 const SearchByDuration = (props) => {
-  const { onChangeOrder, selected } = props
+  const { onChangeOrder, selected, stopPropagation } = props
 
   return (
-    <div className="search--duration">
+    <div className="search--duration" onClick={stopPropagation}>
       <div className="search__label">Order by duration</div>
       <OrderBy by="duration" onChangeOrder={onChangeOrder} selected={selected} />
       <div className="search__divide" />
@@ -367,13 +516,14 @@ const SearchByDate = (props) => {
     dateType,
     onChangeOrder,
     order,
+    stopPropagation,
   } = props
 
   const className = `search--${dateType}`
   const title = `Filter by ${dateType} date`
 
   return (
-    <div className={className}>
+    <div className={className} onClick={stopPropagation}>
       <div className="search__label">Order by duration</div>
       <OrderBy by={dateType} onChangeOrder={onChangeOrder} selected={order} />
       <div className="search__divide" />
@@ -407,10 +557,11 @@ const SearchByName = (props) => {
     onChangeProject,
     taskName,
     onChangeTask,
+    stopPropagation,
   } = props
 
   return (
-    <div className="search--name">
+    <div className="search--name" onClick={stopPropagation}>
       <div className="search__label">Filter by Project</div>
       <select value={projectId} onChange={onChangeProject} className="search__project">
         <option key="default" value={null} aria-label="selectProject" />
@@ -440,11 +591,20 @@ const Users = ({ users, onClickAvatar, inCharge }) => (
   })
 )
 
-const SearchByUsers = ({ users, inCharge, onClickAvatar }) => (
-  <div className="search--user">
-    <div className="search__label">Search by users</div>
-    <div className="search__usersWrapper">
-      <Users users={users} inCharge={inCharge} onClickAvatar={onClickAvatar} />
+const SearchByUsers = (props) => {
+  const {
+    users,
+    inCharge,
+    onClickAvatar,
+    stopPropagation,
+  } = props
+
+  return (
+    <div className="search--user" onClick={stopPropagation}>
+      <div className="search__label">Search by users</div>
+      <div className="search__usersWrapper">
+        <Users users={users} inCharge={inCharge} onClickAvatar={onClickAvatar} />
+      </div>
     </div>
-  </div>
-)
+  )
+}

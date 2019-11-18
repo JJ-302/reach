@@ -22,7 +22,7 @@
     @extend .task__startDate;
   }
   &__duration {
-    @include base-label($width: 80px);
+    @include base-label($width: 90px);
   }
   &__inCharge {
     @include base-label($width: 100px);
