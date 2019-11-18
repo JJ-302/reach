@@ -103,7 +103,7 @@ export default class Main extends PureComponent {
     this.state = {
       resources: [],
       projects: [],
-      type: 'days',
+      type: 'weeks',
       destroyMode: false,
     }
   }

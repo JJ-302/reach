@@ -18,7 +18,7 @@ export default class Utils {
   }
 
   static dateRangeStart() {
-    return Moment(new Date()).subtract(2, 'weeks')
+    return Moment(new Date()).subtract(2, 'weeks').startOf('days')
   }
 
   static dateRangeEnd() {
