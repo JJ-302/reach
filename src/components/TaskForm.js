@@ -68,6 +68,7 @@ export default class TaskForm extends Component {
             description,
             startDate,
             endDate,
+            extend,
             name,
             userIds,
             resourceId,
@@ -80,7 +81,7 @@ export default class TaskForm extends Component {
             name,
             description,
             startDate: new Date(startDate),
-            endDate: new Date(endDate),
+            endDate: extend ? new Date(extend) : new Date(endDate),
             inCharge: stringUserIds,
             resource: resourceId,
           })
