@@ -7,11 +7,49 @@
   background: linear-gradient(to bottom, $blue, $indigo, $pink);
   width: $sidebar-width;
   padding: 10px 0;
+  &__iconWrapper--plus {
+    cursor: pointer;
+    margin-bottom: 20px;
+    &:hover {
+      &::after {
+        content: 'Create project';
+        box-shadow: $box-shadow;
+        border-radius: 3px;
+        color: $white;
+        font-size: 12px;
+        padding: 3px 5px;
+        position: absolute;
+        top: 10px;
+        left: 45px;
+        background: $overlay;
+        white-space: nowrap;
+        z-index: 20;
+      }
+    }
+  }
+  &__iconWrapper--minus {
+    @extend .sidebar__iconWrapper--plus;
+    &:hover {
+      &::after {
+        content: 'Delete task';
+        top: 50px;
+        left: 45px;
+      }
+    }
+  }
+  &__iconWrapper--resource {
+    @extend .sidebar__iconWrapper--plus;
+    &:hover {
+      &::after {
+        content: 'Create resource';
+        top: 90px;
+        left: 45px;
+      }
+    }
+  }
   &__icon {
     color: $font-white;
     font-size: 20px;
-    margin-bottom: 20px;
-    cursor: pointer;
     background: transparent;
   }
 }

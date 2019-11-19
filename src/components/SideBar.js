@@ -40,21 +40,15 @@ export default class SideBar extends PureComponent {
     const { refreshProject } = this.props
     return (
       <div className="sidebar">
-        <FontAwesomeIcon
-          icon={['fas', 'plus']}
-          className="sidebar__icon"
-          onClick={this.openProjectForm}
-        />
-        <FontAwesomeIcon
-          icon={['fas', 'minus']}
-          className="sidebar__icon"
-          onClick={this.changeMode}
-        />
-        <FontAwesomeIcon
-          icon={['fas', 'tags']}
-          className="sidebar__icon"
-          onClick={this.openResourceForm}
-        />
+        <div className="sidebar__iconWrapper--plus" onClick={this.openProjectForm}>
+          <FontAwesomeIcon icon={['fas', 'plus']} className="sidebar__icon" />
+        </div>
+        <div className="sidebar__iconWrapper--minus" onClick={this.changeMode}>
+          <FontAwesomeIcon icon={['fas', 'minus']} className="sidebar__icon" />
+        </div>
+        <div className="sidebar__iconWrapper--resource" onClick={this.openResourceForm}>
+          <FontAwesomeIcon icon={['fas', 'tags']} className="sidebar__icon" />
+        </div>
         {projectFormVisible
           && <ProjectForm action="Create" refresh={refreshProject} closeModal={this.closeProjectForm} />}
         {resourceFormVisible && <ResourceForm action="Create" closeModal={this.closeResourceForm} />}
