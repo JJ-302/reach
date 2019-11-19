@@ -16,7 +16,8 @@
   "globals": {
     "fetch": false,
     "FormData": false,
-    "localStorage": false
+    "localStorage": false,
+    "window": false
   },
   "parser": "babel-eslint"
 }

@@ -13,8 +13,10 @@ export default class ChartBar extends PureComponent {
   }
 
   onMouseEnter = (event) => {
-    const offsetX = event.clientX + 30
-    const offsetY = event.clientY
+    const isOverflowX = window.innerWidth < (event.clientX + 300)
+    const isOverflowY = window.innerHeight < (event.clientY + 300)
+    const offsetX = isOverflowX ? event.clientX - 280 : event.clientX + 30
+    const offsetY = isOverflowY ? event.clientY - 150 : event.clientY
     this.setState({ isHover: true, offsetX, offsetY })
   }
 

@@ -8,8 +8,9 @@
 
 .window {
   position: fixed;
-  min-width: 200px;
-  max-width: 300px;
+  width: 200px;
+  max-height: 300px;
+  overflow-y: scroll;
   background: rgba(0, 0, 0, 0.7);
   z-index: 50;
   box-shadow: $box-shadow;
