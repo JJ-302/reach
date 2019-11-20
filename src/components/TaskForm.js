@@ -1,4 +1,5 @@
 import React, { Component } from 'react'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import DatePicker from 'react-datepicker'
 import Moment from 'moment'
 import 'react-datepicker/dist/react-datepicker.css'
@@ -19,6 +20,7 @@ export default class TaskForm extends Component {
       resource: '',
       startDate: null,
       endDate: null,
+      complete: false,
       inCharge: [],
       description: '',
       errors: [],
@@ -70,15 +72,18 @@ export default class TaskForm extends Component {
             endDate,
             extend,
             name,
+            percentComplete,
             userIds,
             resourceId,
           } = res.task
 
+          const complete = percentComplete === 'complete'
           const stringUserIds = userIds.map((userId) => String(userId))
           this.setState({
             resources,
             users,
             name,
+            complete,
             description,
             startDate: new Date(startDate),
             endDate: extend ? new Date(extend) : new Date(endDate),
@@ -110,6 +115,11 @@ export default class TaskForm extends Component {
     this.setState({ endDate: date })
   }
 
+  onCheck = () => {
+    const { complete } = this.state
+    this.setState({ complete: !complete })
+  }
+
   onClickAvatar = (event) => {
     const { inCharge } = this.state
     const inChargeCopy = inCharge
@@ -135,6 +145,7 @@ export default class TaskForm extends Component {
       resource,
       startDate,
       endDate,
+      complete,
       inCharge,
       description,
     } = this.state
@@ -145,10 +156,12 @@ export default class TaskForm extends Component {
     }
     const url = Utils.buildRequestUrl(request.uriPattern)
     const duration = Moment(endDate).diff(Moment(startDate), 'days')
+    const percent_complete = complete ? 'complete' : 'progress'
     const params = {
       name,
       description,
       duration,
+      percent_complete,
       resource_id: resource,
       project_id: id,
       start_date: startDate,
@@ -191,6 +204,7 @@ export default class TaskForm extends Component {
       name,
       startDate,
       endDate,
+      complete,
       inCharge,
       description,
       errors,
@@ -245,6 +259,18 @@ export default class TaskForm extends Component {
             onChange={this.onChangeEndDate}
           />
         </div>
+        {action === 'edit' && (
+          <div className="taskFormRow">
+            <div className="taskFormRow__label">Complete</div>
+            <div className="taskFormRow__complete" onClick={this.onCheck}>
+              <div className="taskFormRow__checkbox">
+                <FontAwesomeIcon icon={['far', 'square']} />
+                {complete
+                  && <FontAwesomeIcon icon={['fas', 'check']} className="taskFormRow__checked" />}
+              </div>
+            </div>
+          </div>
+        )}
         <div className="taskFormRow">
           <div className="taskFormRow__label">In charge</div>
           <div className="taskFormRow__inCharge">

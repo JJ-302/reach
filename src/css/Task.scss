@@ -6,6 +6,13 @@
   &:hover {
     background-color: rgba(220, 220, 220, 0.3);
   }
+  &--complete {
+    @extend .task;
+    background-color: rgba(150, 150, 150, 0.6);
+    &:hover {
+      background-color: rgba(150, 150, 150, 0.6);
+    }
+  }
   &__icon {
     display: flex;
     align-items: center;

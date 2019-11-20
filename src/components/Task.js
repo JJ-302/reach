@@ -46,28 +46,31 @@ export default class Task extends Component {
   render() {
     const { tasks, onClick, destroyMode } = this.props
     return (
-      tasks.map((task) => (
-        <div key={task.id} data-action="edit" data-id={task.id} className="task" onClick={onClick}>
-          <div className="task__icon" onClick={this.onClickOverlay}>
-            {destroyMode ? (
-              <FontAwesomeIcon
-                data-id={task.id}
-                icon={['fas', 'minus-circle']}
-                className="task__delete"
-                onClick={this.handleDestroy}
-              />
-            ) : <div className="task__resource" style={{ backgroundColor: task.resource.color }} />}
+      tasks.map((task) => {
+        const className = task.percentComplete === 'progress' ? 'task' : 'task--complete'
+        return (
+          <div key={task.id} data-action="edit" data-id={task.id} className={className} onClick={onClick}>
+            <div className="task__icon" onClick={this.onClickOverlay}>
+              {destroyMode ? (
+                <FontAwesomeIcon
+                  data-id={task.id}
+                  icon={['fas', 'minus-circle']}
+                  className="task__delete"
+                  onClick={this.handleDestroy}
+                />
+              ) : <div className="task__resource" style={{ backgroundColor: task.resource.color }} />}
+            </div>
+            <div className="task__name">{task.name}</div>
+            <div className="task__startDate">{task.startDate}</div>
+            <div className="task__endDate">{task.endDate}</div>
+            <div className="task__extend">{task.extend}</div>
+            <div className="task__duration">{task.duration}</div>
+            <div className="task__inCharge">
+              <Avatars members={task.users} />
+            </div>
           </div>
-          <div className="task__name">{task.name}</div>
-          <div className="task__startDate">{task.startDate}</div>
-          <div className="task__endDate">{task.endDate}</div>
-          <div className="task__extend">{task.extend}</div>
-          <div className="task__duration">{task.duration}</div>
-          <div className="task__inCharge">
-            <Avatars members={task.users} />
-          </div>
-        </div>
-      ))
+        )
+      })
     )
   }
 }

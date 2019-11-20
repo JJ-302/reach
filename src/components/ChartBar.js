@@ -67,6 +67,10 @@ const Window = ({ data, offsetX, offsetY }) => (
       <div className="window__duration">{data.duration}</div>
     </div>
     <div className="windowRow">
+      <div className="windowRow__label">Progress:</div>
+      <div className="window__progress">{data.percentComplete}</div>
+    </div>
+    <div className="windowRow">
       <div className="windowRow__label">InCharge:</div>
       <div className="windowMembers">
         <Members users={data.users} />
