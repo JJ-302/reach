@@ -47,9 +47,55 @@
       }
     }
   }
+  &__iconWrapper--account {
+    @extend .sidebar__iconWrapper--plus;
+    &:hover {
+      &::after {
+        content: 'Account';
+        top: 130px;
+        left: 45px;
+      }
+    }
+  }
   &__icon {
     color: $font-white;
     font-size: 20px;
     background: transparent;
+  }
+}
+
+.overlay {
+  height: 100vh;
+  width: 100vw;
+  position: absolute;
+  top:0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: transparent;
+  z-index: 20;
+}
+
+.accountMenu {
+  position: absolute;
+  top: 155px;
+  left: 35px;
+  background-color: $overlay;
+  color: $white;
+  border-radius: 5px;
+  border-top-left-radius: 0;
+  overflow: hidden;
+  &__edit {
+    font-size: 12px;
+    border-bottom: solid 1px $white;
+    padding: 5px 10px;
+    cursor: pointer;
+    &:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+  }
+  &__signout {
+    @extend .accountMenu__edit;
+    border-bottom: none;
   }
 }

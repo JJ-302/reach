@@ -192,7 +192,11 @@ export default class Main extends PureComponent {
 
     return (
       <div className="App">
-        <SideBar refreshProject={this.refreshProject} changeMode={this.changeMode} />
+        <SideBar
+          getProjectIndex={this.getProjectIndex}
+          refreshProject={this.refreshProject}
+          changeMode={this.changeMode}
+        />
         <div className="mainContainer">
           <Header resources={resources} scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
