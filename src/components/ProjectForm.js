@@ -44,19 +44,28 @@ export default class ProjectForm extends PureComponent {
 
   handleCreate = () => {
     const { name, description } = this.state
-    const url = Utils.buildRequestUrl('/projects')
+    const { id } = this.props
+    const request = Utils.preparingRequest(this.action, id, 'projects')
+    if (request === null) {
+      return
+    }
+    const url = Utils.buildRequestUrl(request.uriPattern)
     const params = { name, description }
+
     fetch(url, {
-      method: 'POST',
+      method: request.method,
       headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
       body: JSON.stringify(params),
     })
       .then((_res) => _res.json())
       .then((res) => {
         const { is_created, errors, project } = res
-        if (is_created) {
-          const { closeModal, refresh } = this.props
+        const { closeModal, refresh } = this.props
+        if (is_created && this.action === 'new') {
           refresh(project)
+          closeModal()
+        } else if (is_created && this.action === 'edit') {
+          refresh(project.name)
           closeModal()
         } else {
           this.setState({ errors })

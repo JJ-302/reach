@@ -9,7 +9,9 @@ import '../css/Project.scss'
 class Project extends Component {
   constructor(props) {
     super(props)
+    const { project } = this.props
     this.state = {
+      name: project.name,
       isVisible: false,
       projectFormVisible: false,
     }
@@ -27,6 +29,8 @@ class Project extends Component {
 
   closeProjectForm = () => this.setState({ projectFormVisible: false })
 
+  updateProject = (name) => this.setState({ name })
+
   render() {
     const {
       project,
@@ -35,8 +39,8 @@ class Project extends Component {
       destroyMode,
     } = this.props
 
-    const { tasks, name, id } = project
-    const { isVisible, projectFormVisible } = this.state
+    const { tasks, id } = project
+    const { isVisible, projectFormVisible, name } = this.state
     return (
       <div key={name} className="project">
         <div className="projectHeader">
@@ -73,7 +77,14 @@ class Project extends Component {
               closeModal={this.closeModal}
             />
           )}
-        {projectFormVisible && <ProjectForm id={id} action="edit" closeModal={this.closeProjectForm} />}
+        {projectFormVisible && (
+          <ProjectForm
+            id={id}
+            refresh={this.updateProject}
+            action="edit"
+            closeModal={this.closeProjectForm}
+          />
+        )}
       </div>
     )
   }

@@ -150,7 +150,7 @@ export default class TaskForm extends Component {
       description,
     } = this.state
 
-    const request = Utils.preparingRequest(action, taskID)
+    const request = Utils.preparingRequest(action, taskID, 'tasks')
     if (request === null) {
       return
     }

@@ -6,12 +6,12 @@ export default class Utils {
     return baseUrl + apiEndpoint
   }
 
-  static preparingRequest(action, id) {
+  static preparingRequest(action, id, resource) {
     switch (action) {
       case 'new':
-        return { uriPattern: '/tasks', method: 'POST' }
+        return { uriPattern: `/${resource}`, method: 'POST' }
       case 'edit':
-        return { uriPattern: `/tasks/${id}`, method: 'PUT' }
+        return { uriPattern: `/${resource}/${id}`, method: 'PATCH' }
       default:
         return null
     }
