@@ -22,16 +22,16 @@ class Home extends Component {
 
   render() {
     const { isAuthenticated } = this.state
-    return isAuthenticated ? <Main /> : <Redirect to="/signin" />
+    return isAuthenticated ? <Main /> : <Redirect to="/reach/signin" />
   }
 }
 
 const App = () => (
   <BrowserRouter>
     <Switch>
-      <Route path="/signin"><SignIn /></Route>
-      <Route path="/signup"><SignUp /></Route>
-      <Route exact path="/"><Home /></Route>
+      <Route path="/reach/signin"><SignIn /></Route>
+      <Route path="/reach/signup"><SignUp /></Route>
+      <Route exact path="/reach"><Home /></Route>
       <Route exact><SignIn /></Route>
     </Switch>
   </BrowserRouter>

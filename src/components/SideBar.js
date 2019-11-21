@@ -57,7 +57,7 @@ export default class SideBar extends PureComponent {
     } = this.state
 
     return (
-      isSignOut ? <Redirect to="/signin" /> : (
+      isSignOut ? <Redirect to="/reach/signin" /> : (
         <div className="sidebar">
           <div className="sidebar__iconWrapper--plus" onClick={this.openProjectForm}>
             <FontAwesomeIcon icon={['fas', 'plus']} className="sidebar__icon" />

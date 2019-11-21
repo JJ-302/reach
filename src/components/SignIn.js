@@ -62,7 +62,7 @@ export default class SignIn extends Component {
     } = this.state
 
     return (
-      isSignIn ? <Redirect to="/" /> : (
+      isSignIn ? <Redirect to="/reach" /> : (
         <div className="background">
           <div className="session">
             <div className="session__title">Sign in to Reach</div>
@@ -84,7 +84,7 @@ export default class SignIn extends Component {
             <button type="button" onClick={this.handleSignIn} className="session__submit">
               Sign In
             </button>
-            <Link to="/signup" className="session__switch">Create account</Link>
+            <Link to="/reach/signup" className="session__switch">Create account</Link>
           </div>
         </div>
       )
