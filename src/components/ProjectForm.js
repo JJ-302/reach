@@ -7,6 +7,9 @@ import '../css/Form.scss'
 export default class ProjectForm extends PureComponent {
   constructor(props) {
     super(props)
+    this.token = localStorage.getItem('token')
+    const { action } = this.props
+    this.action = action
     this.state = {
       name: '',
       description: '',
@@ -14,14 +17,38 @@ export default class ProjectForm extends PureComponent {
     }
   }
 
+  componentDidMount() {
+    if (this.action === 'edit') {
+      this.editProjectFormValue()
+    }
+  }
+
+  editProjectFormValue = () => {
+    const { id } = this.props
+    const url = Utils.buildRequestUrl(`/projects/${id}/edit`)
+    fetch(url, {
+      method: 'GET',
+      headers: { 'X-Reach-token': this.token },
+    })
+      .then((_res) => _res.json())
+      .then(({ is_authenticated, project }) => {
+        if (is_authenticated) {
+          const { name, description } = project
+          this.setState({ name, description })
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
+  }
+
   handleCreate = () => {
     const { name, description } = this.state
     const url = Utils.buildRequestUrl('/projects')
-    const token = localStorage.getItem('token')
     const params = { name, description }
     fetch(url, {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Reach-token': token },
+      headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
       body: JSON.stringify(params),
     })
       .then((_res) => _res.json())
@@ -55,13 +82,14 @@ export default class ProjectForm extends PureComponent {
   }
 
   render() {
-    const { closeModal, action } = this.props
+    const { closeModal } = this.props
     const { name, description, errors } = this.state
+    const title = this.action === 'new' ? 'Create ' : 'Update '
     return (
       <div className="modalOverlay" onClick={closeModal}>
         <div className="modalForm" onClick={this.onClickOverlay}>
           <div className="modalForm__title">
-            {action}
+            {title}
             Project
           </div>
           {errors.length !== 0 && <ErrorMessage action="Project creation" errors={errors} />}
@@ -79,7 +107,7 @@ export default class ProjectForm extends PureComponent {
             onChange={this.onChangeDescription}
           />
           <button type="button" onClick={this.handleCreate} className="modalForm__button">
-            {action}
+            {title}
           </button>
         </div>
       </div>

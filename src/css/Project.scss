@@ -16,9 +16,13 @@
     &__name {
       margin-right: 10px;
     }
-    &__addTask {
+    &__edit {
       color: $indigo;
       cursor: pointer;
+      margin-right: 10px;
+    }
+    &__addTask {
+      @extend .projectHeader__edit;
     }
   }
 }

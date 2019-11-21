@@ -80,7 +80,7 @@ export default class SideBar extends PureComponent {
             </div>
           )}
           {projectFormVisible
-            && <ProjectForm action="Create" refresh={refreshProject} closeModal={this.closeProjectForm} />}
+            && <ProjectForm action="new" refresh={refreshProject} closeModal={this.closeProjectForm} />}
           {resourceFormVisible && <ResourceForm action="Create" closeModal={this.closeResourceForm} />}
           {editAccuountVisible
             && <EditAccount refresh={getProjectIndex} closeEditAccount={this.closeEditAccount} />}

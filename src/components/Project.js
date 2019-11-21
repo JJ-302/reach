@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import Task from './Task'
 import TaskForm from './TaskForm'
+import ProjectForm from './ProjectForm'
 import '../css/Project.scss'
 
 class Project extends Component {
@@ -10,6 +11,7 @@ class Project extends Component {
     super(props)
     this.state = {
       isVisible: false,
+      projectFormVisible: false,
     }
   }
 
@@ -19,9 +21,11 @@ class Project extends Component {
     this.setState({ isVisible: true })
   }
 
-  closeModal = () => {
-    this.setState({ isVisible: false })
-  }
+  closeModal = () => this.setState({ isVisible: false })
+
+  openProjectForm = () => this.setState({ projectFormVisible: true })
+
+  closeProjectForm = () => this.setState({ projectFormVisible: false })
 
   render() {
     const {
@@ -32,11 +36,16 @@ class Project extends Component {
     } = this.props
 
     const { tasks, name, id } = project
-    const { isVisible } = this.state
+    const { isVisible, projectFormVisible } = this.state
     return (
       <div key={name} className="project">
         <div className="projectHeader">
           <div className="projectHeader__name">{name}</div>
+          <FontAwesomeIcon
+            icon={['fas', 'edit']}
+            className="projectHeader__edit"
+            onClick={this.openProjectForm}
+          />
           <FontAwesomeIcon
             icon={['fas', 'plus']}
             data-action="new"
@@ -64,6 +73,7 @@ class Project extends Component {
               closeModal={this.closeModal}
             />
           )}
+        {projectFormVisible && <ProjectForm id={id} action="edit" closeModal={this.closeProjectForm} />}
       </div>
     )
   }
