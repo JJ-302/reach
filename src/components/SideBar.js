@@ -47,7 +47,7 @@ export default class SideBar extends PureComponent {
   }
 
   render() {
-    const { refreshProject, getProjectIndex } = this.props
+    const { refreshProject, getProjectIndex, refreshResource } = this.props
     const {
       projectFormVisible,
       resourceFormVisible,
@@ -81,7 +81,8 @@ export default class SideBar extends PureComponent {
           )}
           {projectFormVisible
             && <ProjectForm action="new" refresh={refreshProject} closeModal={this.closeProjectForm} />}
-          {resourceFormVisible && <ResourceForm action="Create" closeModal={this.closeResourceForm} />}
+          {resourceFormVisible
+            && <ResourceForm action="new" refresh={refreshResource} closeModal={this.closeResourceForm} />}
           {editAccuountVisible
             && <EditAccount refresh={getProjectIndex} closeEditAccount={this.closeEditAccount} />}
         </div>

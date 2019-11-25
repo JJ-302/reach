@@ -6,30 +6,52 @@ import ErrorMessage from './Error'
 export default class ResourceForm extends PureComponent {
   constructor(props) {
     super(props)
+    const { action } = this.props
+    this.action = action
     this.state = {
       name: '',
-      token: '',
       colors: [],
       pickedColor: '',
       errors: [],
     }
   }
 
-  componentDidMount() {
+  async componentDidMount() {
+    this.token = await localStorage.getItem('token')
     this.getIndexColors()
+    if (this.action === 'edit') {
+      this.editResourceFormValue()
+    }
   }
 
   getIndexColors = () => {
-    const token = localStorage.getItem('token')
     const url = Utils.buildRequestUrl('/colors')
     fetch(url, {
       method: 'GET',
-      headers: { 'X-Reach-token': token },
+      headers: { 'X-Reach-token': this.token },
     })
       .then((_res) => _res.json())
       .then(({ is_authenticated, colors }) => {
         if (is_authenticated) {
-          this.setState({ colors, token })
+          this.setState({ colors })
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
+  }
+
+  editResourceFormValue = () => {
+    const { id } = this.props
+    const url = Utils.buildRequestUrl(`/resources/${id}/edit`)
+    fetch(url, {
+      method: 'GET',
+      headers: { 'X-Reach-token': this.token },
+    })
+      .then((_res) => _res.json())
+      .then(({ is_authenticated, resource }) => {
+        if (is_authenticated) {
+          this.setState({ name: resource.name, pickedColor: String(resource.color_id) })
         }
       })
       .catch(() => {
@@ -38,19 +60,28 @@ export default class ResourceForm extends PureComponent {
   }
 
   handleCreate = () => {
-    const { closeModal } = this.props
-    const { pickedColor, token, name } = this.state
+    const { closeModal, refresh } = this.props
+    const { pickedColor, name } = this.state
+    const { id } = this.props
+    const request = Utils.preparingRequest(this.action, id, 'resources')
+    if (request === null) {
+      return
+    }
+    const url = Utils.buildRequestUrl(request.uriPattern)
     const params = { name, color_id: pickedColor }
-    const url = Utils.buildRequestUrl('/resources')
     fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'X-Reach-token': token },
+      method: request.method,
+      headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
       body: JSON.stringify(params),
     })
       .then((_res) => _res.json())
       .then((res) => {
-        const { errors, is_created } = res
-        if (is_created) {
+        const { errors, is_created, resource } = res
+        if (is_created && this.action === 'new') {
+          refresh(resource)
+          closeModal()
+        } else if (is_created && this.action === 'edit') {
+          refresh()
           closeModal()
         } else {
           this.setState({ errors })
@@ -76,7 +107,8 @@ export default class ResourceForm extends PureComponent {
   }
 
   render() {
-    const { closeModal, action } = this.props
+    const title = this.action === 'new' ? 'Create ' : 'Update '
+    const { closeModal } = this.props
     const {
       name,
       colors,
@@ -88,7 +120,7 @@ export default class ResourceForm extends PureComponent {
       <div className="modalOverlay" onClick={closeModal}>
         <div className="modalForm" onClick={this.onClickOverlay}>
           <div className="modalForm__title">
-            {action}
+            {title}
             Resource
           </div>
           {errors.length !== 0 && <ErrorMessage action="Resource creation" errors={errors} />}
@@ -108,7 +140,7 @@ export default class ResourceForm extends PureComponent {
             />
           </div>
           <button type="button" onClick={this.handleCreate} className="modalForm__button">
-            {action}
+            {title}
           </button>
         </div>
       </div>

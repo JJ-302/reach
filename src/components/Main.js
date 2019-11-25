@@ -4,6 +4,7 @@ import Moment from 'moment'
 import SideBar from './SideBar'
 import GanttIndexHeader from './GanttIndexHeader'
 import Project from './Project'
+import Resource from './Resource'
 import Gantt from './Gantt'
 import '../css/Main.scss'
 
@@ -53,7 +54,13 @@ const Schedule = ({ scheduleType }) => {
 }
 
 const Header = (props) => {
-  const { scheduleType, onClick, resources } = props
+  const {
+    scheduleType,
+    onClick,
+    resources,
+    refreshResource,
+  } = props
+
   const className = { weeks: 'switchView__button', days: 'switchView__button' }
   if (scheduleType === 'weeks') {
     className.weeks += '--disable'
@@ -87,11 +94,7 @@ const Header = (props) => {
       </div>
       <div className="resource">
         {resources.map((resource) => (
-          <div key={resource.id} className="resource__wrapper">
-            <div className="resource__icon" style={{ backgroundColor: resource.color }} />
-            <div className="resource__name">{resource.name}</div>
-          </div>
-        ))}
+          <Resource refresh={refreshResource} key={resource.id} resource={resource} />))}
       </div>
     </div>
   )
@@ -141,6 +144,13 @@ export default class Main extends PureComponent {
   }
 
   updateProject = (projectsCopy) => this.setState({ projects: projectsCopy })
+
+  refreshResource = (resource) => {
+    const { resources } = this.state
+    const resourcesCopy = resources.slice()
+    resourcesCopy.push(resource)
+    this.setState({ resources: resourcesCopy })
+  }
 
   refreshProject = (project) => {
     const { projects } = this.state
@@ -195,10 +205,16 @@ export default class Main extends PureComponent {
         <SideBar
           getProjectIndex={this.getProjectIndex}
           refreshProject={this.refreshProject}
+          refreshResource={this.refreshResource}
           changeMode={this.changeMode}
         />
         <div className="mainContainer">
-          <Header resources={resources} scheduleType={type} onClick={this.changeScheduleType} />
+          <Header
+            resources={resources}
+            refreshResource={this.getProjectIndex}
+            scheduleType={type}
+            onClick={this.changeScheduleType}
+          />
           <div className="gantt">
             <div className="gantt-index">
               <GanttIndexHeader
