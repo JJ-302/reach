@@ -56,7 +56,7 @@ class GanttTask extends Component {
         const className = task.percentComplete === 'progress' ? 'task' : 'task--complete'
 
         return (
-          <div key={task.name} style={{ paddingLeft: offset }} className={className}>
+          <div key={task.id} style={{ paddingLeft: offset }} className={className}>
             <ChartBar chartWidth={chartWidth} data={task} />
           </div>
         )
