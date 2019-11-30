@@ -37,6 +37,7 @@ class Project extends Component {
       index,
       refreshTask,
       destroyMode,
+      refreshProject,
     } = this.props
 
     const { tasks, id } = project
@@ -66,20 +67,20 @@ class Project extends Component {
             onClick={this.openModal}
           />
         )}
-        {isVisible
-          && (
-            <TaskForm
-              id={id}
-              action={this.action}
-              taskID={this.id}
-              refresh={refreshTask}
-              index={index}
-              closeModal={this.closeModal}
-            />
-          )}
+        {isVisible && (
+          <TaskForm
+            id={id}
+            action={this.action}
+            taskID={this.id}
+            refresh={refreshTask}
+            index={index}
+            closeModal={this.closeModal}
+          />
+        )}
         {projectFormVisible && (
           <ProjectForm
             id={id}
+            refreshProject={refreshProject}
             refresh={this.updateProject}
             action="edit"
             closeModal={this.closeProjectForm}
@@ -91,10 +92,17 @@ class Project extends Component {
 }
 
 const Projects = (props) => {
-  const { projects, refreshTask, mode } = props
+  const {
+    projects,
+    refreshTask,
+    mode,
+    refreshProject,
+  } = props
+
   return projects.map((project, index) => (
     <Project
       refreshTask={refreshTask}
+      refreshProject={refreshProject}
       project={project}
       key={project.name}
       index={index}

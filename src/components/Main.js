@@ -152,11 +152,18 @@ export default class Main extends PureComponent {
     this.setState({ resources: resourcesCopy })
   }
 
-  refreshProject = (project) => {
+  refreshProject = (project, action) => {
     const { projects } = this.state
-    const projectsCopy = projects.slice()
-    projectsCopy.push(project)
-    this.updateProject(projectsCopy)
+    if (action === 'new') {
+      const projectsCopy = projects.slice()
+      projectsCopy.push(project)
+      this.updateProject(projectsCopy)
+    } else if (action === 'destroy') {
+      const projectsCopy = projects.filter((existingProject) => (
+        existingProject.id !== project.id
+      ))
+      this.updateProject(projectsCopy)
+    }
   }
 
   refreshTask = (task, index, action) => {
@@ -222,7 +229,12 @@ export default class Main extends PureComponent {
                 projects={projects}
                 updateProject={this.updateProject}
               />
-              <Project refreshTask={this.refreshTask} projects={projects} mode={destroyMode} />
+              <Project
+                refreshProject={this.refreshProject}
+                refreshTask={this.refreshTask}
+                projects={projects}
+                mode={destroyMode}
+              />
             </div>
             <div className="gantt-schedule">
               <div className="gantt-schedule-header">

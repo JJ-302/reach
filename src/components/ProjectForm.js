@@ -62,13 +62,31 @@ export default class ProjectForm extends PureComponent {
         const { is_created, errors, project } = res
         const { closeModal, refresh } = this.props
         if (is_created && this.action === 'new') {
-          refresh(project)
+          refresh(project, 'new')
           closeModal()
         } else if (is_created && this.action === 'edit') {
           refresh(project.name)
           closeModal()
         } else {
           this.setState({ errors })
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
+  }
+
+  handleDestroy = () => {
+    const { id, refreshProject } = this.props
+    const url = Utils.buildRequestUrl(`/projects/${id}`)
+    fetch(url, {
+      method: 'DELETE',
+      headers: { 'X-Reach-token': this.token },
+    })
+      .then((_res) => _res.json())
+      .then(({ is_delete, project }) => {
+        if (is_delete) {
+          refreshProject(project, 'destroy')
         }
       })
       .catch(() => {
@@ -118,6 +136,11 @@ export default class ProjectForm extends PureComponent {
           <button type="button" onClick={this.handleCreate} className="modalForm__button">
             {title}
           </button>
+          {this.action === 'edit' && (
+            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
+              Delete Project
+            </button>
+          )}
         </div>
       </div>
     )
