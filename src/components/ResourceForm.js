@@ -92,6 +92,24 @@ export default class ResourceForm extends PureComponent {
       })
   }
 
+  handleDestroy = () => {
+    const { id, refresh } = this.props
+    const url = Utils.buildRequestUrl(`/resources/${id}`)
+    fetch(url, {
+      method: 'DELETE',
+      headers: { 'X-Reach-token': this.token },
+    })
+      .then((_res) => _res.json())
+      .then(({ is_delete }) => {
+        if (is_delete) {
+          refresh()
+        }
+      })
+      .catch(() => {
+        // TODO
+      })
+  }
+
   onPickColor = (event) => {
     const pickedColor = event.target.dataset.color
     this.setState({ pickedColor })
@@ -142,6 +160,11 @@ export default class ResourceForm extends PureComponent {
           <button type="button" onClick={this.handleCreate} className="modalForm__button">
             {title}
           </button>
+          {this.action === 'edit' && (
+            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
+              Delete Resource
+            </button>
+          )}
         </div>
       </div>
     )

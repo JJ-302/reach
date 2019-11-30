@@ -38,6 +38,11 @@
   }
   &__button {
     @include button();
+    &--delete {
+      @include button();
+      border-color: $red;
+      color: $red;
+    }
   }
   &__label {
     box-sizing: border-box;
