@@ -1,0 +1,88 @@
+@import './variables';
+
+.confirmOverlay {
+  align-items: center;
+  display: flex;
+  justify-content: center;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  z-index: 30;
+}
+
+.confirm {
+  background-color: white;
+  border-radius: 5px;
+  box-sizing: border-box;
+  color: $dark-grey;
+  max-height: 80vh;
+  overflow-y: scroll;
+  padding: 20px 40px;
+  width: 350px;
+  box-shadow: $box-shadow;
+}
+
+.confirm__icon {
+  font-size: 32px;
+  padding: 10px 0;
+  text-align: center;
+
+  &--success {
+    @extend .confirm__icon;
+    color: $green;
+  }
+  &--error {
+    @extend .confirm__icon;
+    color: $red;
+  }
+  &--ask {
+    @extend .confirm__icon;
+    color: $pink;
+  }
+}
+
+.confirmText {
+  padding: 20px 0;
+  &__title {
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+  }
+  &__description {
+    font-size: 14px;
+    text-align: center;
+  }
+}
+
+.confirmButton {
+  justify-content: center;
+  display: flex;
+  padding: 20px 0;
+  &__cancel {
+    background-color: $grey;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    flex-grow: 1;
+    margin: 0 2px;
+    padding: 2px 5px;
+    text-align: center;
+    width: 100%;
+    &:hover {
+      background-color: $dark-grey;
+      color: white;
+    }
+  }
+  &__confirm {
+    @extend .confirmButton__cancel;
+    background-color: $indigo;
+    color: white;
+    max-width: 200px;
+    &:hover {
+      background-color: $pink;
+      color: white;
+    }
+  }
+}

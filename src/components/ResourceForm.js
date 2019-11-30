@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react'
 
+import Confirm from './Confirm'
 import Utils from '../Utils'
 import ErrorMessage from './Error'
 
@@ -13,6 +14,7 @@ export default class ResourceForm extends PureComponent {
       colors: [],
       pickedColor: '',
       errors: [],
+      confirmVisible: false,
     }
   }
 
@@ -110,6 +112,10 @@ export default class ResourceForm extends PureComponent {
       })
   }
 
+  openConfirm = () => this.setState({ confirmVisible: true })
+
+  closeConfirm = () => this.setState({ confirmVisible: false })
+
   onPickColor = (event) => {
     const pickedColor = event.target.dataset.color
     this.setState({ pickedColor })
@@ -132,6 +138,7 @@ export default class ResourceForm extends PureComponent {
       colors,
       pickedColor,
       errors,
+      confirmVisible,
     } = this.state
 
     return (
@@ -161,11 +168,20 @@ export default class ResourceForm extends PureComponent {
             {title}
           </button>
           {this.action === 'edit' && (
-            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
+            <button type="button" onClick={this.openConfirm} className="modalForm__button--delete">
               Delete Resource
             </button>
           )}
         </div>
+        {confirmVisible && (
+          <Confirm
+            type="ask"
+            closeConfirm={this.closeConfirm}
+            title="Resource destroy"
+            description="Are you sure?"
+            confirm={this.handleDestroy}
+          />
+        )}
       </div>
     )
   }

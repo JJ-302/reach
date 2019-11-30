@@ -1,6 +1,7 @@
 import React, { PureComponent } from 'react'
 
 import Utils from '../Utils'
+import Confirm from './Confirm'
 import ErrorMessage from './Error'
 import '../css/Form.scss'
 
@@ -14,6 +15,7 @@ export default class ProjectForm extends PureComponent {
       name: '',
       description: '',
       errors: [],
+      confirmVisible: false,
     }
   }
 
@@ -94,6 +96,10 @@ export default class ProjectForm extends PureComponent {
       })
   }
 
+  openConfirm = () => this.setState({ confirmVisible: true })
+
+  closeConfirm = () => this.setState({ confirmVisible: false })
+
   onChangeName = (event) => {
     const name = event.target.value
     this.setState({ name })
@@ -110,7 +116,13 @@ export default class ProjectForm extends PureComponent {
 
   render() {
     const { closeModal } = this.props
-    const { name, description, errors } = this.state
+    const {
+      name,
+      description,
+      errors,
+      confirmVisible,
+    } = this.state
+
     const title = this.action === 'new' ? 'Create ' : 'Update '
     return (
       <div className="modalOverlay" onClick={closeModal}>
@@ -137,11 +149,20 @@ export default class ProjectForm extends PureComponent {
             {title}
           </button>
           {this.action === 'edit' && (
-            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
+            <button type="button" onClick={this.openConfirm} className="modalForm__button--delete">
               Delete Project
             </button>
           )}
         </div>
+        {confirmVisible && (
+          <Confirm
+            type="ask"
+            closeConfirm={this.closeConfirm}
+            title="Project destroy"
+            description="Are you sure?"
+            confirm={this.handleDestroy}
+          />
+        )}
       </div>
     )
   }
