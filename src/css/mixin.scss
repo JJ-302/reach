@@ -60,8 +60,12 @@
   text-align: center;
   text-decoration: none;
   color: $white;
+  cursor: pointer;
   padding: 8px 30px;
   margin-top: 10px;
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.4);
+  }
   &:active {
     background-color: rgba(255, 255, 255, 0.2);
   }
