@@ -3,7 +3,7 @@ import Moment from 'moment'
 
 import ChartBar from './ChartBar'
 import '../css/Project.scss'
-import Utils from '../Utils'
+import Utils from '../utils/Utils'
 
 class GanttTask extends Component {
   constructor(props) {
