@@ -6,7 +6,7 @@ import 'react-datepicker/dist/react-datepicker.css'
 
 import ErrorMessage from './Error'
 import '../css/Form.scss'
-import Utils from '../Utils'
+import Utils from '../utils/Utils'
 
 const notExist = -1
 

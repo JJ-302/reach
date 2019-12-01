@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import '../css/Task.scss'
-import Utils from '../Utils'
+import Utils from '../utils/Utils'
 
 const Avatars = ({ members }) => (
   members.map((member, i) => {

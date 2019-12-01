@@ -8,7 +8,7 @@ import Resource from './Resource'
 import Gantt from './Gantt'
 import '../css/Main.scss'
 
-import Utils from '../Utils'
+import Utils from '../utils/Utils'
 
 const sun = 0
 const sat = 6

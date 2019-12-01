@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
-import Utils from '../Utils'
+import Utils from '../utils/Utils'
 
 const notExist = -1
 

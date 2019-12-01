@@ -1,6 +1,6 @@
 import React, { PureComponent } from 'react'
 
-import Utils from '../Utils'
+import Utils from '../utils/Utils'
 import Confirm from './Confirm'
 import ErrorMessage from './Error'
 import '../css/Form.scss'

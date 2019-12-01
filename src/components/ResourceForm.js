@@ -1,7 +1,7 @@
 import React, { PureComponent } from 'react'
 
 import Confirm from './Confirm'
-import Utils from '../Utils'
+import Utils from '../utils/Utils'
 import ErrorMessage from './Error'
 
 export default class ResourceForm extends PureComponent {

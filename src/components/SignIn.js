@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 
 import ErrorMessage from './Error'
-import Utils from '../Utils'
+import Utils from '../utils/Utils'
 import '../css/Session.scss'
 
 export default class SignIn extends Component {

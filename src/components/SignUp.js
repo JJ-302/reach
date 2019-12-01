@@ -3,7 +3,7 @@ import { Link, Redirect } from 'react-router-dom'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import ErrorMessage from './Error'
-import Utils from '../Utils'
+import Utils from '../utils/Utils'
 import '../css/Session.scss'
 
 export default class SignUp extends Component {
