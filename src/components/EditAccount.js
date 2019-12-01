@@ -2,7 +2,16 @@ import React, { Component } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
 import ErrorMessage from './Error'
-import Utils from '../Utils'
+import Confirm from './Confirm'
+import Utils from '../utils/Utils'
+import {
+  badRequest,
+  checkParams,
+  reload,
+  serverError,
+  updated,
+} from '../utils/Text'
+
 import '../css/Session.scss'
 
 export default class EditAccuount extends Component {
@@ -14,6 +23,11 @@ export default class EditAccuount extends Component {
       name: '',
       email: '',
       errors: [],
+      confirmVisible: false,
+      confirmType: '',
+      confirmTitle: '',
+      confirmDescription: '',
+      confirm: () => {},
     }
   }
 
@@ -37,11 +51,11 @@ export default class EditAccuount extends Component {
           this.email = email
           this.setState({ uri: avatar, name, email })
         } else {
-          // TODO
+          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
@@ -70,12 +84,13 @@ export default class EditAccuount extends Component {
         if (is_updated) {
           const { refresh } = this.props
           refresh()
+          this.openConfirm('success', updated, '', this.closeConfirm)
         } else {
           this.setState({ errors })
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
@@ -100,6 +115,18 @@ export default class EditAccuount extends Component {
     closeEditAccount()
   }
 
+  openConfirm = (type, title, description, confirm) => {
+    this.setState({
+      confirmVisible: true,
+      confirmType: type,
+      confirmTitle: title,
+      confirmDescription: description,
+      confirm,
+    })
+  }
+
+  closeConfirm = () => this.setState({ confirmVisible: false })
+
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
@@ -108,6 +135,11 @@ export default class EditAccuount extends Component {
       name,
       email,
       errors,
+      confirmVisible,
+      confirmType,
+      confirmTitle,
+      confirmDescription,
+      confirm,
     } = this.state
 
     return (
@@ -145,6 +177,15 @@ export default class EditAccuount extends Component {
             Update
           </button>
         </div>
+        {confirmVisible && (
+          <Confirm
+            type={confirmType}
+            closeConfirm={this.closeConfirm}
+            title={confirmTitle}
+            description={confirmDescription}
+            confirm={confirm}
+          />
+        )}
       </div>
     )
   }

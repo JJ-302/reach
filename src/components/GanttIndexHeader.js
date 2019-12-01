@@ -2,7 +2,15 @@ import React, { Component } from 'react'
 import DatePicker from 'react-datepicker'
 import 'react-datepicker/dist/react-datepicker.css'
 
+import Confirm from './Confirm'
+
 import Utils from '../utils/Utils'
+import {
+  badRequest,
+  checkParams,
+  reload,
+  serverError,
+} from '../utils/Text'
 
 const notExist = -1
 
@@ -32,6 +40,11 @@ export default class GanttIndexHeader extends Component {
       orderExtend: '',
       inCharge: [],
       selectedResources: [],
+      confirmVisible: false,
+      confirmType: '',
+      confirmTitle: '',
+      confirmDescription: '',
+      confirm: () => {},
     }
   }
 
@@ -49,10 +62,12 @@ export default class GanttIndexHeader extends Component {
       .then(({ users, is_authenticated }) => {
         if (is_authenticated) {
           this.setState({ users })
+        } else {
+          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
@@ -93,11 +108,15 @@ export default class GanttIndexHeader extends Component {
     })
       .then((_res) => _res.json())
       .then(({ projects }) => {
-        const { updateProject } = this.props
-        updateProject(projects)
+        if (projects === undefined) {
+          this.openConfirm('error', serverError, reload, this.closeConfirm)
+        } else {
+          const { updateProject } = this.props
+          updateProject(projects)
+        }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
@@ -143,6 +162,18 @@ export default class GanttIndexHeader extends Component {
         return {}
     }
   }
+
+  openConfirm = (type, title, description, confirm) => {
+    this.setState({
+      confirmVisible: true,
+      confirmType: type,
+      confirmTitle: title,
+      confirmDescription: description,
+      confirm,
+    })
+  }
+
+  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onClickResource = () => {
     const { searchByResourceVisible } = this.state
@@ -367,6 +398,11 @@ export default class GanttIndexHeader extends Component {
       orderDuration,
       inCharge,
       selectedResources,
+      confirmVisible,
+      confirmType,
+      confirmTitle,
+      confirmDescription,
+      confirm,
     } = this.state
 
     const resourceIconClass = selectedResources.length === 0 ? 'resourceIcon' : 'resourceIcon--selected'
@@ -517,6 +553,15 @@ export default class GanttIndexHeader extends Component {
               stopPropagation={this.stopPropagation}
             />
           </div>
+        )}
+        {confirmVisible && (
+          <Confirm
+            type={confirmType}
+            closeConfirm={this.closeConfirm}
+            title={confirmTitle}
+            description={confirmDescription}
+            confirm={confirm}
+          />
         )}
       </div>
     )

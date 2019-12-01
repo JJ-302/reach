@@ -4,9 +4,17 @@ import DatePicker from 'react-datepicker'
 import Moment from 'moment'
 import 'react-datepicker/dist/react-datepicker.css'
 
+import Confirm from './Confirm'
 import ErrorMessage from './Error'
-import '../css/Form.scss'
 import Utils from '../utils/Utils'
+import {
+  badRequest,
+  checkParams,
+  reload,
+  serverError,
+} from '../utils/Text'
+
+import '../css/Form.scss'
 
 const notExist = -1
 
@@ -24,6 +32,11 @@ export default class TaskForm extends Component {
       inCharge: [],
       description: '',
       errors: [],
+      confirmVisible: false,
+      confirmType: '',
+      confirmTitle: '',
+      confirmDescription: '',
+      confirm: () => {},
     }
   }
 
@@ -48,10 +61,12 @@ export default class TaskForm extends Component {
         const { is_authenticated, resources, users } = res
         if (is_authenticated) {
           this.setState({ resources, users })
+        } else {
+          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
@@ -90,12 +105,26 @@ export default class TaskForm extends Component {
             inCharge: stringUserIds,
             resource: resourceId,
           })
+        } else {
+          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
+
+  openConfirm = (type, title, description, confirm) => {
+    this.setState({
+      confirmVisible: true,
+      confirmType: type,
+      confirmTitle: title,
+      confirmDescription: description,
+      confirm,
+    })
+  }
+
+  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onChangeName = (event) => {
     const name = event.target.value
@@ -190,7 +219,7 @@ export default class TaskForm extends Component {
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
@@ -208,6 +237,11 @@ export default class TaskForm extends Component {
       inCharge,
       description,
       errors,
+      confirmVisible,
+      confirmType,
+      confirmTitle,
+      confirmDescription,
+      confirm,
     } = this.state
 
     return (
@@ -288,6 +322,15 @@ export default class TaskForm extends Component {
         <button type="button" onClick={this.createTask} className="taskForm__button">
           {title}
         </button>
+        {confirmVisible && (
+          <Confirm
+            type={confirmType}
+            closeConfirm={this.closeConfirm}
+            title={confirmTitle}
+            description={confirmDescription}
+            confirm={confirm}
+          />
+        )}
       </div>
     )
   }

@@ -3,6 +3,15 @@ import React, { PureComponent } from 'react'
 import Utils from '../utils/Utils'
 import Confirm from './Confirm'
 import ErrorMessage from './Error'
+import {
+  badRequest,
+  checkParams,
+  reload,
+  serverError,
+  ask,
+  destroy,
+} from '../utils/Text'
+
 import '../css/Form.scss'
 
 export default class ProjectForm extends PureComponent {
@@ -16,6 +25,10 @@ export default class ProjectForm extends PureComponent {
       description: '',
       errors: [],
       confirmVisible: false,
+      confirmType: '',
+      confirmTitle: '',
+      confirmDescription: '',
+      confirm: () => {},
     }
   }
 
@@ -37,10 +50,12 @@ export default class ProjectForm extends PureComponent {
         if (is_authenticated) {
           const { name, description } = project
           this.setState({ name, description })
+        } else {
+          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
@@ -74,7 +89,7 @@ export default class ProjectForm extends PureComponent {
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
@@ -89,14 +104,24 @@ export default class ProjectForm extends PureComponent {
       .then(({ is_delete, project }) => {
         if (is_delete) {
           refreshProject(project, 'destroy')
+        } else {
+          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
-  openConfirm = () => this.setState({ confirmVisible: true })
+  openConfirm = (type, title, description, confirm) => {
+    this.setState({
+      confirmVisible: true,
+      confirmType: type,
+      confirmTitle: title,
+      confirmDescription: description,
+      confirm,
+    })
+  }
 
   closeConfirm = () => this.setState({ confirmVisible: false })
 
@@ -121,6 +146,10 @@ export default class ProjectForm extends PureComponent {
       description,
       errors,
       confirmVisible,
+      confirmType,
+      confirmTitle,
+      confirmDescription,
+      confirm,
     } = this.state
 
     const title = this.action === 'new' ? 'Create ' : 'Update '
@@ -149,18 +178,22 @@ export default class ProjectForm extends PureComponent {
             {title}
           </button>
           {this.action === 'edit' && (
-            <button type="button" onClick={this.openConfirm} className="modalForm__button--delete">
+            <button
+              type="button"
+              onClick={() => this.openConfirm('ask', `Project ${destroy}`, ask, this.handleDestroy)}
+              className="modalForm__button--delete"
+            >
               Delete Project
             </button>
           )}
         </div>
         {confirmVisible && (
           <Confirm
-            type="ask"
+            type={confirmType}
             closeConfirm={this.closeConfirm}
-            title="Project destroy"
-            description="Are you sure?"
-            confirm={this.handleDestroy}
+            title={confirmTitle}
+            description={confirmDescription}
+            confirm={confirm}
           />
         )}
       </div>

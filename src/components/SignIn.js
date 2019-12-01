@@ -2,7 +2,10 @@ import React, { Component } from 'react'
 import { Link, Redirect } from 'react-router-dom'
 
 import ErrorMessage from './Error'
+import Confirm from './Confirm'
 import Utils from '../utils/Utils'
+import { reload, serverError } from '../utils/Text'
+
 import '../css/Session.scss'
 
 export default class SignIn extends Component {
@@ -13,16 +16,15 @@ export default class SignIn extends Component {
       password: '',
       isSignIn: false,
       errors: [],
+      confirmVisible: false,
     }
   }
 
   handleSignIn = () => {
     const { email, password } = this.state
     const url = Utils.buildRequestUrl('/sessions')
-    const params = {
-      email,
-      password,
-    }
+    const params = { email, password }
+
     fetch(url, {
       method: 'POST',
       body: JSON.stringify(params),
@@ -34,14 +36,20 @@ export default class SignIn extends Component {
         if (result) {
           localStorage.setItem('token', token)
           this.setState({ isSignIn: true })
-        } else {
+        } else if (errors !== undefined) {
           this.setState({ errors })
+        } else {
+          this.openConfirm()
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm()
       })
   }
+
+  openConfirm = () => this.setState({ confirmVisible: true })
+
+  closeConfirm = () => this.setState({ confirmVisible: false })
 
   emailOnChange = (event) => {
     const email = event.target.value
@@ -59,6 +67,7 @@ export default class SignIn extends Component {
       password,
       isSignIn,
       errors,
+      confirmVisible,
     } = this.state
 
     return (
@@ -86,6 +95,15 @@ export default class SignIn extends Component {
             </button>
             <Link to="/reach/signup" className="session__switch">Create account</Link>
           </div>
+          {confirmVisible && (
+            <Confirm
+              type="error"
+              closeConfirm={this.closeConfirm}
+              title={serverError}
+              description={reload}
+              confirm={this.closeConfirm}
+            />
+          )}
         </div>
       )
     )

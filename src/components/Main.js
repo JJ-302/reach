@@ -6,9 +6,16 @@ import GanttIndexHeader from './GanttIndexHeader'
 import Project from './Project'
 import Resource from './Resource'
 import Gantt from './Gantt'
+import Confirm from './Confirm'
 import '../css/Main.scss'
 
 import Utils from '../utils/Utils'
+import {
+  badRequest,
+  checkParams,
+  reload,
+  serverError,
+} from '../utils/Text'
 
 const sun = 0
 const sat = 6
@@ -108,6 +115,11 @@ export default class Main extends PureComponent {
       projects: [],
       type: 'weeks',
       destroyMode: false,
+      confirmVisible: false,
+      confirmType: '',
+      confirmTitle: '',
+      confirmDescription: '',
+      confirm: () => {},
     }
   }
 
@@ -126,10 +138,12 @@ export default class Main extends PureComponent {
       .then(({ is_authenticated, projects, resources }) => {
         if (is_authenticated) {
           this.setState({ projects, resources })
+        } else {
+          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
 
@@ -142,6 +156,18 @@ export default class Main extends PureComponent {
     const { destroyMode } = this.state
     this.setState({ destroyMode: !destroyMode })
   }
+
+  openConfirm = (type, title, description, confirm) => {
+    this.setState({
+      confirmVisible: true,
+      confirmType: type,
+      confirmTitle: title,
+      confirmDescription: description,
+      confirm,
+    })
+  }
+
+  closeConfirm = () => this.setState({ confirmVisible: false })
 
   updateProject = (projectsCopy) => this.setState({ projects: projectsCopy })
 
@@ -205,6 +231,11 @@ export default class Main extends PureComponent {
       projects,
       resources,
       destroyMode,
+      confirmVisible,
+      confirmType,
+      confirmTitle,
+      confirmDescription,
+      confirm,
     } = this.state
 
     return (
@@ -244,6 +275,15 @@ export default class Main extends PureComponent {
             </div>
           </div>
         </div>
+        {confirmVisible && (
+          <Confirm
+            type={confirmType}
+            closeConfirm={this.closeConfirm}
+            title={confirmTitle}
+            description={confirmDescription}
+            confirm={confirm}
+          />
+        )}
       </div>
     )
   }

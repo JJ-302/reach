@@ -1,8 +1,16 @@
 import React, { Component } from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 
-import '../css/Task.scss'
+import Confirm from './Confirm'
 import Utils from '../utils/Utils'
+import {
+  badRequest,
+  checkParams,
+  reload,
+  serverError,
+} from '../utils/Text'
+
+import '../css/Task.scss'
 
 const Avatars = ({ members }) => (
   members.map((member, i) => {
@@ -17,6 +25,17 @@ const Avatars = ({ members }) => (
 )
 
 export default class Task extends Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      confirmVisible: false,
+      confirmType: '',
+      confirmTitle: '',
+      confirmDescription: '',
+      confirm: () => {},
+    }
+  }
+
   handleDestroy = (event) => {
     event.stopPropagation()
     this.token = localStorage.getItem('token')
@@ -32,12 +51,26 @@ export default class Task extends Component {
         if (is_delete) {
           const { index, refresh } = this.props
           refresh(task, index, 'destroy')
+        } else {
+          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
         }
       })
       .catch(() => {
-        // TODO
+        this.openConfirm('error', serverError, reload, this.closeConfirm)
       })
   }
+
+  openConfirm = (type, title, description, confirm) => {
+    this.setState({
+      confirmVisible: true,
+      confirmType: type,
+      confirmTitle: title,
+      confirmDescription: description,
+      confirm,
+    })
+  }
+
+  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onClickOverlay = (event) => {
     event.stopPropagation()
@@ -45,6 +78,14 @@ export default class Task extends Component {
 
   render() {
     const { tasks, onClick, destroyMode } = this.props
+    const {
+      confirmVisible,
+      confirmType,
+      confirmTitle,
+      confirmDescription,
+      confirm,
+    } = this.state
+
     return (
       tasks.map((task) => {
         const className = task.percentComplete === 'progress' ? 'task' : 'task--complete'
@@ -68,6 +109,15 @@ export default class Task extends Component {
             <div className="task__inCharge">
               <Avatars members={task.users} />
             </div>
+            {confirmVisible && (
+              <Confirm
+                type={confirmType}
+                closeConfirm={this.closeConfirm}
+                title={confirmTitle}
+                description={confirmDescription}
+                confirm={confirm}
+              />
+            )}
           </div>
         )
       })
