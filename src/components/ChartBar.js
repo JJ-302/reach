@@ -20,9 +20,7 @@ export default class ChartBar extends PureComponent {
     this.setState({ isHover: true, offsetX, offsetY })
   }
 
-  onMouseLeave = () => {
-    this.setState({ isHover: false })
-  }
+  onMouseLeave = () => this.setState({ isHover: false })
 
   render() {
     const { chartWidth, data } = this.props

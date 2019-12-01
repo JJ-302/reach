@@ -78,9 +78,8 @@ export default class ResourceForm extends PureComponent {
   }
 
   handleCreate = () => {
-    const { closeModal, refresh } = this.props
+    const { id, closeModal, refresh } = this.props
     const { pickedColor, name } = this.state
-    const { id } = this.props
     const request = Utils.preparingRequest(this.action, id, 'resources')
     if (request === null) {
       return
@@ -93,8 +92,7 @@ export default class ResourceForm extends PureComponent {
       body: JSON.stringify(params),
     })
       .then((_res) => _res.json())
-      .then((res) => {
-        const { errors, is_created, resource } = res
+      .then(({ errors, is_created, resource }) => {
         if (is_created && this.action === 'new') {
           refresh(resource)
           closeModal()
@@ -152,9 +150,7 @@ export default class ResourceForm extends PureComponent {
     this.setState({ name })
   }
 
-  onClickOverlay = (event) => {
-    event.stopPropagation()
-  }
+  onClickOverlay = (event) => event.stopPropagation()
 
   render() {
     const title = this.action === 'new' ? 'Create ' : 'Update '

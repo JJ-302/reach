@@ -13,9 +13,7 @@ const error = ({ action, errors }) => {
 }
 
 const Messages = (props) => (
-  props.errors.map((err) => (
-    <div className="error__message" key={err.error}>{err.error}</div>
-  ))
+  props.errors.map((err) => <div className="error__message" key={err.error}>{err.error}</div>)
 )
 
 export default error

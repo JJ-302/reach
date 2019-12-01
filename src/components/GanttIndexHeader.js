@@ -571,7 +571,6 @@ export default class GanttIndexHeader extends Component {
 const OrderBy = (props) => {
   const { onChangeOrder, by, selected } = props
   const selections = [{ label: 'ASC', value: 'ASC' }, { label: 'DESC', value: 'DESC' }]
-
   return (
     <select data-by={by} value={selected} onChange={onChangeOrder} className="search__order">
       <option key="default" value={null} aria-label="order" />
@@ -584,7 +583,6 @@ const OrderBy = (props) => {
 
 const SearchByDuration = (props) => {
   const { onChangeOrder, selected, stopPropagation } = props
-
   return (
     <div className="search--duration" onClick={stopPropagation}>
       <div className="search__label">Order by duration</div>
@@ -608,7 +606,6 @@ const SearchByDate = (props) => {
 
   const className = `search--${dateType}`
   const title = `Filter by ${dateType} date`
-
   return (
     <div className={className} onClick={stopPropagation}>
       <div className="search__label">Order by duration</div>

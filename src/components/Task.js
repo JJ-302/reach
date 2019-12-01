@@ -72,9 +72,7 @@ export default class Task extends Component {
 
   closeConfirm = () => this.setState({ confirmVisible: false })
 
-  onClickOverlay = (event) => {
-    event.stopPropagation()
-  }
+  onClickOverlay = (event) => event.stopPropagation()
 
   render() {
     const { tasks, onClick, destroyMode } = this.props
