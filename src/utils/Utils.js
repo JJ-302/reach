@@ -2,7 +2,7 @@ import Moment from 'moment'
 
 export default class Utils {
   static buildRequestUrl(apiEndpoint) {
-    const baseUrl = 'http://localhost:3001'
+    const baseUrl = 'https://reach-260801.appspot.com'
     return baseUrl + apiEndpoint
   }
 
