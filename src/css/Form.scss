@@ -12,7 +12,7 @@
   bottom: 0;
   right: 0;
   left: 0;
-  background: $overlay;
+  background: rgba(0, 0, 0, 0.3);
   z-index: 10;
 }
 
@@ -110,7 +110,7 @@
     bottom: 0;
   }
   &__close {
-    position: fixed;
+    position: absolute;
     top: 20px;
     right: 20px;
     color: $white;
