@@ -40,6 +40,10 @@
     align-items: center;
     flex-grow: 1;
     overflow-x: scroll;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
     &__wrapper {
       display: flex;
       flex-direction: column;
@@ -68,6 +72,10 @@
   display: flex;
   height: calc(100vh - #{$header-height});
   overflow: scroll;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
   &-index {
     position: sticky;
     left: 0;
@@ -293,6 +301,10 @@
     overflow-y: scroll;
     width: 360px;
     flex-wrap: wrap;
+    -ms-overflow-style: none;
+    &::-webkit-scrollbar {
+      display: none;
+    }
     .avatar {
       width: 180px;
       display: flex;

@@ -53,6 +53,7 @@
     @include base-label($width: 100px);
     padding-right: 0;
     display: flex;
+    -ms-overflow-style: none;
     &::-webkit-scrollbar {
       display: none;
     }

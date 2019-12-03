@@ -23,6 +23,10 @@
   padding: 20px 40px;
   width: 350px;
   box-shadow: $box-shadow;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 .confirm__icon {

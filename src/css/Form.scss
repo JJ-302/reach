@@ -102,6 +102,10 @@
   background-color: $overlay;
   color: $white;
   overflow-y: scroll;
+  -ms-overflow-style: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
   @media (max-width: 1370px) {
     width: calc(100vw - 780px);
   }
@@ -163,6 +167,10 @@
       flex-wrap: wrap;
       height: 180px;
       overflow-y: scroll;
+      -ms-overflow-style: none;
+      &::-webkit-scrollbar {
+        display: none;
+      }
       @media (max-height: 755px) {
         flex-wrap: nowrap;
         height: auto;
