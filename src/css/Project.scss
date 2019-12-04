@@ -24,5 +24,10 @@
     &__addTask {
       @extend .projectHeader__edit;
     }
+    &__link {
+      color: $indigo;
+      cursor: pointer;
+      font-size: 12px;
+    }
   }
 }

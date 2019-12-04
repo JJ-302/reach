@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Task from './Task'
 import TaskForm from './TaskForm'
 import ProjectForm from './ProjectForm'
+import LinkForm from './LinkForm'
 import '../css/Project.scss'
 
 class Project extends Component {
@@ -14,6 +15,7 @@ class Project extends Component {
       name: project.name,
       isVisible: false,
       projectFormVisible: false,
+      linkFormVisible: false,
     }
   }
 
@@ -29,6 +31,10 @@ class Project extends Component {
 
   closeProjectForm = () => this.setState({ projectFormVisible: false })
 
+  openLinkForm = () => this.setState({ linkFormVisible: true })
+
+  closeLinkForm = () => this.setState({ linkFormVisible: false })
+
   updateProject = (name) => this.setState({ name })
 
   render() {
@@ -41,7 +47,13 @@ class Project extends Component {
     } = this.props
 
     const { tasks, id } = project
-    const { isVisible, projectFormVisible, name } = this.state
+    const {
+      isVisible,
+      projectFormVisible,
+      linkFormVisible,
+      name,
+    } = this.state
+
     return (
       <div key={name} className="project">
         <div className="projectHeader">
@@ -56,6 +68,11 @@ class Project extends Component {
             data-action="new"
             className="projectHeader__addTask"
             onClick={this.openModal}
+          />
+          <FontAwesomeIcon
+            icon={['fas', 'link']}
+            className="projectHeader__link"
+            onClick={this.openLinkForm}
           />
         </div>
         {tasks && (
@@ -86,6 +103,7 @@ class Project extends Component {
             closeModal={this.closeProjectForm}
           />
         )}
+        {linkFormVisible && <LinkForm id={id} closeModal={this.closeLinkForm} />}
       </div>
     )
   }
