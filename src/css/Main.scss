@@ -293,7 +293,6 @@
   &__order {
     @include text-input();
     border: none;
-    width: 140px;
   }
   &__usersWrapper {
     display: flex;
