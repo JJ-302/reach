@@ -178,11 +178,11 @@ export default class ResourceForm extends PureComponent {
           <input
             type="text"
             className="modalForm__textInput"
-            placeholder="Type a resource name"
+            placeholder="リソース名を入力"
             value={name}
             onChange={this.onChangeName}
           />
-          <div className="modalForm__label">Chart color</div>
+          <div className="modalForm__label">ラベルの色を選択</div>
           <div className="colorPallet">
             <ColorPallets
               colors={colors}

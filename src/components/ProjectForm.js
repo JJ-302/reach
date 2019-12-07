@@ -135,9 +135,7 @@ export default class ProjectForm extends PureComponent {
     this.setState({ description })
   }
 
-  onClickOverlay = (event) => {
-    event.stopPropagation()
-  }
+  onClickOverlay = (event) => event.stopPropagation()
 
   render() {
     const { closeModal } = this.props
@@ -164,13 +162,13 @@ export default class ProjectForm extends PureComponent {
           <input
             type="text"
             className="modalForm__textInput"
-            placeholder="Type a project name"
+            placeholder="プロジェクト名を入力"
             value={name}
             onChange={this.onChangeName}
           />
           <textarea
             className="modalForm__textarea"
-            placeholder="Type a project description"
+            placeholder="プロジェクトの説明を入力"
             value={description}
             onChange={this.onChangeDescription}
           />

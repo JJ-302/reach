@@ -12,7 +12,7 @@
     margin-bottom: 20px;
     &:hover {
       &::after {
-        content: 'Create project';
+        content: 'プロジェクト作成';
         box-shadow: $box-shadow;
         border-radius: 3px;
         color: $white;
@@ -31,7 +31,7 @@
     @extend .sidebar__iconWrapper--plus;
     &:hover {
       &::after {
-        content: 'Delete task';
+        content: 'タスク削除';
         top: 50px;
         left: 45px;
       }
@@ -41,7 +41,7 @@
     @extend .sidebar__iconWrapper--plus;
     &:hover {
       &::after {
-        content: 'Create resource';
+        content: 'リソース登録';
         top: 90px;
         left: 45px;
       }
@@ -51,7 +51,7 @@
     @extend .sidebar__iconWrapper--plus;
     &:hover {
       &::after {
-        content: 'Account';
+        content: 'アカウント';
         top: 130px;
         left: 45px;
       }

@@ -45,37 +45,37 @@ const Members = ({ users }) => (
 const Window = ({ data, offsetX, offsetY }) => (
   <div className="window" style={{ top: offsetY, left: offsetX }}>
     <div className="windowRow">
-      <div className="windowRow__label">Name:</div>
+      <div className="windowRow__label">タイトル:</div>
       <div className="windowRow__name">{data.name}</div>
     </div>
     <div className="windowRow">
-      <div className="windowRow__label">StartDate:</div>
+      <div className="windowRow__label">開始日:</div>
       <div className="window__startDate">{data.startDate}</div>
     </div>
     <div className="windowRow">
-      <div className="windowRow__label">EndDate:</div>
+      <div className="windowRow__label">終了日:</div>
       <div className="window__endDate">{data.endDate}</div>
     </div>
     <div className="windowRow">
-      <div className="windowRow__label">Extend:</div>
+      <div className="windowRow__label">延長:</div>
       <div className="window__extend">{data.extend}</div>
     </div>
     <div className="windowRow">
-      <div className="windowRow__label">Duration:</div>
+      <div className="windowRow__label">期間:</div>
       <div className="window__duration">{data.duration}</div>
     </div>
     <div className="windowRow">
-      <div className="windowRow__label">Progress:</div>
+      <div className="windowRow__label">進捗:</div>
       <div className="window__progress">{data.percentComplete}</div>
     </div>
     <div className="windowRow">
-      <div className="windowRow__label">InCharge:</div>
+      <div className="windowRow__label">担当:</div>
       <div className="windowMembers">
         <Members users={data.users} />
       </div>
     </div>
     <div className="windowCol">
-      <div className="windowCol__label">Description:</div>
+      <div className="windowCol__label">説明:</div>
       <div className="windowCol__description">{data.description}</div>
     </div>
   </div>

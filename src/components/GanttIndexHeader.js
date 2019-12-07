@@ -422,7 +422,7 @@ export default class GanttIndexHeader extends Component {
         </div>
         <div className="gantt-index-header__name">
           {projectId === '' && taskName === ''
-            ? <span className="gantt-index-header__label" onClick={this.onClickName}>Name</span>
+            ? <span className="gantt-index-header__label" onClick={this.onClickName}>タイトル</span>
             : (
               <div className="selected">
                 <span className="selected__label" onClick={this.onClickName}>Name</span>
@@ -435,12 +435,12 @@ export default class GanttIndexHeader extends Component {
           {startDateFrom === '' && startDateTo === '' && orderStartDate === ''
             ? (
               <span className="gantt-index-header__label" data-type="start" onClick={this.onClickDate}>
-                StartDate
+                開始日
               </span>
             ) : (
               <div className="selected">
                 <span className="selected__label" data-type="start" onClick={this.onClickDate}>
-                  StartDate
+                  開始日
                 </span>
                 <span className="selected__clear" onClick={this.clearSearchStartDate}>×</span>
               </div>
@@ -451,12 +451,12 @@ export default class GanttIndexHeader extends Component {
           {endDateFrom === '' && endDateTo === '' && orderEndDate === ''
             ? (
               <span className="gantt-index-header__label" data-type="end" onClick={this.onClickDate}>
-                EndDate
+                終了日
               </span>
             ) : (
               <div className="selected">
                 <span className="selected__label" data-type="end" onClick={this.onClickDate}>
-                  EndDate
+                  終了日
                 </span>
                 <span className="selected__clear" onClick={this.clearSearchEndDate}>×</span>
               </div>
@@ -467,12 +467,12 @@ export default class GanttIndexHeader extends Component {
           {extendFrom === '' && extendTo === '' && orderExtend === ''
             ? (
               <span className="gantt-index-header__label" data-type="extend" onClick={this.onClickDate}>
-                Extend
+                延長
               </span>
             ) : (
               <div className="selected">
                 <span className="selected__label" data-type="extend" onClick={this.onClickDate}>
-                  Extend
+                  延長
                 </span>
                 <span className="selected__clear" onClick={this.clearSearchExtend}>×</span>
               </div>
@@ -481,17 +481,17 @@ export default class GanttIndexHeader extends Component {
 
         <div className="gantt-index-header__duration">
           {orderDuration === ''
-            ? <span className="gantt-index-header__label" onClick={this.onClickDuration}>Duration</span>
+            ? <span className="gantt-index-header__label" onClick={this.onClickDuration}>期間</span>
             : (
               <div className="selected">
-                <span className="selected__label" onClick={this.onClickDuration}>Duration</span>
+                <span className="selected__label" onClick={this.onClickDuration}>期間</span>
                 <span className="selected__clear" onClick={this.clearSearchDuration}>×</span>
               </div>
             )}
         </div>
         <div className="gantt-index-header__inCharge">
           {inCharge.length === 0
-            ? <span className="gantt-index-header__label" onClick={this.onClickInCharge}>InCharge</span>
+            ? <span className="gantt-index-header__label" onClick={this.onClickInCharge}>担当</span>
             : (
               <div className="selected">
                 <span className="selected__label" onClick={this.onClickInCharge}>InCharge</span>
@@ -570,7 +570,7 @@ export default class GanttIndexHeader extends Component {
 
 const OrderBy = (props) => {
   const { onChangeOrder, by, selected } = props
-  const selections = [{ label: 'ASC', value: 'ASC' }, { label: 'DESC', value: 'DESC' }]
+  const selections = [{ label: '昇順', value: 'ASC' }, { label: '降順', value: 'DESC' }]
   return (
     <select data-by={by} value={selected} onChange={onChangeOrder} className="search__order">
       <option key="default" value={null} aria-label="order" />
@@ -585,7 +585,7 @@ const SearchByDuration = (props) => {
   const { onChangeOrder, selected, stopPropagation } = props
   return (
     <div className="search--duration" onClick={stopPropagation}>
-      <div className="search__label">Order by duration</div>
+      <div className="search__label">並べ替え</div>
       <OrderBy by="duration" onChangeOrder={onChangeOrder} selected={selected} />
       <div className="search__divide" />
     </div>
@@ -605,19 +605,18 @@ const SearchByDate = (props) => {
   } = props
 
   const className = `search--${dateType}`
-  const title = `Filter by ${dateType} date`
   return (
     <div className={className} onClick={stopPropagation}>
-      <div className="search__label">Order by duration</div>
+      <div className="search__label">並べ替え</div>
       <OrderBy by={dateType} onChangeOrder={onChangeOrder} selected={order} />
       <div className="search__divide" />
-      <div className="search__label">{title}</div>
+      <div className="search__label">表示する期間を指定</div>
       <div className="search__dateWrapper">
         <DatePicker
           className="search__dateRange"
           dateFormat="yyyy/MM/dd"
           showWeekNumbers
-          placeholderText="Select range start"
+          placeholderText="範囲の開始日"
           selected={rangeStart}
           onChange={onChangeRangeStart}
         />
@@ -625,7 +624,7 @@ const SearchByDate = (props) => {
           className="search__dateRange"
           dateFormat="yyyy/MM/dd"
           showWeekNumbers
-          placeholderText="Select range end"
+          placeholderText="範囲の終了日"
           selected={rangeEnd}
           onChange={onChangeRangeEnd}
         />
@@ -646,7 +645,7 @@ const SearchByName = (props) => {
 
   return (
     <div className="search--name" onClick={stopPropagation}>
-      <div className="search__label">Filter by Project</div>
+      <div className="search__label">プロジェクトを選択</div>
       <select value={projectId} onChange={onChangeProject} className="search__project">
         <option key="default" value={null} aria-label="selectProject" />
         {projects.map((project) => (
@@ -654,7 +653,7 @@ const SearchByName = (props) => {
         ))}
       </select>
       <div className="search__divide" />
-      <div className="search__label">Search by Task name</div>
+      <div className="search__label">タスク名で検索</div>
       <input type="text" className="search__task" value={taskName} onChange={onChangeTask} />
     </div>
   )
@@ -685,7 +684,7 @@ const SearchByUsers = (props) => {
 
   return (
     <div className="search--user" onClick={stopPropagation}>
-      <div className="search__label">Search by users</div>
+      <div className="search__label">担当で絞り込み</div>
       <div className="search__usersWrapper">
         <Users users={users} inCharge={inCharge} onClickAvatar={onClickAvatar} />
       </div>
@@ -718,7 +717,7 @@ const SearchByResource = (props) => {
 
   return (
     <div className="search--resource" onClick={stopPropagation}>
-      <div className="search__label">Search by resource</div>
+      <div className="search__label">リソースで絞り込み</div>
       <div className="search__resourceWrapper">
         <Resources
           resources={resources}

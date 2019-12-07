@@ -74,8 +74,8 @@ export default class SideBar extends PureComponent {
           {accountMenuVisible && (
             <div className="overlay" onClick={this.toggleAccountMenu}>
               <div className="accountMenu">
-                <div className="accountMenu__edit" onClick={this.openEditAccount}>Edit account</div>
-                <div className="accountMenu__signout" onClick={this.signOut}>Sign out</div>
+                <div className="accountMenu__edit" onClick={this.openEditAccount}>アカウント編集</div>
+                <div className="accountMenu__signout" onClick={this.signOut}>サインアウト</div>
               </div>
             </div>
           )}

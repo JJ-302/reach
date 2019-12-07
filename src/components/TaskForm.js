@@ -253,7 +253,7 @@ export default class TaskForm extends Component {
         </div>
         {errors.length !== 0 && <ErrorMessage action="Task creation" errors={errors} />}
         <div className="taskFormRow">
-          <div className="taskFormRow__label">Name</div>
+          <div className="taskFormRow__label">タイトル</div>
           <input
             type="text"
             className="taskFormRow__name"
@@ -262,7 +262,7 @@ export default class TaskForm extends Component {
           />
         </div>
         <div className="taskFormRow">
-          <div className="taskFormRow__label">Resource</div>
+          <div className="taskFormRow__label">リソース</div>
           <select
             value={resource}
             onChange={this.onChangeResource}
@@ -274,7 +274,7 @@ export default class TaskForm extends Component {
           <div className="taskFormRow__divide" />
         </div>
         <div className="taskFormRow">
-          <div className="taskFormRow__label">Start date</div>
+          <div className="taskFormRow__label">開始日</div>
           <DatePicker
             className="taskFormRow__date"
             dateFormat="yyyy/MM/dd"
@@ -284,7 +284,7 @@ export default class TaskForm extends Component {
           />
         </div>
         <div className="taskFormRow">
-          <div className="taskFormRow__label">End date</div>
+          <div className="taskFormRow__label">終了日</div>
           <DatePicker
             className="taskFormRow__date"
             dateFormat="yyyy/MM/dd"
@@ -295,7 +295,7 @@ export default class TaskForm extends Component {
         </div>
         {action === 'edit' && (
           <div className="taskFormRow">
-            <div className="taskFormRow__label">Complete</div>
+            <div className="taskFormRow__label">完了</div>
             <div className="taskFormRow__complete" onClick={this.onCheck}>
               <div className="taskFormRow__checkbox">
                 <FontAwesomeIcon icon={['far', 'square']} />
@@ -306,13 +306,13 @@ export default class TaskForm extends Component {
           </div>
         )}
         <div className="taskFormRow">
-          <div className="taskFormRow__label">In charge</div>
+          <div className="taskFormRow__label">担当</div>
           <div className="taskFormRow__inCharge">
             <Users users={users} inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
           </div>
         </div>
         <div className="taskFormRow">
-          <div className="taskFormRow__label">Description</div>
+          <div className="taskFormRow__label">説明</div>
           <textarea
             className="taskFormRow__description"
             value={description}
