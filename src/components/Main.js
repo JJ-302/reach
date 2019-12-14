@@ -19,7 +19,7 @@ import {
 
 const sun = 0
 const sat = 6
-const startDate = Utils.dateRangeStart()
+const startDate = Moment(new Date()).subtract(2, 'weeks')
 const endDate = Utils.dateRangeEnd()
 
 

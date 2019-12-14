@@ -494,7 +494,7 @@ export default class GanttIndexHeader extends Component {
             ? <span className="gantt-index-header__label" onClick={this.onClickInCharge}>担当</span>
             : (
               <div className="selected">
-                <span className="selected__label" onClick={this.onClickInCharge}>InCharge</span>
+                <span className="selected__label" onClick={this.onClickInCharge}>担当</span>
                 <span className="selected__clear" onClick={this.clearSearchInCharge}>×</span>
               </div>
             )}

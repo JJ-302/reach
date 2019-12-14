@@ -13,8 +13,10 @@ class GanttTask extends Component {
   }
 
   calcOffset = (task) => {
-    const offset = Moment(task.startDate, 'YYYY/MM/DD').startOf('days').diff(this.start, 'days')
-    return (offset - 1) * this.baseChartWidth
+    const start = Moment(new Date()).subtract(2, 'weeks')
+    const offset = Moment(task.startDate, 'YYYY/MM/DD').startOf('days').diff(start, 'days')
+
+    return (offset + 1) * this.baseChartWidth
   }
 
   calcOffsetForWeeks = (task) => {
