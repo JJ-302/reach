@@ -127,24 +127,22 @@ export default class Main extends PureComponent {
     this.getProjectIndex()
   }
 
-  getProjectIndex = () => {
+  getProjectIndex = async () => {
     const url = Utils.buildRequestUrl('/projects')
     const token = localStorage.getItem('token')
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_authenticated, projects, resources }) => {
-        if (is_authenticated) {
-          this.setState({ projects, resources })
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_authenticated, projects, resources } = await response.json()
+    if (is_authenticated) {
+      this.setState({ projects, resources })
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
   changeScheduleType = (event) => {
