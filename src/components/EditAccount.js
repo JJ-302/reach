@@ -36,36 +36,29 @@ export default class EditAccuount extends Component {
     this.getCurrentAccount()
   }
 
-  getCurrentAccount = () => {
+  getCurrentAccount = async () => {
     const url = Utils.buildRequestUrl('/users/edit')
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_authenticated, user }) => {
-        if (is_authenticated) {
-          const { avatar, name, email } = user
-          this.avatar = avatar
-          this.name = name
-          this.email = email
-          this.setState({ uri: avatar, name, email })
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_authenticated, user } = await response.json();
+    if (is_authenticated) {
+      const { avatar, name, email } = user
+      this.avatar = avatar
+      this.name = name
+      this.email = email
+      this.setState({ uri: avatar, name, email })
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
-  handleUpdate = () => {
-    const {
-      avatar,
-      name,
-      email,
-    } = this.state
-
+  handleUpdate = async () => {
+    const { avatar, name, email } = this.state;
     const params = new FormData()
     params.append('user[name]', name)
     params.append('user[email]', email)
@@ -74,24 +67,22 @@ export default class EditAccuount extends Component {
     }
 
     const url = Utils.buildRequestUrl('/users/update')
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'PATCH',
       headers: { 'X-Reach-token': this.token },
       body: params,
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_updated, errors }) => {
-        if (is_updated) {
-          const { refresh } = this.props
-          refresh()
-          this.openConfirm('success', updated, '', this.closeConfirm)
-        } else {
-          this.setState({ errors })
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_updated, errors } = await response.json();
+    if (is_updated) {
+      const { refresh } = this.props
+      refresh()
+      this.openConfirm('success', updated, '', this.closeConfirm)
+    } else {
+      this.setState({ errors })
+    }
   }
 
   onChangeFile = (event) => {
