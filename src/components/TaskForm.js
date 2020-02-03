@@ -49,69 +49,66 @@ export default class TaskForm extends Component {
     }
   }
 
-  getTaskFormValue = () => {
+  getTaskFormValue = async () => {
     this.token = localStorage.getItem('token')
     const url = Utils.buildRequestUrl('/tasks/new')
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then((res) => {
-        const { is_authenticated, resources, users } = res
-        if (is_authenticated) {
-          this.setState({ resources, users })
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_authenticated, resources, users } = await response.json()
+    if (is_authenticated) {
+      this.setState({ resources, users })
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
-  editTaskFormValue = (taskID) => {
+  editTaskFormValue = async (taskID) => {
     this.token = localStorage.getItem('token')
     const url = Utils.buildRequestUrl(`/tasks/${taskID}/edit`)
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then((res) => {
-        const { is_authenticated, resources, users } = res
-        if (is_authenticated) {
-          const {
-            description,
-            startDate,
-            endDate,
-            extend,
-            name,
-            percentComplete,
-            userIds,
-            resourceId,
-          } = res.task
 
-          const complete = percentComplete === 'complete'
-          const stringUserIds = userIds.map((userId) => String(userId))
-          this.setState({
-            resources,
-            users,
-            name,
-            complete,
-            description,
-            startDate: new Date(startDate),
-            endDate: extend ? new Date(extend) : new Date(endDate),
-            inCharge: stringUserIds,
-            resource: resourceId,
-          })
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
+    const {
+      is_authenticated, resources, users, task,
+    } = await response.json()
+
+    if (is_authenticated) {
+      const {
+        description,
+        startDate,
+        endDate,
+        extend,
+        name,
+        percentComplete,
+        userIds,
+        resourceId,
+      } = task
+
+      const complete = percentComplete === 'complete'
+      const stringUserIds = userIds.map((userId) => String(userId))
+      this.setState({
+        resources,
+        users,
+        name,
+        complete,
+        description,
+        startDate: new Date(startDate),
+        endDate: extend ? new Date(extend) : new Date(endDate),
+        inCharge: stringUserIds,
+        resource: resourceId,
       })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -167,7 +164,7 @@ export default class TaskForm extends Component {
     this.setState({ description })
   }
 
-  createTask = () => {
+  createTask = async () => {
     const { id, taskID, action } = this.props
     const {
       name,
@@ -203,24 +200,22 @@ export default class TaskForm extends Component {
       delete params.end_date
     }
 
-    fetch(url, {
+    const response = await fetch(url, {
       method: request.method,
       headers: { 'X-Reach-token': this.token, 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_created, errors, task }) => {
-        if (is_created) {
-          const { refresh, index } = this.props
-          refresh(task, index, action)
-          this.setState({ errors: [] })
-        } else {
-          this.setState({ errors })
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_created, errors, task } = await response.json()
+    if (is_created) {
+      const { refresh, index } = this.props
+      refresh(task, index, action)
+      this.setState({ errors: [] })
+    } else {
+      this.setState({ errors })
+    }
   }
 
   render() {
