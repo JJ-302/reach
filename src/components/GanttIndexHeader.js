@@ -52,26 +52,24 @@ export default class GanttIndexHeader extends Component {
     this.getUserIndex()
   }
 
-  getUserIndex = () => {
+  getUserIndex = async () => {
     const url = Utils.buildRequestUrl('/users')
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ users, is_authenticated }) => {
-        if (is_authenticated) {
-          this.setState({ users })
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { users, is_authenticated } = await response.json();
+    if (is_authenticated) {
+      this.setState({ users })
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
-  search = () => {
+  search = async () => {
     const {
       projectId,
       taskName,
@@ -89,7 +87,6 @@ export default class GanttIndexHeader extends Component {
       selectedResources,
     } = this.state
 
-    const url = Utils.buildRequestUrl('/tasks/search')
     const params = {
       project_id: projectId,
       task_name: taskName,
@@ -101,23 +98,22 @@ export default class GanttIndexHeader extends Component {
       resources: selectedResources,
     }
 
-    fetch(url, {
+    const url = Utils.buildRequestUrl('/tasks/search')
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ projects }) => {
-        if (projects === undefined) {
-          this.openConfirm('error', serverError, reload, this.closeConfirm)
-        } else {
-          const { updateProject } = this.props
-          updateProject(projects)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { projects } = await response.json()
+    if (projects === undefined) {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
+    } else {
+      const { updateProject } = this.props
+      updateProject(projects)
+    }
   }
 
   sortingByDateRange = (type) => {

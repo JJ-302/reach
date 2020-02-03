@@ -20,31 +20,25 @@ export default class SignIn extends Component {
     }
   }
 
-  handleSignIn = () => {
+  handleSignIn = async () => {
     const { email, password } = this.state
     const url = Utils.buildRequestUrl('/sessions')
     const params = { email, password }
-
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(params),
       headers: { 'Content-Type': 'application/json' },
     })
-      .then((_res) => _res.json())
-      .then((res) => {
-        const { result, token, errors } = res
-        if (result) {
-          localStorage.setItem('token', token)
-          this.setState({ isSignIn: true })
-        } else if (errors !== undefined) {
-          this.setState({ errors })
-        } else {
-          this.openConfirm()
-        }
-      })
-      .catch(() => {
-        this.openConfirm()
-      })
+
+    const { result, token, errors } = await response.json();
+    if (result) {
+      localStorage.setItem('token', token)
+      this.setState({ isSignIn: true })
+    } else if (errors !== undefined) {
+      this.setState({ errors })
+    } else {
+      this.openConfirm()
+    }
   }
 
   openConfirm = () => this.setState({ confirmVisible: true })

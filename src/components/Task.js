@@ -36,28 +36,26 @@ export default class Task extends Component {
     }
   }
 
-  handleDestroy = (event) => {
+  handleDestroy = async (event) => {
     event.stopPropagation()
     this.token = localStorage.getItem('token')
     const { id } = event.currentTarget.dataset
     const url = Utils.buildRequestUrl(`/tasks/${id}`)
 
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'DELETE',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_delete, task }) => {
-        if (is_delete) {
-          const { index, refresh } = this.props
-          refresh(task, index, 'destroy')
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_delete, task } = await response.json()
+    if (is_delete) {
+      const { index, refresh } = this.props
+      refresh(task, index, 'destroy')
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
   openConfirm = (type, title, description, confirm) => {

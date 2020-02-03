@@ -38,46 +38,42 @@ export default class ResourceForm extends PureComponent {
     }
   }
 
-  getIndexColors = () => {
+  getIndexColors = async () => {
     const url = Utils.buildRequestUrl('/colors')
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_authenticated, colors }) => {
-        if (is_authenticated) {
-          this.setState({ colors })
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_authenticated, colors } = await response.json()
+    if (is_authenticated) {
+      this.setState({ colors })
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
-  editResourceFormValue = () => {
+  editResourceFormValue = async () => {
     const { id } = this.props
     const url = Utils.buildRequestUrl(`/resources/${id}/edit`)
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_authenticated, resource }) => {
-        if (is_authenticated) {
-          this.setState({ name: resource.name, pickedColor: String(resource.color_id) })
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_authenticated, resource } = await response.json()
+    if (is_authenticated) {
+      this.setState({ name: resource.name, pickedColor: String(resource.color_id) })
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
-  handleCreate = () => {
+  handleCreate = async () => {
     const { id, closeModal, refresh } = this.props
     const { pickedColor, name } = this.state
     const request = Utils.preparingRequest(this.action, id, 'resources')
@@ -86,46 +82,42 @@ export default class ResourceForm extends PureComponent {
     }
     const url = Utils.buildRequestUrl(request.uriPattern)
     const params = { name, color_id: pickedColor }
-    fetch(url, {
+    const response = await fetch(url, {
       method: request.method,
       headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
       body: JSON.stringify(params),
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ errors, is_created, resource }) => {
-        if (is_created && this.action === 'new') {
-          refresh(resource)
-          closeModal()
-        } else if (is_created && this.action === 'edit') {
-          refresh()
-          closeModal()
-        } else {
-          this.setState({ errors })
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { errors, is_created, resource } = await response.json()
+    if (is_created && this.action === 'new') {
+      refresh(resource)
+      closeModal()
+    } else if (is_created && this.action === 'edit') {
+      refresh()
+      closeModal()
+    } else {
+      this.setState({ errors })
+    }
   }
 
-  handleDestroy = () => {
+  handleDestroy = async () => {
     const { id, refresh } = this.props
     const url = Utils.buildRequestUrl(`/resources/${id}`)
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'DELETE',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_delete }) => {
-        if (is_delete) {
-          refresh()
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_delete } = await response.json()
+    if (is_delete) {
+      refresh()
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
   openConfirm = (type, title, description, confirm) => {
