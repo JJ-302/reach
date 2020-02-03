@@ -24,7 +24,7 @@ export default class SignUp extends Component {
     }
   }
 
-  handleSignUp = () => {
+  handleSignUp = async () => {
     const {
       avatar,
       name,
@@ -43,24 +43,20 @@ export default class SignUp extends Component {
     }
 
     const url = Utils.buildRequestUrl('/users')
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       body: params,
-    })
-      .then((_res) => _res.json())
-      .then(({ is_created, errors, token }) => {
-        if (is_created) {
-          localStorage.setItem('token', token)
-          this.setState({ isSignIn: true })
-        } else if (errors !== undefined) {
-          this.setState({ errors })
-        } else {
-          this.openConfirm()
-        }
-      })
-      .catch(() => {
-        this.openConfirm()
-      })
+    });
+
+    const { is_created, errors, token } = await response.json();
+    if (is_created) {
+      localStorage.setItem('token', token)
+      this.setState({ isSignIn: true })
+    } else if (errors !== undefined) {
+      this.setState({ errors })
+    } else {
+      this.openConfirm()
+    }
   }
 
   openConfirm = () => this.setState({ confirmVisible: true })
