@@ -25,74 +25,68 @@ export default class LinkForm extends Component {
     this.handleIndex()
   }
 
-  handleIndex = () => {
+  handleIndex = async () => {
     const { id } = this.props
     const url = Utils.buildRequestUrl(`/projects/${id}/attachments`)
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm()
     })
-      .then((_res) => _res.json())
-      .then(({ attachments, is_authenticated }) => {
-        if (is_authenticated) {
-          this.setState({ attachments })
-        } else {
-          this.openConfirm()
-        }
-      })
-      .catch(() => {
-        this.openConfirm()
-      })
+
+    const { attachments, is_authenticated } = await response.json()
+    if (is_authenticated) {
+      this.setState({ attachments })
+    } else {
+      this.openConfirm()
+    }
   }
 
-  handleCreate = () => {
+  handleCreate = async () => {
     const { name, link, attachments } = this.state
     const { id } = this.props
     const url = Utils.buildRequestUrl(`/projects/${id}/attachments`)
     const params = { name, url: link }
 
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'POST',
       headers: { 'X-Reach-token': this.token, 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
+    }).catch(() => {
+      this.openConfirm()
     })
-      .then((_res) => _res.json())
-      .then(({ is_created, errors, attachment }) => {
-        if (is_created) {
-          const attachmentsCopy = attachments.slice()
-          attachmentsCopy.push(attachment)
-          this.setState({ attachments: attachmentsCopy })
-        } else {
-          this.setState({ errors })
-        }
-      })
-      .catch(() => {
-        this.openConfirm()
-      })
+
+    const { is_created, errors, attachment } = await response.json()
+    if (is_created) {
+      const attachmentsCopy = attachments.slice()
+      attachmentsCopy.push(attachment)
+      this.setState({ attachments: attachmentsCopy })
+    } else {
+      this.setState({ errors })
+    }
   }
 
-  handleDestroy = (event) => {
+  handleDestroy = async (event) => {
     const { id } = event.currentTarget.dataset
     const url = Utils.buildRequestUrl(`/attachments/${id}`)
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'DELETE',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm()
     })
-      .then((_res) => _res.json())
-      .then((is_delete) => {
-        if (is_delete) {
-          const { attachments } = this.state
-          const attachmentsCopy = attachments.filter((attachment) => (
-            String(attachment.id) !== id
-          ))
-          this.setState({ attachments: attachmentsCopy })
-        } else {
-          this.openConfirm()
-        }
-      })
-      .catch(() => {
-        this.openConfirm()
-      })
+
+    const isDelete = await response.json()
+    if (isDelete) {
+      const { attachments } = this.state
+      const attachmentsCopy = attachments.filter((attachment) => (
+        String(attachment.id) !== id
+      ))
+      this.setState({ attachments: attachmentsCopy })
+    } else {
+      this.openConfirm()
+    }
   }
 
   openConfirm = () => this.setState({ confirmVisible: true })
