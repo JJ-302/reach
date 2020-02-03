@@ -38,28 +38,26 @@ export default class ProjectForm extends PureComponent {
     }
   }
 
-  editProjectFormValue = () => {
+  editProjectFormValue = async () => {
     const { id } = this.props
     const url = Utils.buildRequestUrl(`/projects/${id}/edit`)
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_authenticated, project }) => {
-        if (is_authenticated) {
-          const { name, description } = project
-          this.setState({ name, description })
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_authenticated, project } = await response.json()
+    if (is_authenticated) {
+      const { name, description } = project
+      this.setState({ name, description })
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
-  handleCreate = () => {
+  handleCreate = async () => {
     const { name, description } = this.state
     const { id } = this.props
     const request = Utils.preparingRequest(this.action, id, 'projects')
@@ -69,48 +67,43 @@ export default class ProjectForm extends PureComponent {
     const url = Utils.buildRequestUrl(request.uriPattern)
     const params = { name, description }
 
-    fetch(url, {
+    const response = await fetch(url, {
       method: request.method,
       headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
       body: JSON.stringify(params),
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then((res) => {
-        const { is_created, errors, project } = res
-        const { closeModal, refresh } = this.props
-        if (is_created && this.action === 'new') {
-          refresh(project, 'new')
-          closeModal()
-        } else if (is_created && this.action === 'edit') {
-          refresh(project.name)
-          closeModal()
-        } else {
-          this.setState({ errors })
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_created, errors, project } = await response.json()
+    const { closeModal, refresh } = this.props
+    if (is_created && this.action === 'new') {
+      refresh(project, 'new')
+      closeModal()
+    } else if (is_created && this.action === 'edit') {
+      refresh(project.name)
+      closeModal()
+    } else {
+      this.setState({ errors })
+    }
   }
 
-  handleDestroy = () => {
+  handleDestroy = async () => {
     const { id, refreshProject } = this.props
     const url = Utils.buildRequestUrl(`/projects/${id}`)
-    fetch(url, {
+    const response = await fetch(url, {
       method: 'DELETE',
       headers: { 'X-Reach-token': this.token },
+    }).catch(() => {
+      this.openConfirm('error', serverError, reload, this.closeConfirm)
     })
-      .then((_res) => _res.json())
-      .then(({ is_delete, project }) => {
-        if (is_delete) {
-          refreshProject(project, 'destroy')
-        } else {
-          this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
-        }
-      })
-      .catch(() => {
-        this.openConfirm('error', serverError, reload, this.closeConfirm)
-      })
+
+    const { is_delete, project } = await response.json()
+    if (is_delete) {
+      refreshProject(project, 'destroy')
+    } else {
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+    }
   }
 
   openConfirm = (type, title, description, confirm) => {
