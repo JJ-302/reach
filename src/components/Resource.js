@@ -1,23 +1,23 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 
-import ResourceForm from './ResourceForm'
+import ResourceForm from './ResourceForm';
 
 export default class Resource extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       resourceFormVisible: false,
-    }
+    };
   }
 
   toggleResourceForm = () => {
-    const { resourceFormVisible } = this.state
-    this.setState({ resourceFormVisible: !resourceFormVisible })
+    const { resourceFormVisible } = this.state;
+    this.setState({ resourceFormVisible: !resourceFormVisible });
   }
 
   render() {
-    const { resourceFormVisible } = this.state
-    const { resource, refresh } = this.props
+    const { resourceFormVisible } = this.state;
+    const { resource, refresh } = this.props;
 
     return (
       <div className="resource__wrapper" onClick={this.toggleResourceForm}>
@@ -32,6 +32,6 @@ export default class Resource extends Component {
           />
         )}
       </div>
-    )
+    );
   }
 }

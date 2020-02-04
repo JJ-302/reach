@@ -1,16 +1,16 @@
-import React, { Component } from 'react'
-import { Link, Redirect } from 'react-router-dom'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React, { Component } from 'react';
+import { Link, Redirect } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ErrorMessage from './Error'
-import Confirm from './Confirm'
-import Utils from '../utils/Utils'
-import { reload, serverError } from '../utils/Text'
-import '../css/Session.scss'
+import ErrorMessage from './Error';
+import Confirm from './Confirm';
+import Utils from '../utils/Utils';
+import { reload, serverError } from '../utils/Text';
+import '../css/Session.scss';
 
 export default class SignUp extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       uri: '',
       avatar: null,
@@ -21,7 +21,7 @@ export default class SignUp extends Component {
       errors: [],
       isSignIn: false,
       confirmVisible: false,
-    }
+    };
   }
 
   handleSignUp = async () => {
@@ -31,18 +31,18 @@ export default class SignUp extends Component {
       email,
       password,
       passwordConfirmation,
-    } = this.state
+    } = this.state;
 
-    const params = new FormData()
-    params.append('user[name]', name)
-    params.append('user[email]', email)
-    params.append('user[password]', password)
-    params.append('user[password_confirmation]', passwordConfirmation)
+    const params = new FormData();
+    params.append('user[name]', name);
+    params.append('user[email]', email);
+    params.append('user[password]', password);
+    params.append('user[password_confirmation]', passwordConfirmation);
     if (avatar) {
-      params.append('user[avatar]', avatar)
+      params.append('user[avatar]', avatar);
     }
 
-    const url = Utils.buildRequestUrl('/users')
+    const url = Utils.buildRequestUrl('/users');
     const response = await fetch(url, {
       method: 'POST',
       body: params,
@@ -50,12 +50,12 @@ export default class SignUp extends Component {
 
     const { is_created, errors, token } = await response.json();
     if (is_created) {
-      localStorage.setItem('token', token)
-      this.setState({ isSignIn: true })
+      localStorage.setItem('token', token);
+      this.setState({ isSignIn: true });
     } else if (errors !== undefined) {
-      this.setState({ errors })
+      this.setState({ errors });
     } else {
-      this.openConfirm()
+      this.openConfirm();
     }
   }
 
@@ -64,29 +64,29 @@ export default class SignUp extends Component {
   closeConfirm = () => this.setState({ confirmVisible: false })
 
   onChangeFile = (event) => {
-    const avatar = event.target.files[0]
-    const uri = URL.createObjectURL(avatar)
-    this.setState({ uri, avatar })
+    const avatar = event.target.files[0];
+    const uri = URL.createObjectURL(avatar);
+    this.setState({ uri, avatar });
   }
 
   onChangeName = (event) => {
-    const name = event.target.value
-    this.setState({ name })
+    const name = event.target.value;
+    this.setState({ name });
   }
 
   onChangeEmail = (event) => {
-    const email = event.target.value
-    this.setState({ email })
+    const email = event.target.value;
+    this.setState({ email });
   }
 
   onChangePassword = (event) => {
-    const password = event.target.value
-    this.setState({ password })
+    const password = event.target.value;
+    this.setState({ password });
   }
 
   onChangePasswordConfirmation = (event) => {
-    const passwordConfirmation = event.target.value
-    this.setState({ passwordConfirmation })
+    const passwordConfirmation = event.target.value;
+    this.setState({ passwordConfirmation });
   }
 
   render() {
@@ -99,7 +99,7 @@ export default class SignUp extends Component {
       errors,
       isSignIn,
       confirmVisible,
-    } = this.state
+    } = this.state;
 
     return (
       isSignIn ? <Redirect to="/reach" /> : (
@@ -163,6 +163,6 @@ export default class SignUp extends Component {
           )}
         </div>
       )
-    )
+    );
   }
 }

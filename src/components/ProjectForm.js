@@ -1,8 +1,8 @@
-import React, { PureComponent } from 'react'
+import React, { PureComponent } from 'react';
 
-import Utils from '../utils/Utils'
-import Confirm from './Confirm'
-import ErrorMessage from './Error'
+import Utils from '../utils/Utils';
+import Confirm from './Confirm';
+import ErrorMessage from './Error';
 import {
   badRequest,
   checkParams,
@@ -10,16 +10,16 @@ import {
   serverError,
   ask,
   destroy,
-} from '../utils/Text'
+} from '../utils/Text';
 
-import '../css/Form.scss'
+import '../css/Form.scss';
 
 export default class ProjectForm extends PureComponent {
   constructor(props) {
-    super(props)
-    this.token = localStorage.getItem('token')
-    const { action } = this.props
-    this.action = action
+    super(props);
+    this.token = localStorage.getItem('token');
+    const { action } = this.props;
+    this.action = action;
     this.state = {
       name: '',
       description: '',
@@ -29,80 +29,80 @@ export default class ProjectForm extends PureComponent {
       confirmTitle: '',
       confirmDescription: '',
       confirm: () => {},
-    }
+    };
   }
 
   componentDidMount() {
     if (this.action === 'edit') {
-      this.editProjectFormValue()
+      this.editProjectFormValue();
     }
   }
 
   editProjectFormValue = async () => {
-    const { id } = this.props
-    const url = Utils.buildRequestUrl(`/projects/${id}/edit`)
+    const { id } = this.props;
+    const url = Utils.buildRequestUrl(`/projects/${id}/edit`);
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { is_authenticated, project } = await response.json()
+    const { is_authenticated, project } = await response.json();
     if (is_authenticated) {
-      const { name, description } = project
-      this.setState({ name, description })
+      const { name, description } = project;
+      this.setState({ name, description });
     } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
     }
   }
 
   handleCreate = async () => {
-    const { name, description } = this.state
-    const { id } = this.props
-    const request = Utils.preparingRequest(this.action, id, 'projects')
+    const { name, description } = this.state;
+    const { id } = this.props;
+    const request = Utils.preparingRequest(this.action, id, 'projects');
     if (request === null) {
-      return
+      return;
     }
-    const url = Utils.buildRequestUrl(request.uriPattern)
-    const params = { name, description }
+    const url = Utils.buildRequestUrl(request.uriPattern);
+    const params = { name, description };
 
     const response = await fetch(url, {
       method: request.method,
       headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
       body: JSON.stringify(params),
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { is_created, errors, project } = await response.json()
-    const { closeModal, refresh } = this.props
+    const { is_created, errors, project } = await response.json();
+    const { closeModal, refresh } = this.props;
     if (is_created && this.action === 'new') {
-      refresh(project, 'new')
-      closeModal()
+      refresh(project, 'new');
+      closeModal();
     } else if (is_created && this.action === 'edit') {
-      refresh(project.name)
-      closeModal()
+      refresh(project.name);
+      closeModal();
     } else {
-      this.setState({ errors })
+      this.setState({ errors });
     }
   }
 
   handleDestroy = async () => {
-    const { id, refreshProject } = this.props
-    const url = Utils.buildRequestUrl(`/projects/${id}`)
+    const { id, refreshProject } = this.props;
+    const url = Utils.buildRequestUrl(`/projects/${id}`);
     const response = await fetch(url, {
       method: 'DELETE',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { is_delete, project } = await response.json()
+    const { is_delete, project } = await response.json();
     if (is_delete) {
-      refreshProject(project, 'destroy')
+      refreshProject(project, 'destroy');
     } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
     }
   }
 
@@ -113,25 +113,25 @@ export default class ProjectForm extends PureComponent {
       confirmTitle: title,
       confirmDescription: description,
       confirm,
-    })
+    });
   }
 
   closeConfirm = () => this.setState({ confirmVisible: false })
 
   onChangeName = (event) => {
-    const name = event.target.value
-    this.setState({ name })
+    const name = event.target.value;
+    this.setState({ name });
   }
 
   onChangeDescription = (event) => {
-    const description = event.target.value
-    this.setState({ description })
+    const description = event.target.value;
+    this.setState({ description });
   }
 
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { closeModal } = this.props
+    const { closeModal } = this.props;
     const {
       name,
       description,
@@ -141,9 +141,9 @@ export default class ProjectForm extends PureComponent {
       confirmTitle,
       confirmDescription,
       confirm,
-    } = this.state
+    } = this.state;
 
-    const title = this.action === 'new' ? 'Create ' : 'Update '
+    const title = this.action === 'new' ? 'Create ' : 'Update ';
     return (
       <div className="modalOverlay" onClick={closeModal}>
         <div className="modalForm" onClick={this.onClickOverlay}>
@@ -188,6 +188,6 @@ export default class ProjectForm extends PureComponent {
           />
         )}
       </div>
-    )
+    );
   }
 }

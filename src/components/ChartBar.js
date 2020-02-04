@@ -1,30 +1,30 @@
-import React, { PureComponent } from 'react'
+import React, { PureComponent } from 'react';
 
-import '../css/ChartBar.scss'
+import '../css/ChartBar.scss';
 
 export default class ChartBar extends PureComponent {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       isHover: false,
       offsetX: 0,
       offsetY: 0,
-    }
+    };
   }
 
   onMouseEnter = (event) => {
-    const isOverflowX = window.innerWidth < (event.clientX + 300)
-    const isOverflowY = window.innerHeight < (event.clientY + 300)
-    const offsetX = isOverflowX ? event.clientX - 230 : event.clientX
-    const offsetY = isOverflowY ? event.clientY - 150 : event.clientY
-    this.setState({ isHover: true, offsetX, offsetY })
+    const isOverflowX = window.innerWidth < (event.clientX + 300);
+    const isOverflowY = window.innerHeight < (event.clientY + 300);
+    const offsetX = isOverflowX ? event.clientX - 230 : event.clientX;
+    const offsetY = isOverflowY ? event.clientY - 150 : event.clientY;
+    this.setState({ isHover: true, offsetX, offsetY });
   }
 
   onMouseLeave = () => this.setState({ isHover: false })
 
   render() {
-    const { chartWidth, data } = this.props
-    const { isHover, offsetX, offsetY } = this.state
+    const { chartWidth, data } = this.props;
+    const { isHover, offsetX, offsetY } = this.state;
     return (
       <div
         style={{ width: chartWidth, backgroundColor: data.resource.color }}
@@ -34,13 +34,13 @@ export default class ChartBar extends PureComponent {
       >
         {isHover && <Window data={data} offsetX={offsetX} offsetY={offsetY} />}
       </div>
-    )
+    );
   }
 }
 
 const Members = ({ users }) => (
   users.map((user) => <div key={user.name} className="windowMembers__name">{user.name}</div>)
-)
+);
 
 const Window = ({ data, offsetX, offsetY }) => (
   <div className="window" style={{ top: offsetY, left: offsetX }}>
@@ -79,4 +79,4 @@ const Window = ({ data, offsetX, offsetY }) => (
       <div className="windowCol__description">{data.description}</div>
     </div>
   </div>
-)
+);

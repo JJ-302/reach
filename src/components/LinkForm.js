@@ -1,91 +1,91 @@
-import React, { Component } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React, { Component } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ErrorMessage from './Error'
-import Confirm from './Confirm'
-import Utils from '../utils/Utils'
-import { badRequest, checkParams } from '../utils/Text'
+import ErrorMessage from './Error';
+import Confirm from './Confirm';
+import Utils from '../utils/Utils';
+import { badRequest, checkParams } from '../utils/Text';
 
-import '../css/Form.scss'
+import '../css/Form.scss';
 
 export default class LinkForm extends Component {
   constructor(props) {
-    super(props)
-    this.token = localStorage.getItem('token')
+    super(props);
+    this.token = localStorage.getItem('token');
     this.state = {
       attachments: [],
       name: '',
       link: '',
       errors: [],
       confirmVisible: false,
-    }
+    };
   }
 
   componentDidMount() {
-    this.handleIndex()
+    this.handleIndex();
   }
 
   handleIndex = async () => {
-    const { id } = this.props
-    const url = Utils.buildRequestUrl(`/projects/${id}/attachments`)
+    const { id } = this.props;
+    const url = Utils.buildRequestUrl(`/projects/${id}/attachments`);
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm()
-    })
+      this.openConfirm();
+    });
 
-    const { attachments, is_authenticated } = await response.json()
+    const { attachments, is_authenticated } = await response.json();
     if (is_authenticated) {
-      this.setState({ attachments })
+      this.setState({ attachments });
     } else {
-      this.openConfirm()
+      this.openConfirm();
     }
   }
 
   handleCreate = async () => {
-    const { name, link, attachments } = this.state
-    const { id } = this.props
-    const url = Utils.buildRequestUrl(`/projects/${id}/attachments`)
-    const params = { name, url: link }
+    const { name, link, attachments } = this.state;
+    const { id } = this.props;
+    const url = Utils.buildRequestUrl(`/projects/${id}/attachments`);
+    const params = { name, url: link };
 
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'X-Reach-token': this.token, 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
     }).catch(() => {
-      this.openConfirm()
-    })
+      this.openConfirm();
+    });
 
-    const { is_created, errors, attachment } = await response.json()
+    const { is_created, errors, attachment } = await response.json();
     if (is_created) {
-      const attachmentsCopy = attachments.slice()
-      attachmentsCopy.push(attachment)
-      this.setState({ attachments: attachmentsCopy })
+      const attachmentsCopy = attachments.slice();
+      attachmentsCopy.push(attachment);
+      this.setState({ attachments: attachmentsCopy });
     } else {
-      this.setState({ errors })
+      this.setState({ errors });
     }
   }
 
   handleDestroy = async (event) => {
-    const { id } = event.currentTarget.dataset
-    const url = Utils.buildRequestUrl(`/attachments/${id}`)
+    const { id } = event.currentTarget.dataset;
+    const url = Utils.buildRequestUrl(`/attachments/${id}`);
     const response = await fetch(url, {
       method: 'DELETE',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm()
-    })
+      this.openConfirm();
+    });
 
-    const isDelete = await response.json()
+    const isDelete = await response.json();
     if (isDelete) {
-      const { attachments } = this.state
+      const { attachments } = this.state;
       const attachmentsCopy = attachments.filter((attachment) => (
         String(attachment.id) !== id
-      ))
-      this.setState({ attachments: attachmentsCopy })
+      ));
+      this.setState({ attachments: attachmentsCopy });
     } else {
-      this.openConfirm()
+      this.openConfirm();
     }
   }
 
@@ -94,26 +94,26 @@ export default class LinkForm extends Component {
   closeConfirm = () => this.setState({ confirmVisible: false })
 
   onChangeName = (event) => {
-    const name = event.target.value
-    this.setState({ name })
+    const name = event.target.value;
+    this.setState({ name });
   }
 
   onChangeUrl = (event) => {
-    const link = event.target.value
-    this.setState({ link })
+    const link = event.target.value;
+    this.setState({ link });
   }
 
   stopPropagation = (event) => event.stopPropagation()
 
   render() {
-    const { closeModal } = this.props
+    const { closeModal } = this.props;
     const {
       attachments,
       name,
       link,
       errors,
       confirmVisible,
-    } = this.state
+    } = this.state;
 
     return (
       <div className="modalOverlay" onClick={closeModal}>
@@ -173,6 +173,6 @@ export default class LinkForm extends Component {
           />
         )}
       </div>
-    )
+    );
   }
 }

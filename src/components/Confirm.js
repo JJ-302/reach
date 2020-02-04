@@ -1,22 +1,22 @@
-import React from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import '../css/Confirm.scss'
+import '../css/Confirm.scss';
 
 const confirmType = (type) => {
   switch (type) {
     case 'success':
-      return { icon: ['fas', 'check'], className: 'confirm__icon--success' }
+      return { icon: ['fas', 'check'], className: 'confirm__icon--success' };
     case 'error':
-      return { icon: ['fas', 'exclamation'], className: 'confirm__icon--error' }
+      return { icon: ['fas', 'exclamation'], className: 'confirm__icon--error' };
     case 'ask':
-      return { icon: ['fas', 'question'], className: 'confirm__icon--ask' }
+      return { icon: ['fas', 'question'], className: 'confirm__icon--ask' };
     default:
-      return null
+      return null;
   }
-}
+};
 
-const stopPropagation = (event) => event.stopPropagation()
+const stopPropagation = (event) => event.stopPropagation();
 
 const Confirm = (props) => {
   const {
@@ -25,9 +25,9 @@ const Confirm = (props) => {
     title,
     description,
     confirm,
-  } = props
+  } = props;
 
-  const iconType = confirmType(type)
+  const iconType = confirmType(type);
   return (
     <div className="confirmOverlay" onClick={stopPropagation}>
       <div className="confirm">
@@ -47,7 +47,7 @@ const Confirm = (props) => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default Confirm
+export default Confirm;

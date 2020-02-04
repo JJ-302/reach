@@ -1,28 +1,28 @@
-import React, { Component } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React, { Component } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import Task from './Task'
-import TaskForm from './TaskForm'
-import ProjectForm from './ProjectForm'
-import LinkForm from './LinkForm'
-import '../css/Project.scss'
+import Task from './Task';
+import TaskForm from './TaskForm';
+import ProjectForm from './ProjectForm';
+import LinkForm from './LinkForm';
+import '../css/Project.scss';
 
 class Project extends Component {
   constructor(props) {
-    super(props)
-    const { project } = this.props
+    super(props);
+    const { project } = this.props;
     this.state = {
       name: project.name,
       isVisible: false,
       projectFormVisible: false,
       linkFormVisible: false,
-    }
+    };
   }
 
   openModal = (event) => {
-    this.id = event.currentTarget.dataset.id || null
-    this.action = event.currentTarget.dataset.action
-    this.setState({ isVisible: true })
+    this.id = event.currentTarget.dataset.id || null;
+    this.action = event.currentTarget.dataset.action;
+    this.setState({ isVisible: true });
   }
 
   closeModal = () => this.setState({ isVisible: false })
@@ -44,15 +44,15 @@ class Project extends Component {
       refreshTask,
       destroyMode,
       refreshProject,
-    } = this.props
+    } = this.props;
 
-    const { tasks, id } = project
+    const { tasks, id } = project;
     const {
       isVisible,
       projectFormVisible,
       linkFormVisible,
       name,
-    } = this.state
+    } = this.state;
 
     return (
       <div key={name} className="project">
@@ -105,7 +105,7 @@ class Project extends Component {
         )}
         {linkFormVisible && <LinkForm id={id} closeModal={this.closeLinkForm} />}
       </div>
-    )
+    );
   }
 }
 
@@ -115,7 +115,7 @@ const Projects = (props) => {
     refreshTask,
     mode,
     refreshProject,
-  } = props
+  } = props;
 
   return projects.map((project, index) => (
     <Project
@@ -126,7 +126,7 @@ const Projects = (props) => {
       index={index}
       destroyMode={mode}
     />
-  ))
-}
+  ));
+};
 
-export default Projects
+export default Projects;
