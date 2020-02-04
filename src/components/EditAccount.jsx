@@ -1,22 +1,22 @@
-import React, { Component } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React, { Component } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ErrorMessage from './Error'
-import Confirm from './Confirm'
-import Utils from '../utils/Utils'
+import ErrorMessage from './Error';
+import Confirm from './Confirm';
+import Utils from '../utils/Utils';
 import {
   badRequest,
   checkParams,
   reload,
   serverError,
   updated,
-} from '../utils/Text'
+} from '../utils/Text';
 
-import '../css/Session.scss'
+import '../css/Session.scss';
 
 export default class EditAccuount extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       uri: '',
       avatar: null,
@@ -28,82 +28,82 @@ export default class EditAccuount extends Component {
       confirmTitle: '',
       confirmDescription: '',
       confirm: () => {},
-    }
+    };
   }
 
   componentDidMount() {
-    this.token = localStorage.getItem('token')
-    this.getCurrentAccount()
+    this.token = localStorage.getItem('token');
+    this.getCurrentAccount();
   }
 
   getCurrentAccount = async () => {
-    const url = Utils.buildRequestUrl('/users/edit')
+    const url = Utils.buildRequestUrl('/users/edit');
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
     const { is_authenticated, user } = await response.json();
     if (is_authenticated) {
-      const { avatar, name, email } = user
-      this.avatar = avatar
-      this.name = name
-      this.email = email
-      this.setState({ uri: avatar, name, email })
+      const { avatar, name, email } = user;
+      this.avatar = avatar;
+      this.name = name;
+      this.email = email;
+      this.setState({ uri: avatar, name, email });
     } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
     }
   }
 
   handleUpdate = async () => {
     const { avatar, name, email } = this.state;
-    const params = new FormData()
-    params.append('user[name]', name)
-    params.append('user[email]', email)
+    const params = new FormData();
+    params.append('user[name]', name);
+    params.append('user[email]', email);
     if (avatar) {
-      params.append('user[avatar]', avatar)
+      params.append('user[avatar]', avatar);
     }
 
-    const url = Utils.buildRequestUrl('/users/update')
+    const url = Utils.buildRequestUrl('/users/update');
     const response = await fetch(url, {
       method: 'PATCH',
       headers: { 'X-Reach-token': this.token },
       body: params,
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
     const { is_updated, errors } = await response.json();
     if (is_updated) {
-      const { refresh } = this.props
-      refresh()
-      this.openConfirm('success', updated, '', this.closeConfirm)
+      const { refresh } = this.props;
+      refresh();
+      this.openConfirm('success', updated, '', this.closeConfirm);
     } else {
-      this.setState({ errors })
+      this.setState({ errors });
     }
   }
 
   onChangeFile = (event) => {
-    const avatar = event.target.files[0]
-    const uri = URL.createObjectURL(avatar)
-    this.setState({ uri, avatar })
+    const avatar = event.target.files[0];
+    const uri = URL.createObjectURL(avatar);
+    this.setState({ uri, avatar });
   }
 
   onChangeName = (event) => {
-    const name = event.target.value
-    this.setState({ name })
+    const name = event.target.value;
+    this.setState({ name });
   }
 
   onChangeEmail = (event) => {
-    const email = event.target.value
-    this.setState({ email })
+    const email = event.target.value;
+    this.setState({ email });
   }
 
   closeEditAccount = () => {
-    const { closeEditAccount } = this.props
-    closeEditAccount()
+    const { closeEditAccount } = this.props;
+    closeEditAccount();
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -113,7 +113,7 @@ export default class EditAccuount extends Component {
       confirmTitle: title,
       confirmDescription: description,
       confirm,
-    })
+    });
   }
 
   closeConfirm = () => this.setState({ confirmVisible: false })
@@ -131,7 +131,7 @@ export default class EditAccuount extends Component {
       confirmTitle,
       confirmDescription,
       confirm,
-    } = this.state
+    } = this.state;
 
     return (
       <div className="background--edit" onClick={this.closeEditAccount}>
@@ -178,6 +178,6 @@ export default class EditAccuount extends Component {
           />
         )}
       </div>
-    )
+    );
   }
 }

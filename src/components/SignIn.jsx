@@ -1,43 +1,43 @@
-import React, { Component } from 'react'
-import { Link, Redirect } from 'react-router-dom'
+import React, { Component } from 'react';
+import { Link, Redirect } from 'react-router-dom';
 
-import ErrorMessage from './Error'
-import Confirm from './Confirm'
-import Utils from '../utils/Utils'
-import { reload, serverError } from '../utils/Text'
+import ErrorMessage from './Error';
+import Confirm from './Confirm';
+import Utils from '../utils/Utils';
+import { reload, serverError } from '../utils/Text';
 
-import '../css/Session.scss'
+import '../css/Session.scss';
 
 export default class SignIn extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       email: '',
       password: '',
       isSignIn: false,
       errors: [],
       confirmVisible: false,
-    }
+    };
   }
 
   handleSignIn = async () => {
-    const { email, password } = this.state
-    const url = Utils.buildRequestUrl('/sessions')
-    const params = { email, password }
+    const { email, password } = this.state;
+    const url = Utils.buildRequestUrl('/sessions');
+    const params = { email, password };
     const response = await fetch(url, {
       method: 'POST',
       body: JSON.stringify(params),
       headers: { 'Content-Type': 'application/json' },
-    })
+    });
 
     const { result, token, errors } = await response.json();
     if (result) {
-      localStorage.setItem('token', token)
-      this.setState({ isSignIn: true })
+      localStorage.setItem('token', token);
+      this.setState({ isSignIn: true });
     } else if (errors !== undefined) {
-      this.setState({ errors })
+      this.setState({ errors });
     } else {
-      this.openConfirm()
+      this.openConfirm();
     }
   }
 
@@ -46,13 +46,13 @@ export default class SignIn extends Component {
   closeConfirm = () => this.setState({ confirmVisible: false })
 
   emailOnChange = (event) => {
-    const email = event.target.value
-    this.setState({ email })
+    const email = event.target.value;
+    this.setState({ email });
   }
 
   passwordOnChange = (event) => {
-    const password = event.target.value
-    this.setState({ password })
+    const password = event.target.value;
+    this.setState({ password });
   }
 
   render() {
@@ -62,7 +62,7 @@ export default class SignIn extends Component {
       isSignIn,
       errors,
       confirmVisible,
-    } = this.state
+    } = this.state;
 
     return (
       isSignIn ? <Redirect to="/reach" /> : (
@@ -100,6 +100,6 @@ export default class SignIn extends Component {
           )}
         </div>
       )
-    )
+    );
   }
 }

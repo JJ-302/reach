@@ -1,28 +1,28 @@
-import React, { Component } from 'react'
+import React, { Component } from 'react';
 import {
   BrowserRouter,
   Route,
   Switch,
   Redirect,
-} from 'react-router-dom'
+} from 'react-router-dom';
 
-import Main from './Main'
-import SignIn from './SignIn'
-import SignUp from './SignUp'
+import Main from './Main';
+import SignIn from './SignIn';
+import SignUp from './SignUp';
 
 class Home extends Component {
   constructor(props) {
-    super(props)
-    const token = localStorage.getItem('token')
-    const isAuthenticated = token !== null
+    super(props);
+    const token = localStorage.getItem('token');
+    const isAuthenticated = token !== null;
     this.state = {
       isAuthenticated,
-    }
+    };
   }
 
   render() {
-    const { isAuthenticated } = this.state
-    return isAuthenticated ? <Main /> : <Redirect to="/reach/signin" />
+    const { isAuthenticated } = this.state;
+    return isAuthenticated ? <Main /> : <Redirect to="/reach/signin" />;
   }
 }
 
@@ -35,6 +35,6 @@ const App = () => (
       <Route exact><SignIn /></Route>
     </Switch>
   </BrowserRouter>
-)
+);
 
-export default App
+export default App;

@@ -1,8 +1,8 @@
-import React, { PureComponent } from 'react'
+import React, { PureComponent } from 'react';
 
-import Confirm from './Confirm'
-import ErrorMessage from './Error'
-import Utils from '../utils/Utils'
+import Confirm from './Confirm';
+import ErrorMessage from './Error';
+import Utils from '../utils/Utils';
 import {
   badRequest,
   checkParams,
@@ -10,13 +10,13 @@ import {
   serverError,
   ask,
   destroy,
-} from '../utils/Text'
+} from '../utils/Text';
 
 export default class ResourceForm extends PureComponent {
   constructor(props) {
-    super(props)
-    const { action } = this.props
-    this.action = action
+    super(props);
+    const { action } = this.props;
+    this.action = action;
     this.state = {
       name: '',
       colors: [],
@@ -27,96 +27,96 @@ export default class ResourceForm extends PureComponent {
       confirmTitle: '',
       confirmDescription: '',
       confirm: () => {},
-    }
+    };
   }
 
   async componentDidMount() {
-    this.token = await localStorage.getItem('token')
-    this.getIndexColors()
+    this.token = await localStorage.getItem('token');
+    this.getIndexColors();
     if (this.action === 'edit') {
-      this.editResourceFormValue()
+      this.editResourceFormValue();
     }
   }
 
   getIndexColors = async () => {
-    const url = Utils.buildRequestUrl('/colors')
+    const url = Utils.buildRequestUrl('/colors');
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { is_authenticated, colors } = await response.json()
+    const { is_authenticated, colors } = await response.json();
     if (is_authenticated) {
-      this.setState({ colors })
+      this.setState({ colors });
     } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
     }
   }
 
   editResourceFormValue = async () => {
-    const { id } = this.props
-    const url = Utils.buildRequestUrl(`/resources/${id}/edit`)
+    const { id } = this.props;
+    const url = Utils.buildRequestUrl(`/resources/${id}/edit`);
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { is_authenticated, resource } = await response.json()
+    const { is_authenticated, resource } = await response.json();
     if (is_authenticated) {
-      this.setState({ name: resource.name, pickedColor: String(resource.color_id) })
+      this.setState({ name: resource.name, pickedColor: String(resource.color_id) });
     } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
     }
   }
 
   handleCreate = async () => {
-    const { id, closeModal, refresh } = this.props
-    const { pickedColor, name } = this.state
-    const request = Utils.preparingRequest(this.action, id, 'resources')
+    const { id, closeModal, refresh } = this.props;
+    const { pickedColor, name } = this.state;
+    const request = Utils.preparingRequest(this.action, id, 'resources');
     if (request === null) {
-      return
+      return;
     }
-    const url = Utils.buildRequestUrl(request.uriPattern)
-    const params = { name, color_id: pickedColor }
+    const url = Utils.buildRequestUrl(request.uriPattern);
+    const params = { name, color_id: pickedColor };
     const response = await fetch(url, {
       method: request.method,
       headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
       body: JSON.stringify(params),
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { errors, is_created, resource } = await response.json()
+    const { errors, is_created, resource } = await response.json();
     if (is_created && this.action === 'new') {
-      refresh(resource)
-      closeModal()
+      refresh(resource);
+      closeModal();
     } else if (is_created && this.action === 'edit') {
-      refresh()
-      closeModal()
+      refresh();
+      closeModal();
     } else {
-      this.setState({ errors })
+      this.setState({ errors });
     }
   }
 
   handleDestroy = async () => {
-    const { id, refresh } = this.props
-    const url = Utils.buildRequestUrl(`/resources/${id}`)
+    const { id, refresh } = this.props;
+    const url = Utils.buildRequestUrl(`/resources/${id}`);
     const response = await fetch(url, {
       method: 'DELETE',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { is_delete } = await response.json()
+    const { is_delete } = await response.json();
     if (is_delete) {
-      refresh()
+      refresh();
     } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
     }
   }
 
@@ -127,26 +127,26 @@ export default class ResourceForm extends PureComponent {
       confirmTitle: title,
       confirmDescription: description,
       confirm,
-    })
+    });
   }
 
   closeConfirm = () => this.setState({ confirmVisible: false })
 
   onPickColor = (event) => {
-    const pickedColor = event.target.dataset.color
-    this.setState({ pickedColor })
+    const pickedColor = event.target.dataset.color;
+    this.setState({ pickedColor });
   }
 
   onChangeName = (event) => {
-    const name = event.target.value
-    this.setState({ name })
+    const name = event.target.value;
+    this.setState({ name });
   }
 
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const title = this.action === 'new' ? 'Create ' : 'Update '
-    const { closeModal } = this.props
+    const title = this.action === 'new' ? 'Create ' : 'Update ';
+    const { closeModal } = this.props;
     const {
       name,
       colors,
@@ -157,7 +157,7 @@ export default class ResourceForm extends PureComponent {
       confirmTitle,
       confirmDescription,
       confirm,
-    } = this.state
+    } = this.state;
 
     return (
       <div className="modalOverlay" onClick={closeModal}>
@@ -205,14 +205,14 @@ export default class ResourceForm extends PureComponent {
           />
         )}
       </div>
-    )
+    );
   }
 }
 
 const ColorPallets = ({ colors, pickedColor, onPickColor }) => (
   colors.map((color) => {
-    const modifier = pickedColor === String(color.id) ? '--selected' : ''
-    const className = `colorPallet__body${modifier}`
+    const modifier = pickedColor === String(color.id) ? '--selected' : '';
+    const className = `colorPallet__body${modifier}`;
     return (
       <div key={color.id} className="colorPallet__edge">
         <div
@@ -222,6 +222,6 @@ const ColorPallets = ({ colors, pickedColor, onPickColor }) => (
           onClick={onPickColor}
         />
       </div>
-    )
+    );
   })
-)
+);

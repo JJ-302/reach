@@ -1,22 +1,22 @@
-import React, { PureComponent } from 'react'
-import { Redirect } from 'react-router-dom'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React, { PureComponent } from 'react';
+import { Redirect } from 'react-router-dom';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ProjectForm from './ProjectForm'
-import ResourceForm from './ResourceForm'
-import EditAccount from './EditAccount'
-import '../css/SideBar.scss'
+import ProjectForm from './ProjectForm';
+import ResourceForm from './ResourceForm';
+import EditAccount from './EditAccount';
+import '../css/SideBar.scss';
 
 export default class SideBar extends PureComponent {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       projectFormVisible: false,
       resourceFormVisible: false,
       accountMenuVisible: false,
       editAccuountVisible: false,
       isSignOut: false,
-    }
+    };
   }
 
   openProjectForm = () => this.setState({ projectFormVisible: true })
@@ -32,29 +32,29 @@ export default class SideBar extends PureComponent {
   closeEditAccount = () => this.setState({ editAccuountVisible: false })
 
   toggleAccountMenu = () => {
-    const { accountMenuVisible } = this.state
-    this.setState({ accountMenuVisible: !accountMenuVisible })
+    const { accountMenuVisible } = this.state;
+    this.setState({ accountMenuVisible: !accountMenuVisible });
   }
 
   changeMode = () => {
-    const { changeMode } = this.props
-    changeMode()
+    const { changeMode } = this.props;
+    changeMode();
   }
 
   signOut = () => {
-    localStorage.removeItem('token')
-    this.setState({ isSignOut: true })
+    localStorage.removeItem('token');
+    this.setState({ isSignOut: true });
   }
 
   render() {
-    const { refreshProject, getProjectIndex, refreshResource } = this.props
+    const { refreshProject, getProjectIndex, refreshResource } = this.props;
     const {
       projectFormVisible,
       resourceFormVisible,
       accountMenuVisible,
       editAccuountVisible,
       isSignOut,
-    } = this.state
+    } = this.state;
 
     return (
       isSignOut ? <Redirect to="/reach/signin" /> : (
@@ -87,6 +87,6 @@ export default class SideBar extends PureComponent {
             && <EditAccount refresh={getProjectIndex} closeEditAccount={this.closeEditAccount} />}
         </div>
       )
-    )
+    );
   }
 }

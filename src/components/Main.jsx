@@ -1,64 +1,64 @@
-import React, { PureComponent } from 'react'
-import Moment from 'moment'
+import React, { PureComponent } from 'react';
+import Moment from 'moment';
 
-import SideBar from './SideBar'
-import GanttIndexHeader from './GanttIndexHeader'
-import Project from './Project'
-import Resource from './Resource'
-import Gantt from './Gantt'
-import Confirm from './Confirm'
-import '../css/Main.scss'
+import SideBar from './SideBar';
+import GanttIndexHeader from './GanttIndexHeader';
+import Project from './Project';
+import Resource from './Resource';
+import Gantt from './Gantt';
+import Confirm from './Confirm';
+import '../css/Main.scss';
 
-import Utils from '../utils/Utils'
+import Utils from '../utils/Utils';
 import {
   badRequest,
   checkParams,
   reload,
   serverError,
-} from '../utils/Text'
+} from '../utils/Text';
 
-const sun = 0
-const sat = 6
-const startDate = Moment(new Date()).subtract(2, 'weeks')
-const endDate = Utils.dateRangeEnd()
+const sun = 0;
+const sat = 6;
+const startDate = Moment(new Date()).subtract(2, 'weeks');
+const endDate = Utils.dateRangeEnd();
 
 
 const whatDayIsToday = (day) => {
   switch (day.get('day')) {
     case sun:
-      return '--sun'
+      return '--sun';
     case sat:
-      return '--sat'
+      return '--sat';
     default:
-      return ''
+      return '';
   }
-}
+};
 
 const scheduleAttr = (day, scheduleType) => {
-  const attr = {}
+  const attr = {};
   if (scheduleType === 'days') {
-    attr.formatDate = day.format('MMM D')
-    attr.className = `gantt-schedule-header__date${whatDayIsToday(day)}`
+    attr.formatDate = day.format('MMM D');
+    attr.className = `gantt-schedule-header__date${whatDayIsToday(day)}`;
   } else {
-    const startOfWeek = day.startOf('week')
-    attr.formatDate = `W${day.format('W')} ${startOfWeek.format('M/D')}`
-    attr.className = 'gantt-schedule-header__week'
+    const startOfWeek = day.startOf('week');
+    attr.formatDate = `W${day.format('W')} ${startOfWeek.format('M/D')}`;
+    attr.className = 'gantt-schedule-header__week';
   }
-  return attr
-}
+  return attr;
+};
 
 const Schedule = ({ scheduleType }) => {
-  const schedules = []
+  const schedules = [];
   for (let day = Moment(startDate); day <= endDate; day.add(1, scheduleType)) {
-    const attr = scheduleAttr(day, scheduleType)
+    const attr = scheduleAttr(day, scheduleType);
     schedules.push(
       <div className={attr.className} key={day.format('YYYYMMDD')}>
         {attr.formatDate}
       </div>,
-    )
+    );
   }
-  return schedules
-}
+  return schedules;
+};
 
 const Header = (props) => {
   const {
@@ -66,13 +66,13 @@ const Header = (props) => {
     onClick,
     resources,
     refreshResource,
-  } = props
+  } = props;
 
-  const className = { weeks: 'switchView__button', days: 'switchView__button' }
+  const className = { weeks: 'switchView__button', days: 'switchView__button' };
   if (scheduleType === 'weeks') {
-    className.weeks += '--disable'
+    className.weeks += '--disable';
   } else if (scheduleType === 'days') {
-    className.days += '--disable'
+    className.days += '--disable';
   }
   return (
     <div className="header">
@@ -104,12 +104,12 @@ const Header = (props) => {
           <Resource refresh={refreshResource} key={resource.id} resource={resource} />))}
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default class Main extends PureComponent {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       resources: [],
       projects: [],
@@ -120,39 +120,39 @@ export default class Main extends PureComponent {
       confirmTitle: '',
       confirmDescription: '',
       confirm: () => {},
-    }
+    };
   }
 
   componentDidMount() {
-    this.getProjectIndex()
+    this.getProjectIndex();
   }
 
   getProjectIndex = async () => {
-    const url = Utils.buildRequestUrl('/projects')
-    const token = localStorage.getItem('token')
+    const url = Utils.buildRequestUrl('/projects');
+    const token = localStorage.getItem('token');
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': token },
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { is_authenticated, projects, resources } = await response.json()
+    const { is_authenticated, projects, resources } = await response.json();
     if (is_authenticated) {
-      this.setState({ projects, resources })
+      this.setState({ projects, resources });
     } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
     }
   }
 
   changeScheduleType = (event) => {
-    const { type } = event.target.dataset
-    this.setState({ type })
+    const { type } = event.target.dataset;
+    this.setState({ type });
   }
 
   changeMode = () => {
-    const { destroyMode } = this.state
-    this.setState({ destroyMode: !destroyMode })
+    const { destroyMode } = this.state;
+    this.setState({ destroyMode: !destroyMode });
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -162,7 +162,7 @@ export default class Main extends PureComponent {
       confirmTitle: title,
       confirmDescription: description,
       confirm,
-    })
+    });
   }
 
   closeConfirm = () => this.setState({ confirmVisible: false })
@@ -170,56 +170,56 @@ export default class Main extends PureComponent {
   updateProject = (projectsCopy) => this.setState({ projects: projectsCopy })
 
   refreshResource = (resource) => {
-    const { resources } = this.state
-    const resourcesCopy = resources.slice()
-    resourcesCopy.push(resource)
-    this.setState({ resources: resourcesCopy })
+    const { resources } = this.state;
+    const resourcesCopy = resources.slice();
+    resourcesCopy.push(resource);
+    this.setState({ resources: resourcesCopy });
   }
 
   refreshProject = (project, action) => {
-    const { projects } = this.state
+    const { projects } = this.state;
     if (action === 'new') {
-      const projectsCopy = projects.slice()
-      projectsCopy.push(project)
-      this.updateProject(projectsCopy)
+      const projectsCopy = projects.slice();
+      projectsCopy.push(project);
+      this.updateProject(projectsCopy);
     } else if (action === 'destroy') {
       const projectsCopy = projects.filter((existingProject) => (
         existingProject.id !== project.id
-      ))
-      this.updateProject(projectsCopy)
+      ));
+      this.updateProject(projectsCopy);
     }
   }
 
   refreshTask = (task, index, action) => {
-    const { projects } = this.state
+    const { projects } = this.state;
     if (action === 'new') {
-      const projectsCopy = projects.slice()
-      projectsCopy[index].tasks.push(task)
-      this.updateProject(projectsCopy)
+      const projectsCopy = projects.slice();
+      projectsCopy[index].tasks.push(task);
+      this.updateProject(projectsCopy);
     } else if (action === 'edit') {
       const tasksCopy = projects[index].tasks.map((existingTask) => (
         existingTask.id === task.id ? task : existingTask
-      ))
+      ));
       const projectsCopy = projects.map((_project, i) => {
-        const project = _project
+        const project = _project;
         if (index === i) {
-          project.tasks = tasksCopy
+          project.tasks = tasksCopy;
         }
-        return project
-      })
-      this.updateProject(projectsCopy)
+        return project;
+      });
+      this.updateProject(projectsCopy);
     } else if (action === 'destroy') {
       const tasksCopy = projects[index].tasks.filter((existingTask) => (
         existingTask.id !== task.id
-      ))
+      ));
       const projectsCopy = projects.map((_project, i) => {
-        const project = _project
+        const project = _project;
         if (index === i) {
-          project.tasks = tasksCopy
+          project.tasks = tasksCopy;
         }
-        return project
-      })
-      this.updateProject(projectsCopy)
+        return project;
+      });
+      this.updateProject(projectsCopy);
     }
   }
 
@@ -234,7 +234,7 @@ export default class Main extends PureComponent {
       confirmTitle,
       confirmDescription,
       confirm,
-    } = this.state
+    } = this.state;
 
     return (
       <div className="App">
@@ -283,6 +283,6 @@ export default class Main extends PureComponent {
           />
         )}
       </div>
-    )
+    );
   }
 }

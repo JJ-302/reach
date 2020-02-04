@@ -1,23 +1,23 @@
-import React, { Component } from 'react'
-import DatePicker from 'react-datepicker'
-import 'react-datepicker/dist/react-datepicker.css'
+import React, { Component } from 'react';
+import DatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
-import Confirm from './Confirm'
+import Confirm from './Confirm';
 
-import Utils from '../utils/Utils'
+import Utils from '../utils/Utils';
 import {
   badRequest,
   checkParams,
   reload,
   serverError,
-} from '../utils/Text'
+} from '../utils/Text';
 
-const notExist = -1
+const notExist = -1;
 
 export default class GanttIndexHeader extends Component {
   constructor(props) {
-    super(props)
-    this.token = localStorage.getItem('token')
+    super(props);
+    this.token = localStorage.getItem('token');
     this.state = {
       users: [],
       searchByNameVisible: false,
@@ -45,27 +45,27 @@ export default class GanttIndexHeader extends Component {
       confirmTitle: '',
       confirmDescription: '',
       confirm: () => {},
-    }
+    };
   }
 
   componentDidMount() {
-    this.getUserIndex()
+    this.getUserIndex();
   }
 
   getUserIndex = async () => {
-    const url = Utils.buildRequestUrl('/users')
+    const url = Utils.buildRequestUrl('/users');
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
     const { users, is_authenticated } = await response.json();
     if (is_authenticated) {
-      this.setState({ users })
+      this.setState({ users });
     } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
     }
   }
 
@@ -85,7 +85,7 @@ export default class GanttIndexHeader extends Component {
       orderExtend,
       inCharge,
       selectedResources,
-    } = this.state
+    } = this.state;
 
     const params = {
       project_id: projectId,
@@ -96,23 +96,23 @@ export default class GanttIndexHeader extends Component {
       duration: { order: orderDuration },
       in_charge: inCharge,
       resources: selectedResources,
-    }
+    };
 
-    const url = Utils.buildRequestUrl('/tasks/search')
+    const url = Utils.buildRequestUrl('/tasks/search');
     const response = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(params),
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { projects } = await response.json()
+    const { projects } = await response.json();
     if (projects === undefined) {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
     } else {
-      const { updateProject } = this.props
-      updateProject(projects)
+      const { updateProject } = this.props;
+      updateProject(projects);
     }
   }
 
@@ -127,7 +127,7 @@ export default class GanttIndexHeader extends Component {
       orderStartDate,
       orderEndDate,
       orderExtend,
-    } = this.state
+    } = this.state;
 
     switch (type) {
       case 'start':
@@ -137,7 +137,7 @@ export default class GanttIndexHeader extends Component {
           onChangeRangeStart: this.onChangeStartDateRangeS,
           onChangeRangeEnd: this.onChangeStartDateRangeE,
           order: orderStartDate,
-        }
+        };
       case 'end':
         return {
           rangeStart: endDateFrom,
@@ -145,7 +145,7 @@ export default class GanttIndexHeader extends Component {
           onChangeRangeStart: this.onChangeEndDateRangeS,
           onChangeRangeEnd: this.onChangeEndDateRangeE,
           order: orderEndDate,
-        }
+        };
       case 'extend':
         return {
           rangeStart: extendFrom,
@@ -153,9 +153,9 @@ export default class GanttIndexHeader extends Component {
           onChangeRangeStart: this.onChangeExtendRangeS,
           onChangeRangeEnd: this.onChangeExtendRangeE,
           order: orderExtend,
-        }
+        };
       default:
-        return {}
+        return {};
     }
   }
 
@@ -166,40 +166,40 @@ export default class GanttIndexHeader extends Component {
       confirmTitle: title,
       confirmDescription: description,
       confirm,
-    })
+    });
   }
 
   closeConfirm = () => this.setState({ confirmVisible: false })
 
   onClickResource = () => {
-    const { searchByResourceVisible } = this.state
-    this.setState({ searchByResourceVisible: !searchByResourceVisible })
+    const { searchByResourceVisible } = this.state;
+    this.setState({ searchByResourceVisible: !searchByResourceVisible });
   }
 
   onClickName = () => {
-    const { searchByNameVisible } = this.state
-    this.setState({ searchByNameVisible: !searchByNameVisible })
+    const { searchByNameVisible } = this.state;
+    this.setState({ searchByNameVisible: !searchByNameVisible });
   }
 
   onClickDate = (event) => {
-    const { type } = event.currentTarget.dataset
-    const { searchByDateVisible } = this.state
-    this.setState({ searchByDateVisible: !searchByDateVisible, dateType: type })
+    const { type } = event.currentTarget.dataset;
+    const { searchByDateVisible } = this.state;
+    this.setState({ searchByDateVisible: !searchByDateVisible, dateType: type });
   }
 
   onClickDuration = () => {
-    const { searchByDurationVisible } = this.state
-    this.setState({ searchByDurationVisible: !searchByDurationVisible })
+    const { searchByDurationVisible } = this.state;
+    this.setState({ searchByDurationVisible: !searchByDurationVisible });
   }
 
   onClickInCharge = () => {
-    const { searchByUsersVisible } = this.state
-    this.setState({ searchByUsersVisible: !searchByUsersVisible })
+    const { searchByUsersVisible } = this.state;
+    this.setState({ searchByUsersVisible: !searchByUsersVisible });
   }
 
   onChangeOrder = async (event) => {
-    const { by } = event.currentTarget.dataset
-    const order = event.target.value
+    const { by } = event.currentTarget.dataset;
+    const order = event.target.value;
 
     switch (by) {
       case 'duration':
@@ -208,105 +208,105 @@ export default class GanttIndexHeader extends Component {
           orderStartDate: '',
           orderEndDate: '',
           orderExtend: '',
-        })
-        break
+        });
+        break;
       case 'start':
         await this.setState({
           orderDuration: '',
           orderStartDate: order,
           orderEndDate: '',
           orderExtend: '',
-        })
-        break
+        });
+        break;
       case 'end':
         await this.setState({
           orderDuration: '',
           orderStartDate: '',
           orderEndDate: order,
           orderExtend: '',
-        })
-        break
+        });
+        break;
       case 'extend':
         await this.setState({
           orderDuration: '',
           orderStartDate: '',
           orderEndDate: '',
           orderExtend: order,
-        })
-        break
+        });
+        break;
       default:
     }
-    this.search()
+    this.search();
   }
 
   onChangeProject = async (event) => {
-    const projectId = event.target.value
-    await this.setState({ projectId })
-    this.search()
+    const projectId = event.target.value;
+    await this.setState({ projectId });
+    this.search();
   }
 
   onChangeTask = async (event) => {
-    const taskName = event.target.value
-    await this.setState({ taskName })
-    this.search()
+    const taskName = event.target.value;
+    await this.setState({ taskName });
+    this.search();
   }
 
   onChangeStartDateRangeS = async (startDateFrom) => {
-    await this.setState({ startDateFrom })
-    this.search()
+    await this.setState({ startDateFrom });
+    this.search();
   }
 
   onChangeStartDateRangeE = async (startDateTo) => {
-    await this.setState({ startDateTo })
-    this.search()
+    await this.setState({ startDateTo });
+    this.search();
   }
 
   onChangeEndDateRangeS = async (endDateFrom) => {
-    await this.setState({ endDateFrom })
-    this.search()
+    await this.setState({ endDateFrom });
+    this.search();
   }
 
   onChangeEndDateRangeE = async (endDateTo) => {
-    this.setState({ endDateTo })
-    this.search()
+    this.setState({ endDateTo });
+    this.search();
   }
 
   onChangeExtendRangeS = async (extendFrom) => {
-    await this.setState({ extendFrom })
-    this.search()
+    await this.setState({ extendFrom });
+    this.search();
   }
 
   onChangeExtendRangeE = async (extendTo) => {
-    await this.setState({ extendTo })
-    this.search()
+    await this.setState({ extendTo });
+    this.search();
   }
 
   onClickAvatar = async (event) => {
-    const { inCharge } = this.state
-    const inChargeCopy = inCharge
-    const { id } = event.currentTarget.dataset
-    const targetIndex = inCharge.indexOf(id)
+    const { inCharge } = this.state;
+    const inChargeCopy = inCharge;
+    const { id } = event.currentTarget.dataset;
+    const targetIndex = inCharge.indexOf(id);
     if (targetIndex === notExist) {
-      inChargeCopy.push(id)
+      inChargeCopy.push(id);
     } else {
-      inChargeCopy.splice(targetIndex, 1)
+      inChargeCopy.splice(targetIndex, 1);
     }
-    await this.setState({ inCharge: inChargeCopy })
-    this.search()
+    await this.setState({ inCharge: inChargeCopy });
+    this.search();
   }
 
   onClickResourceIcon = async (event) => {
-    const { selectedResources } = this.state
-    const selectedResourcesCopy = selectedResources
-    const { id } = event.currentTarget.dataset
-    const targetIndex = selectedResources.indexOf(id)
+    const { selectedResources } = this.state;
+    const selectedResourcesCopy = selectedResources;
+    const { id } = event.currentTarget.dataset;
+    const targetIndex = selectedResources.indexOf(id);
     if (targetIndex === notExist) {
-      selectedResourcesCopy.push(id)
+      selectedResourcesCopy.push(id);
     } else {
-      selectedResourcesCopy.splice(targetIndex, 1)
+      selectedResourcesCopy.splice(targetIndex, 1);
     }
-    await this.setState({ selectedResources: selectedResourcesCopy })
-    this.search()
+    await this.setState({ selectedResources: selectedResourcesCopy });
+    this.search();
   }
 
   clearSearchName = async () => {
@@ -314,8 +314,8 @@ export default class GanttIndexHeader extends Component {
       taskName: '',
       projectId: '',
       searchByNameVisible: false,
-    })
-    this.search()
+    });
+    this.search();
   }
 
   clearSearchStartDate = async () => {
@@ -324,8 +324,8 @@ export default class GanttIndexHeader extends Component {
       startDateTo: '',
       orderStartDate: '',
       searchByDateVisible: false,
-    })
-    this.search()
+    });
+    this.search();
   }
 
   clearSearchEndDate = async () => {
@@ -334,8 +334,8 @@ export default class GanttIndexHeader extends Component {
       endDateTo: '',
       orderEndDate: '',
       searchByDateVisible: false,
-    })
-    this.search()
+    });
+    this.search();
   }
 
   clearSearchExtend = async () => {
@@ -344,18 +344,18 @@ export default class GanttIndexHeader extends Component {
       extendTo: '',
       orderExtend: '',
       searchByDateVisible: false,
-    })
-    this.search()
+    });
+    this.search();
   }
 
   clearSearchDuration = async () => {
-    await this.setState({ orderDuration: '', searchByDurationVisible: false })
-    this.search()
+    await this.setState({ orderDuration: '', searchByDurationVisible: false });
+    this.search();
   }
 
   clearSearchInCharge = async () => {
-    await this.setState({ inCharge: [], searchByUsersVisible: false })
-    this.search()
+    await this.setState({ inCharge: [], searchByUsersVisible: false });
+    this.search();
   }
 
   closeAllModal = () => {
@@ -365,13 +365,13 @@ export default class GanttIndexHeader extends Component {
       searchByDurationVisible: false,
       searchByUsersVisible: false,
       searchByResourceVisible: false,
-    })
+    });
   }
 
   stopPropagation = (event) => event.stopPropagation()
 
   render() {
-    const { projects, resources } = this.props
+    const { projects, resources } = this.props;
     const {
       users,
       searchByNameVisible,
@@ -399,17 +399,17 @@ export default class GanttIndexHeader extends Component {
       confirmTitle,
       confirmDescription,
       confirm,
-    } = this.state
+    } = this.state;
 
-    const resourceIconClass = selectedResources.length === 0 ? 'resourceIcon' : 'resourceIcon--selected'
-    const dateProps = this.sortingByDateRange(dateType)
+    const resourceIconClass = selectedResources.length === 0 ? 'resourceIcon' : 'resourceIcon--selected';
+    const dateProps = this.sortingByDateRange(dateType);
     const {
       rangeStart,
       rangeEnd,
       onChangeRangeStart,
       onChangeRangeEnd,
       order,
-    } = dateProps
+    } = dateProps;
 
     return (
       <div className="gantt-index-header">
@@ -560,13 +560,13 @@ export default class GanttIndexHeader extends Component {
           />
         )}
       </div>
-    )
+    );
   }
 }
 
 const OrderBy = (props) => {
-  const { onChangeOrder, by, selected } = props
-  const selections = [{ label: '昇順', value: 'ASC' }, { label: '降順', value: 'DESC' }]
+  const { onChangeOrder, by, selected } = props;
+  const selections = [{ label: '昇順', value: 'ASC' }, { label: '降順', value: 'DESC' }];
   return (
     <select data-by={by} value={selected} onChange={onChangeOrder} className="search__order">
       <option key="default" value={null} aria-label="order" />
@@ -574,19 +574,19 @@ const OrderBy = (props) => {
         <option key={selection.label} value={selection.value}>{selection.label}</option>
       ))}
     </select>
-  )
-}
+  );
+};
 
 const SearchByDuration = (props) => {
-  const { onChangeOrder, selected, stopPropagation } = props
+  const { onChangeOrder, selected, stopPropagation } = props;
   return (
     <div className="search--duration" onClick={stopPropagation}>
       <div className="search__label">並べ替え</div>
       <OrderBy by="duration" onChangeOrder={onChangeOrder} selected={selected} />
       <div className="search__divide" />
     </div>
-  )
-}
+  );
+};
 
 const SearchByDate = (props) => {
   const {
@@ -598,9 +598,9 @@ const SearchByDate = (props) => {
     onChangeOrder,
     order,
     stopPropagation,
-  } = props
+  } = props;
 
-  const className = `search--${dateType}`
+  const className = `search--${dateType}`;
   return (
     <div className={className} onClick={stopPropagation}>
       <div className="search__label">並べ替え</div>
@@ -626,8 +626,8 @@ const SearchByDate = (props) => {
         />
       </div>
     </div>
-  )
-}
+  );
+};
 
 const SearchByName = (props) => {
   const {
@@ -637,7 +637,7 @@ const SearchByName = (props) => {
     taskName,
     onChangeTask,
     stopPropagation,
-  } = props
+  } = props;
 
   return (
     <div className="search--name" onClick={stopPropagation}>
@@ -652,12 +652,12 @@ const SearchByName = (props) => {
       <div className="search__label">タスク名で検索</div>
       <input type="text" className="search__task" value={taskName} onChange={onChangeTask} />
     </div>
-  )
-}
+  );
+};
 
 const Users = ({ users, onClickAvatar, inCharge }) => (
   users.map((user) => {
-    const targetIndex = inCharge.indexOf(String(user.id))
+    const targetIndex = inCharge.indexOf(String(user.id));
     return (
       <div key={user.id} className="avatar">
         <div data-id={user.id} onClick={onClickAvatar} className="avatar__wrapper">
@@ -666,9 +666,9 @@ const Users = ({ users, onClickAvatar, inCharge }) => (
         </div>
         <div className="avatar__name">{user.name}</div>
       </div>
-    )
+    );
   })
-)
+);
 
 const SearchByUsers = (props) => {
   const {
@@ -676,7 +676,7 @@ const SearchByUsers = (props) => {
     inCharge,
     onClickAvatar,
     stopPropagation,
-  } = props
+  } = props;
 
   return (
     <div className="search--user" onClick={stopPropagation}>
@@ -685,12 +685,12 @@ const SearchByUsers = (props) => {
         <Users users={users} inCharge={inCharge} onClickAvatar={onClickAvatar} />
       </div>
     </div>
-  )
-}
+  );
+};
 
 const Resources = ({ resources, selectedResources, onClickResource }) => (
   resources.map((resource) => {
-    const targetIndex = selectedResources.indexOf(String(resource.id))
+    const targetIndex = selectedResources.indexOf(String(resource.id));
     return (
       <div key={resource.id} className="resource">
         <div data-id={resource.id} onClick={onClickResource} className="resource__wrapper">
@@ -699,9 +699,9 @@ const Resources = ({ resources, selectedResources, onClickResource }) => (
         </div>
         <div className="resource__name">{resource.name}</div>
       </div>
-    )
+    );
   })
-)
+);
 
 const SearchByResource = (props) => {
   const {
@@ -709,7 +709,7 @@ const SearchByResource = (props) => {
     selectedResources,
     onClickResource,
     stopPropagation,
-  } = props
+  } = props;
 
   return (
     <div className="search--resource" onClick={stopPropagation}>
@@ -722,5 +722,5 @@ const SearchByResource = (props) => {
         />
       </div>
     </div>
-  )
-}
+  );
+};

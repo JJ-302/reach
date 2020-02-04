@@ -1,60 +1,60 @@
-import React, { Component } from 'react'
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import React, { Component } from 'react';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import Confirm from './Confirm'
-import Utils from '../utils/Utils'
+import Confirm from './Confirm';
+import Utils from '../utils/Utils';
 import {
   badRequest,
   checkParams,
   reload,
   serverError,
-} from '../utils/Text'
+} from '../utils/Text';
 
-import '../css/Task.scss'
+import '../css/Task.scss';
 
 const Avatars = ({ members }) => (
   members.map((member, i) => {
     if (i > 3) {
-      return null
+      return null;
     }
     if (i < 3) {
-      return <img key={member.name} src={member.avatar} alt={member.name} className="task__avatar" />
+      return <img key={member.name} src={member.avatar} alt={member.name} className="task__avatar" />;
     }
-    return <div key={String(i)} className="task__avatar--length">{members.length}</div>
+    return <div key={String(i)} className="task__avatar--length">{members.length}</div>;
   })
-)
+);
 
 export default class Task extends Component {
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       confirmVisible: false,
       confirmType: '',
       confirmTitle: '',
       confirmDescription: '',
       confirm: () => {},
-    }
+    };
   }
 
   handleDestroy = async (event) => {
-    event.stopPropagation()
-    this.token = localStorage.getItem('token')
-    const { id } = event.currentTarget.dataset
-    const url = Utils.buildRequestUrl(`/tasks/${id}`)
+    event.stopPropagation();
+    this.token = localStorage.getItem('token');
+    const { id } = event.currentTarget.dataset;
+    const url = Utils.buildRequestUrl(`/tasks/${id}`);
 
     const response = await fetch(url, {
       method: 'DELETE',
       headers: { 'X-Reach-token': this.token },
     }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm)
-    })
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+    });
 
-    const { is_delete, task } = await response.json()
+    const { is_delete, task } = await response.json();
     if (is_delete) {
-      const { index, refresh } = this.props
-      refresh(task, index, 'destroy')
+      const { index, refresh } = this.props;
+      refresh(task, index, 'destroy');
     } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm)
+      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
     }
   }
 
@@ -65,7 +65,7 @@ export default class Task extends Component {
       confirmTitle: title,
       confirmDescription: description,
       confirm,
-    })
+    });
   }
 
   closeConfirm = () => this.setState({ confirmVisible: false })
@@ -73,18 +73,18 @@ export default class Task extends Component {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { tasks, onClick, destroyMode } = this.props
+    const { tasks, onClick, destroyMode } = this.props;
     const {
       confirmVisible,
       confirmType,
       confirmTitle,
       confirmDescription,
       confirm,
-    } = this.state
+    } = this.state;
 
     return (
       tasks.map((task) => {
-        const className = task.percentComplete === 'progress' ? 'task' : 'task--complete'
+        const className = task.percentComplete === 'progress' ? 'task' : 'task--complete';
         return (
           <div key={task.id} data-action="edit" data-id={task.id} className={className} onClick={onClick}>
             <div className="task__icon" onClick={this.onClickOverlay}>
@@ -115,8 +115,8 @@ export default class Task extends Component {
               />
             )}
           </div>
-        )
+        );
       })
-    )
+    );
   }
 }
