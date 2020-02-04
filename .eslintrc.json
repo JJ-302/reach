@@ -12,6 +12,7 @@
     "camelcase": 0
   },
   "globals": {
+    "document": false,
     "fetch": false,
     "FormData": false,
     "localStorage": false,
