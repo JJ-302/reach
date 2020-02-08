@@ -1,4 +1,11 @@
-import { createStore, combineReducers } from 'redux';
+import thunk from 'redux-thunk';
+import {
+  createStore,
+  combineReducers,
+  applyMiddleware,
+  compose,
+} from 'redux';
+
 import resourceFormReducer from './resource/reducers';
 
 const rootReducer = combineReducers({
@@ -8,7 +15,10 @@ const rootReducer = combineReducers({
 /* eslint-disable no-underscore-dangle */
 const store = createStore(
   rootReducer,
-  window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+  compose(
+    applyMiddleware(thunk),
+    window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__(),
+  ),
 );
 /* eslint-enable */
 
