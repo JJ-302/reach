@@ -99,10 +99,7 @@ const Header = (props) => {
           Day
         </div>
       </div>
-      <div className="resource">
-        {resources.map((resource) => (
-          <Resource refresh={refreshResource} key={resource.id} resource={resource} />))}
-      </div>
+      <Resource refresh={refreshResource} resources={resources} />
     </div>
   );
 };

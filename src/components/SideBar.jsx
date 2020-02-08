@@ -1,18 +1,25 @@
 import React, { PureComponent } from 'react';
 import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import * as actions from '../store/resource/actions';
 import ProjectForm from './ProjectForm';
-import ResourceForm from './ResourceForm';
 import EditAccount from './EditAccount';
 import '../css/SideBar.scss';
 
-export default class SideBar extends PureComponent {
+const mapDispatchToProps = (dispatch) => {
+  const { openResourceForm } = actions;
+  return {
+    openResourceForm: () => dispatch(openResourceForm()),
+  };
+};
+
+class SideBar extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
       projectFormVisible: false,
-      resourceFormVisible: false,
       accountMenuVisible: false,
       editAccuountVisible: false,
       isSignOut: false,
@@ -22,10 +29,6 @@ export default class SideBar extends PureComponent {
   openProjectForm = () => this.setState({ projectFormVisible: true })
 
   closeProjectForm = () => this.setState({ projectFormVisible: false })
-
-  openResourceForm = () => this.setState({ resourceFormVisible: true })
-
-  closeResourceForm = () => this.setState({ resourceFormVisible: false })
 
   openEditAccount = () => this.setState({ editAccuountVisible: true })
 
@@ -47,10 +50,14 @@ export default class SideBar extends PureComponent {
   }
 
   render() {
-    const { refreshProject, getProjectIndex, refreshResource } = this.props;
+    const {
+      refreshProject,
+      getProjectIndex,
+      openResourceForm,
+    } = this.props;
+
     const {
       projectFormVisible,
-      resourceFormVisible,
       accountMenuVisible,
       editAccuountVisible,
       isSignOut,
@@ -65,7 +72,7 @@ export default class SideBar extends PureComponent {
           <div className="sidebar__iconWrapper--minus" onClick={this.changeMode}>
             <FontAwesomeIcon icon={['fas', 'minus']} className="sidebar__icon" />
           </div>
-          <div className="sidebar__iconWrapper--resource" onClick={this.openResourceForm}>
+          <div className="sidebar__iconWrapper--resource" onClick={openResourceForm}>
             <FontAwesomeIcon icon={['fas', 'tags']} className="sidebar__icon" />
           </div>
           <div className="sidebar__iconWrapper--account" onClick={this.toggleAccountMenu}>
@@ -81,8 +88,6 @@ export default class SideBar extends PureComponent {
           )}
           {projectFormVisible
             && <ProjectForm action="new" refresh={refreshProject} closeModal={this.closeProjectForm} />}
-          {resourceFormVisible
-            && <ResourceForm action="new" refresh={refreshResource} closeModal={this.closeResourceForm} />}
           {editAccuountVisible
             && <EditAccount refresh={getProjectIndex} closeEditAccount={this.closeEditAccount} />}
         </div>
@@ -90,3 +95,5 @@ export default class SideBar extends PureComponent {
     );
   }
 }
+
+export default connect(null, mapDispatchToProps)(SideBar);

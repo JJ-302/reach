@@ -1,37 +1,46 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 
+import * as actions from '../store/resource/actions';
 import ResourceForm from './ResourceForm';
 
-export default class Resource extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      resourceFormVisible: false,
-    };
-  }
+const mapStateToProps = (state) => {
+  const { resourceForm } = state;
+  return {
+    resourceFormVisible: resourceForm.visible,
+    targetID: resourceForm.id,
+  };
+};
 
-  toggleResourceForm = () => {
-    const { resourceFormVisible } = this.state;
-    this.setState({ resourceFormVisible: !resourceFormVisible });
-  }
+const mapDispatchToProps = (dispatch) => {
+  const { openResourceForm } = actions;
+  return {
+    openResourceForm: (id) => dispatch(openResourceForm(id)),
+  };
+};
 
-  render() {
-    const { resourceFormVisible } = this.state;
-    const { resource, refresh } = this.props;
+const Resource = (props) => {
+  const {
+    resources, refresh, openResourceForm, resourceFormVisible, targetID,
+  } = props;
 
-    return (
-      <div className="resource__wrapper" onClick={this.toggleResourceForm}>
-        <div className="resource__icon" style={{ backgroundColor: resource.color }} />
-        <div className="resource__name">{resource.name}</div>
-        {resourceFormVisible && (
-          <ResourceForm
-            id={resource.id}
-            action="edit"
-            refresh={refresh}
-            closeModal={this.toggleResourceForm}
-          />
-        )}
-      </div>
-    );
-  }
-}
+  const onClick = (event) => {
+    const { id } = event.currentTarget.dataset;
+    openResourceForm(id);
+  };
+
+  return (
+    <div className="resource">
+      {resources.map((resource) => (
+        <div className="resource__wrapper" key={resource.id} onClick={onClick} data-id={resource.id}>
+          <div className="resource__icon" style={{ backgroundColor: resource.color }} />
+          <div className="resource__name">{resource.name}</div>
+        </div>
+      ))}
+      {resourceFormVisible && (
+        <ResourceForm id={targetID} refresh={refresh} />)}
+    </div>
+  );
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Resource);

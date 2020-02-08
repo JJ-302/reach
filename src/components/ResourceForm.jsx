@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 
+import * as actions from '../store/resource/actions';
 import Confirm from './Confirm';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
@@ -12,11 +14,18 @@ import {
   destroy,
 } from '../utils/Text';
 
-export default class ResourceForm extends PureComponent {
+const mapDispatchToProps = (dispatch) => {
+  const { closeResourceForm } = actions;
+  return {
+    closeResourceForm: () => dispatch(closeResourceForm()),
+  };
+};
+
+class ResourceForm extends PureComponent {
   constructor(props) {
     super(props);
-    const { action } = this.props;
-    this.action = action;
+    const { id } = this.props;
+    this.action = id ? 'edit' : 'new';
     this.state = {
       name: '',
       colors: [],
@@ -74,7 +83,7 @@ export default class ResourceForm extends PureComponent {
   }
 
   handleCreate = async () => {
-    const { id, closeModal, refresh } = this.props;
+    const { id, refresh, closeResourceForm } = this.props;
     const { pickedColor, name } = this.state;
     const request = Utils.preparingRequest(this.action, id, 'resources');
     if (request === null) {
@@ -93,10 +102,10 @@ export default class ResourceForm extends PureComponent {
     const { errors, is_created, resource } = await response.json();
     if (is_created && this.action === 'new') {
       refresh(resource);
-      closeModal();
+      closeResourceForm();
     } else if (is_created && this.action === 'edit') {
       refresh();
-      closeModal();
+      closeResourceForm();
     } else {
       this.setState({ errors });
     }
@@ -146,7 +155,7 @@ export default class ResourceForm extends PureComponent {
 
   render() {
     const title = this.action === 'new' ? 'Create ' : 'Update ';
-    const { closeModal } = this.props;
+    const { closeResourceForm } = this.props;
     const {
       name,
       colors,
@@ -160,7 +169,7 @@ export default class ResourceForm extends PureComponent {
     } = this.state;
 
     return (
-      <div className="modalOverlay" onClick={closeModal}>
+      <div className="modalOverlay" onClick={closeResourceForm}>
         <div className="modalForm" onClick={this.onClickOverlay}>
           <div className="modalForm__title">
             {title}
@@ -225,3 +234,5 @@ const ColorPallets = ({ colors, pickedColor, onPickColor }) => (
     );
   })
 );
+
+export default connect(null, mapDispatchToProps)(ResourceForm);
