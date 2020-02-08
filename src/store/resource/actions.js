@@ -5,6 +5,7 @@ export const CLOSE_RESOURCE_FORM = 'CLOSE_RESOURCE_FORM';
 export const GET_ALL_RESOURCES = 'GET_ALL_RESOURCES';
 export const CREATE_RESOURCE = 'CREATE_RESOURCE';
 export const DELETE_RESOURCE = 'DELETE_RESOURCE';
+export const UPDATE_RESOURCE = 'UPDATE_RESOURCE';
 
 export const openResourceForm = (id = null) => ({
   type: OPEN_RESOURCE_FORM,
@@ -52,5 +53,20 @@ export const deleteResource = (id) => async (dispatch) => {
   const { is_delete } = await response.json();
   if (is_delete) {
     dispatch({ type: DELETE_RESOURCE, id });
+  }
+};
+
+export const updateResource = (id, params) => async (dispatch) => {
+  const url = Utils.buildRequestUrl(`/resources/${id}`);
+  const token = localStorage.getItem('token');
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+
+  const json = await response.json();
+  if (json.is_updated) {
+    dispatch({ type: UPDATE_RESOURCE, resource: json.resource });
   }
 };

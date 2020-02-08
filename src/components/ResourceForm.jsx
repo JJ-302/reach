@@ -15,11 +15,15 @@ import {
 } from '../utils/Text';
 
 const mapDispatchToProps = (dispatch) => {
-  const { closeResourceForm, createResource, deleteResource } = actions;
+  const {
+    closeResourceForm, createResource, deleteResource, updateResource,
+  } = actions;
+
   return {
     closeResourceForm: () => dispatch(closeResourceForm()),
     createResource: (params) => dispatch(createResource(params)),
     deleteResource: (id) => dispatch(deleteResource(id)),
+    updateResource: (id, params) => dispatch(updateResource(id, params)),
   };
 };
 
@@ -28,6 +32,7 @@ class ResourceForm extends PureComponent {
     super(props);
     const { id } = this.props;
     this.action = id ? 'edit' : 'new';
+    this.submit = id ? this.handleUpdate : this.handleCreate;
     this.state = {
       name: '',
       colors: [],
@@ -84,35 +89,6 @@ class ResourceForm extends PureComponent {
     }
   }
 
-  // handleCreate = async () => {
-  //   const { id, refresh, closeResourceForm } = this.props;
-  //   const { pickedColor, name } = this.state;
-  //   const request = Utils.preparingRequest(this.action, id, 'resources');
-  //   if (request === null) {
-  //     return;
-  //   }
-  //   const url = Utils.buildRequestUrl(request.uriPattern);
-  //   const params = { name, color_id: pickedColor };
-  //   const response = await fetch(url, {
-  //     method: request.method,
-  //     headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
-  //     body: JSON.stringify(params),
-  //   }).catch(() => {
-  //     this.openConfirm('error', serverError, reload, this.closeConfirm);
-  //   });
-  //
-  //   const { errors, is_created, resource } = await response.json();
-  //   if (is_created && this.action === 'new') {
-  //     refresh(resource);
-  //     closeResourceForm();
-  //   } else if (is_created && this.action === 'edit') {
-  //     refresh();
-  //     closeResourceForm();
-  //   } else {
-  //     this.setState({ errors });
-  //   }
-  // }
-
   handleCreate = () => {
     const { createResource } = this.props;
     const { pickedColor, name } = this.state;
@@ -123,6 +99,13 @@ class ResourceForm extends PureComponent {
   handleDestroy = () => {
     const { id, deleteResource } = this.props;
     this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteResource(id));
+  }
+
+  handleUpdate = () => {
+    const { id, updateResource } = this.props;
+    const { pickedColor, name } = this.state;
+    const params = { name, color_id: pickedColor };
+    updateResource(id, params);
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -187,7 +170,7 @@ class ResourceForm extends PureComponent {
               onPickColor={this.onPickColor}
             />
           </div>
-          <button type="button" onClick={this.handleCreate} className="modalForm__button">
+          <button type="button" onClick={this.submit} className="modalForm__button">
             {title}
           </button>
           {this.action === 'edit' && (

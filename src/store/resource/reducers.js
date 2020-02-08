@@ -4,6 +4,7 @@ import {
   GET_ALL_RESOURCES,
   CREATE_RESOURCE,
   DELETE_RESOURCE,
+  UPDATE_RESOURCE,
 } from './actions';
 
 const initialResouceFormState = { visible: false, id: null };
@@ -33,6 +34,13 @@ export const resourceReducer = (state = initialResouceState, action) => {
       return {
         ...state,
         resources: state.resources.filter((resource) => String(resource.id) !== action.id),
+      };
+    case UPDATE_RESOURCE:
+      return {
+        ...state,
+        resources: state.resources.map((resource) => (
+          resource.id === action.resource.id ? action.resource : resource
+        )),
       };
     default:
       return state;
