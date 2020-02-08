@@ -64,7 +64,6 @@ const Header = (props) => {
   const {
     scheduleType,
     onClick,
-    resources,
     refreshResource,
   } = props;
 
@@ -99,7 +98,7 @@ const Header = (props) => {
           Day
         </div>
       </div>
-      <Resource refresh={refreshResource} resources={resources} />
+      <Resource refresh={refreshResource} />
     </div>
   );
 };
@@ -243,7 +242,6 @@ export default class Main extends PureComponent {
         />
         <div className="mainContainer">
           <Header
-            resources={resources}
             refreshResource={this.getProjectIndex}
             scheduleType={type}
             onClick={this.changeScheduleType}

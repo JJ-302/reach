@@ -6,10 +6,11 @@ import {
   compose,
 } from 'redux';
 
-import resourceFormReducer from './resource/reducers';
+import { resourceFormReducer, resourceReducer } from './resource/reducers';
 
 const rootReducer = combineReducers({
   resourceForm: resourceFormReducer,
+  resource: resourceReducer,
 });
 
 /* eslint-disable no-underscore-dangle */

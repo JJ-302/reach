@@ -1,8 +1,13 @@
-import { OPEN_RESOURCE_FORM, CLOSE_RESOURCE_FORM } from './actions';
+import {
+  OPEN_RESOURCE_FORM,
+  CLOSE_RESOURCE_FORM,
+  GET_ALL_RESOURCES,
+} from './actions';
 
 const initialResouceFormState = { visible: false, id: null };
+const initialResouceState = { resources: [] };
 
-const resourceFormReducer = (state = initialResouceFormState, action) => {
+export const resourceFormReducer = (state = initialResouceFormState, action) => {
   switch (action.type) {
     case OPEN_RESOURCE_FORM:
       return { visible: true, id: action.id };
@@ -13,4 +18,11 @@ const resourceFormReducer = (state = initialResouceFormState, action) => {
   }
 };
 
-export default resourceFormReducer;
+export const resourceReducer = (state = initialResouceState, action) => {
+  switch (action.type) {
+    case GET_ALL_RESOURCES:
+      return { resources: action.resources };
+    default:
+      return state;
+  }
+};
