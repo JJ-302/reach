@@ -15,9 +15,11 @@ import {
 } from '../utils/Text';
 
 const mapDispatchToProps = (dispatch) => {
-  const { closeResourceForm } = actions;
+  const { closeResourceForm, createResource, deleteResource } = actions;
   return {
     closeResourceForm: () => dispatch(closeResourceForm()),
+    createResource: (params) => dispatch(createResource(params)),
+    deleteResource: (id) => dispatch(deleteResource(id)),
   };
 };
 
@@ -82,51 +84,45 @@ class ResourceForm extends PureComponent {
     }
   }
 
-  handleCreate = async () => {
-    const { id, refresh, closeResourceForm } = this.props;
-    const { pickedColor, name } = this.state;
-    const request = Utils.preparingRequest(this.action, id, 'resources');
-    if (request === null) {
-      return;
-    }
-    const url = Utils.buildRequestUrl(request.uriPattern);
-    const params = { name, color_id: pickedColor };
-    const response = await fetch(url, {
-      method: request.method,
-      headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
-      body: JSON.stringify(params),
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+  // handleCreate = async () => {
+  //   const { id, refresh, closeResourceForm } = this.props;
+  //   const { pickedColor, name } = this.state;
+  //   const request = Utils.preparingRequest(this.action, id, 'resources');
+  //   if (request === null) {
+  //     return;
+  //   }
+  //   const url = Utils.buildRequestUrl(request.uriPattern);
+  //   const params = { name, color_id: pickedColor };
+  //   const response = await fetch(url, {
+  //     method: request.method,
+  //     headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
+  //     body: JSON.stringify(params),
+  //   }).catch(() => {
+  //     this.openConfirm('error', serverError, reload, this.closeConfirm);
+  //   });
+  //
+  //   const { errors, is_created, resource } = await response.json();
+  //   if (is_created && this.action === 'new') {
+  //     refresh(resource);
+  //     closeResourceForm();
+  //   } else if (is_created && this.action === 'edit') {
+  //     refresh();
+  //     closeResourceForm();
+  //   } else {
+  //     this.setState({ errors });
+  //   }
+  // }
 
-    const { errors, is_created, resource } = await response.json();
-    if (is_created && this.action === 'new') {
-      refresh(resource);
-      closeResourceForm();
-    } else if (is_created && this.action === 'edit') {
-      refresh();
-      closeResourceForm();
-    } else {
-      this.setState({ errors });
-    }
+  handleCreate = () => {
+    const { createResource } = this.props;
+    const { pickedColor, name } = this.state;
+    const params = { name, color_id: pickedColor };
+    createResource(params);
   }
 
-  handleDestroy = async () => {
-    const { id, refresh } = this.props;
-    const url = Utils.buildRequestUrl(`/resources/${id}`);
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_delete } = await response.json();
-    if (is_delete) {
-      refresh();
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
-    }
+  handleDestroy = () => {
+    const { id, deleteResource } = this.props;
+    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteResource(id));
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -195,11 +191,7 @@ class ResourceForm extends PureComponent {
             {title}
           </button>
           {this.action === 'edit' && (
-            <button
-              type="button"
-              onClick={() => this.openConfirm('ask', `Project ${destroy}`, ask, this.handleDestroy)}
-              className="modalForm__button--delete"
-            >
+            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
               Delete Resource
             </button>
           )}

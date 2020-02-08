@@ -14,10 +14,11 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  const { openResourceForm, getAllResources } = actions;
+  const { openResourceForm, getAllResources, closeResourceForm } = actions;
   return {
     getAllResources: () => dispatch(getAllResources()),
     openResourceForm: (id) => dispatch(openResourceForm(id)),
+    closeResourceForm: () => dispatch(closeResourceForm()),
   };
 };
 
@@ -25,6 +26,13 @@ class Resource extends Component {
   componentDidMount() {
     const { getAllResources } = this.props;
     getAllResources();
+  }
+
+  componentDidUpdate(previousProps) {
+    const { resources, closeResourceForm } = this.props;
+    if (previousProps.resources.length !== resources.length) {
+      closeResourceForm();
+    }
   }
 
   onClick = (event) => {
