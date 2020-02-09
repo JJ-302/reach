@@ -133,7 +133,7 @@ class ResourceForm extends PureComponent {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const title = this.action === 'new' ? 'Create ' : 'Update ';
+    const title = this.action === 'new' ? 'Create Resource' : 'Update Resource';
     const { closeResourceForm } = this.props;
     const {
       name,
@@ -150,10 +150,7 @@ class ResourceForm extends PureComponent {
     return (
       <div className="modalOverlay" onClick={closeResourceForm}>
         <div className="modalForm" onClick={this.onClickOverlay}>
-          <div className="modalForm__title">
-            {title}
-            Resource
-          </div>
+          <div className="modalForm__title">{title}</div>
           {errors.length !== 0 && <ErrorMessage action="Resource creation" errors={errors} />}
           <input
             type="text"

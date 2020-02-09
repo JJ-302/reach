@@ -17,10 +17,11 @@ import {
 import '../css/Form.scss';
 
 const mapDispatchToProps = (dispatch) => {
-  const { closeProjectForm, createProject } = actions;
+  const { closeProjectForm, createProject, deleteProject } = actions;
   return {
     closeProjectForm: () => dispatch(closeProjectForm()),
     createProject: (params) => dispatch(createProject(params)),
+    deleteProject: (id) => dispatch(deleteProject(id)),
   };
 };
 
@@ -105,22 +106,9 @@ class ProjectForm extends PureComponent {
     createProject(params);
   }
 
-  handleDestroy = async () => {
-    const { id, refreshProject } = this.props;
-    const url = Utils.buildRequestUrl(`/projects/${id}`);
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_delete, project } = await response.json();
-    if (is_delete) {
-      refreshProject(project, 'destroy');
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
-    }
+  handleDestroy = () => {
+    const { deleteProject, id } = this.props;
+    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteProject(id));
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -160,14 +148,11 @@ class ProjectForm extends PureComponent {
       confirm,
     } = this.state;
 
-    const title = this.action === 'new' ? 'Create ' : 'Update ';
+    const title = this.action === 'new' ? 'Create Project' : 'Update Project';
     return (
       <div className="modalOverlay" onClick={closeProjectForm}>
         <div className="modalForm" onClick={this.onClickOverlay}>
-          <div className="modalForm__title">
-            {title}
-            Project
-          </div>
+          <div className="modalForm__title">{title}</div>
           {errors.length !== 0 && <ErrorMessage action="Project creation" errors={errors} />}
           <input
             type="text"
@@ -186,11 +171,7 @@ class ProjectForm extends PureComponent {
             {title}
           </button>
           {this.action === 'edit' && (
-            <button
-              type="button"
-              onClick={() => this.openConfirm('ask', `Project ${destroy}`, ask, this.handleDestroy)}
-              className="modalForm__button--delete"
-            >
+            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
               Delete Project
             </button>
           )}
