@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+
 
 import Confirm from './Confirm';
 
@@ -13,6 +15,14 @@ import {
 } from '../utils/Text';
 
 const notExist = -1;
+
+const mapStateToProps = (state) => {
+  const { project, resource } = state;
+  return {
+    projects: project.projects,
+    resources: resource.resources,
+  };
+};
 
 export default class GanttIndexHeader extends Component {
   constructor(props) {
@@ -371,7 +381,6 @@ export default class GanttIndexHeader extends Component {
   stopPropagation = (event) => event.stopPropagation()
 
   render() {
-    const { projects, resources } = this.props;
     const {
       users,
       searchByNameVisible,
@@ -498,7 +507,6 @@ export default class GanttIndexHeader extends Component {
         {searchByResourceVisible && (
           <div className="overlay" onClick={this.closeAllModal}>
             <SearchByResource
-              resources={resources}
               selectedResources={selectedResources}
               onClickResource={this.onClickResourceIcon}
               stopPropagation={this.stopPropagation}
@@ -509,7 +517,6 @@ export default class GanttIndexHeader extends Component {
           <div className="overlay" onClick={this.closeAllModal}>
             <SearchByName
               projectId={projectId}
-              projects={projects}
               onChangeProject={this.onChangeProject}
               taskName={taskName}
               onChangeTask={this.onChangeTask}
@@ -629,7 +636,7 @@ const SearchByDate = (props) => {
   );
 };
 
-const SearchByName = (props) => {
+const SearchByName = connect(mapStateToProps)((props) => {
   const {
     projectId,
     projects,
@@ -653,7 +660,7 @@ const SearchByName = (props) => {
       <input type="text" className="search__task" value={taskName} onChange={onChangeTask} />
     </div>
   );
-};
+});
 
 const Users = ({ users, onClickAvatar, inCharge }) => (
   users.map((user) => {
@@ -688,22 +695,7 @@ const SearchByUsers = (props) => {
   );
 };
 
-const Resources = ({ resources, selectedResources, onClickResource }) => (
-  resources.map((resource) => {
-    const targetIndex = selectedResources.indexOf(String(resource.id));
-    return (
-      <div key={resource.id} className="resource">
-        <div data-id={resource.id} onClick={onClickResource} className="resource__wrapper">
-          <div className="resource__icon" style={{ backgroundColor: resource.color }} />
-          {targetIndex !== notExist && <div className="resource__selected" />}
-        </div>
-        <div className="resource__name">{resource.name}</div>
-      </div>
-    );
-  })
-);
-
-const SearchByResource = (props) => {
+const SearchByResource = connect(mapStateToProps)((props) => {
   const {
     resources,
     selectedResources,
@@ -715,12 +707,19 @@ const SearchByResource = (props) => {
     <div className="search--resource" onClick={stopPropagation}>
       <div className="search__label">リソースで絞り込み</div>
       <div className="search__resourceWrapper">
-        <Resources
-          resources={resources}
-          selectedResources={selectedResources}
-          onClickResource={onClickResource}
-        />
+        {resources.map((resource) => {
+          const targetIndex = selectedResources.indexOf(String(resource.id));
+          return (
+            <div key={resource.id} className="resource">
+              <div data-id={resource.id} onClick={onClickResource} className="resource__wrapper">
+                <div className="resource__icon" style={{ backgroundColor: resource.color }} />
+                {targetIndex !== notExist && <div className="resource__selected" />}
+              </div>
+              <div className="resource__name">{resource.name}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-};
+});

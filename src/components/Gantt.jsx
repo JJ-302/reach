@@ -1,9 +1,26 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import Moment from 'moment';
 
 import ChartBar from './ChartBar';
 import '../css/Project.scss';
 import Utils from '../utils/Utils';
+
+const mapStateToProps = (state) => {
+  const { project } = state;
+  return {
+    projects: project.projects,
+  };
+};
+
+const Gantt = (props) => (
+  props.projects.map((project) => (
+    <div key={project.name} className="project">
+      <div className="projectHeader" />
+      {project.tasks && <GanttTask tasks={project.tasks} scheduleType={props.scheduleType} />}
+    </div>
+  ))
+);
 
 class GanttTask extends Component {
   constructor(props) {
@@ -67,13 +84,4 @@ class GanttTask extends Component {
   }
 }
 
-const Gantt = (props) => (
-  props.projects.map((project) => (
-    <div key={project.name} className="project">
-      <div className="projectHeader" />
-      {project.tasks && <GanttTask tasks={project.tasks} scheduleType={props.scheduleType} />}
-    </div>
-  ))
-);
-
-export default Gantt;
+export default connect(mapStateToProps)(Gantt);

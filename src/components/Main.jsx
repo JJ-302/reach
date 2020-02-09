@@ -10,12 +10,6 @@ import Confirm from './Confirm';
 import '../css/Main.scss';
 
 import Utils from '../utils/Utils';
-import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-} from '../utils/Text';
 
 const sun = 0;
 const sat = 6;
@@ -61,12 +55,7 @@ const Schedule = ({ scheduleType }) => {
 };
 
 const Header = (props) => {
-  const {
-    scheduleType,
-    onClick,
-    refreshResource,
-  } = props;
-
+  const { scheduleType, onClick } = props;
   const className = { weeks: 'switchView__button', days: 'switchView__button' };
   if (scheduleType === 'weeks') {
     className.weeks += '--disable';
@@ -98,16 +87,15 @@ const Header = (props) => {
           Day
         </div>
       </div>
-      <Resource refresh={refreshResource} />
+      <Resource />
     </div>
   );
 };
 
-export default class Main extends PureComponent {
+class Main extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      resources: [],
       projects: [],
       type: 'weeks',
       destroyMode: false,
@@ -117,28 +105,6 @@ export default class Main extends PureComponent {
       confirmDescription: '',
       confirm: () => {},
     };
-  }
-
-  componentDidMount() {
-    this.getProjectIndex();
-  }
-
-  getProjectIndex = async () => {
-    const url = Utils.buildRequestUrl('/projects');
-    const token = localStorage.getItem('token');
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_authenticated, projects, resources } = await response.json();
-    if (is_authenticated) {
-      this.setState({ projects, resources });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
-    }
   }
 
   changeScheduleType = (event) => {
@@ -164,13 +130,6 @@ export default class Main extends PureComponent {
   closeConfirm = () => this.setState({ confirmVisible: false })
 
   updateProject = (projectsCopy) => this.setState({ projects: projectsCopy })
-
-  refreshResource = (resource) => {
-    const { resources } = this.state;
-    const resourcesCopy = resources.slice();
-    resourcesCopy.push(resource);
-    this.setState({ resources: resourcesCopy });
-  }
 
   refreshProject = (project, action) => {
     const { projects } = this.state;
@@ -222,8 +181,6 @@ export default class Main extends PureComponent {
   render() {
     const {
       type,
-      projects,
-      resources,
       destroyMode,
       confirmVisible,
       confirmType,
@@ -234,29 +191,15 @@ export default class Main extends PureComponent {
 
     return (
       <div className="App">
-        <SideBar
-          getProjectIndex={this.getProjectIndex}
-          refreshProject={this.refreshProject}
-          refreshResource={this.refreshResource}
-          changeMode={this.changeMode}
-        />
+        <SideBar getProjectIndex={this.getProjectIndex} changeMode={this.changeMode} />
         <div className="mainContainer">
-          <Header
-            refreshResource={this.getProjectIndex}
-            scheduleType={type}
-            onClick={this.changeScheduleType}
-          />
+          <Header scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
             <div className="gantt-index">
-              <GanttIndexHeader
-                resources={resources}
-                projects={projects}
-                updateProject={this.updateProject}
-              />
+              <GanttIndexHeader updateProject={this.updateProject} />
               <Project
                 refreshProject={this.refreshProject}
                 refreshTask={this.refreshTask}
-                projects={projects}
                 mode={destroyMode}
               />
             </div>
@@ -264,7 +207,7 @@ export default class Main extends PureComponent {
               <div className="gantt-schedule-header">
                 <Schedule scheduleType={type} />
               </div>
-              <Gantt projects={projects} scheduleType={type} />
+              <Gantt scheduleType={type} />
             </div>
           </div>
         </div>
@@ -281,3 +224,5 @@ export default class Main extends PureComponent {
     );
   }
 }
+
+export default Main;

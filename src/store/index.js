@@ -7,10 +7,13 @@ import {
 } from 'redux';
 
 import { resourceFormReducer, resourceReducer } from './resource/reducers';
+import { projectFormReducer, projectReducer } from './project/reducers';
 
 const rootReducer = combineReducers({
   resourceForm: resourceFormReducer,
   resource: resourceReducer,
+  projectForm: projectFormReducer,
+  project: projectReducer,
 });
 
 /* eslint-disable no-underscore-dangle */

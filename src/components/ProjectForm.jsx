@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 
+import * as actions from '../store/project/actions';
 import Utils from '../utils/Utils';
 import Confirm from './Confirm';
 import ErrorMessage from './Error';
@@ -14,12 +16,19 @@ import {
 
 import '../css/Form.scss';
 
-export default class ProjectForm extends PureComponent {
+const mapDispatchToProps = (dispatch) => {
+  const { closeProjectForm } = actions;
+  return {
+    closeProjectForm: () => dispatch(closeProjectForm()),
+  };
+};
+
+class ProjectForm extends PureComponent {
   constructor(props) {
     super(props);
     this.token = localStorage.getItem('token');
-    const { action } = this.props;
-    this.action = action;
+    const { id } = this.props;
+    this.action = id ? 'edit' : 'new';
     this.state = {
       name: '',
       description: '',
@@ -76,13 +85,13 @@ export default class ProjectForm extends PureComponent {
     });
 
     const { is_created, errors, project } = await response.json();
-    const { closeModal, refresh } = this.props;
+    const { closeProjectForm, refresh } = this.props;
     if (is_created && this.action === 'new') {
       refresh(project, 'new');
-      closeModal();
+      closeProjectForm();
     } else if (is_created && this.action === 'edit') {
       refresh(project.name);
-      closeModal();
+      closeProjectForm();
     } else {
       this.setState({ errors });
     }
@@ -131,7 +140,7 @@ export default class ProjectForm extends PureComponent {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { closeModal } = this.props;
+    const { closeProjectForm } = this.props;
     const {
       name,
       description,
@@ -145,7 +154,7 @@ export default class ProjectForm extends PureComponent {
 
     const title = this.action === 'new' ? 'Create ' : 'Update ';
     return (
-      <div className="modalOverlay" onClick={closeModal}>
+      <div className="modalOverlay" onClick={closeProjectForm}>
         <div className="modalForm" onClick={this.onClickOverlay}>
           <div className="modalForm__title">
             {title}
@@ -191,3 +200,5 @@ export default class ProjectForm extends PureComponent {
     );
   }
 }
+
+export default connect(null, mapDispatchToProps)(ProjectForm);

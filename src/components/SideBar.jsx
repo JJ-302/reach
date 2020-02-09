@@ -3,15 +3,17 @@ import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import * as actions from '../store/resource/actions';
-import ProjectForm from './ProjectForm';
+import * as resourceActions from '../store/resource/actions';
+import * as projectActions from '../store/project/actions';
 import EditAccount from './EditAccount';
 import '../css/SideBar.scss';
 
 const mapDispatchToProps = (dispatch) => {
-  const { openResourceForm } = actions;
+  const { openResourceForm } = resourceActions;
+  const { openProjectForm } = projectActions;
   return {
     openResourceForm: () => dispatch(openResourceForm()),
+    openProjectForm: () => dispatch(openProjectForm()),
   };
 };
 
@@ -19,16 +21,11 @@ class SideBar extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      projectFormVisible: false,
       accountMenuVisible: false,
       editAccuountVisible: false,
       isSignOut: false,
     };
   }
-
-  openProjectForm = () => this.setState({ projectFormVisible: true })
-
-  closeProjectForm = () => this.setState({ projectFormVisible: false })
 
   openEditAccount = () => this.setState({ editAccuountVisible: true })
 
@@ -51,13 +48,12 @@ class SideBar extends PureComponent {
 
   render() {
     const {
-      refreshProject,
       getProjectIndex,
       openResourceForm,
+      openProjectForm,
     } = this.props;
 
     const {
-      projectFormVisible,
       accountMenuVisible,
       editAccuountVisible,
       isSignOut,
@@ -66,7 +62,7 @@ class SideBar extends PureComponent {
     return (
       isSignOut ? <Redirect to="/reach/signin" /> : (
         <div className="sidebar">
-          <div className="sidebar__iconWrapper--plus" onClick={this.openProjectForm}>
+          <div className="sidebar__iconWrapper--plus" onClick={openProjectForm}>
             <FontAwesomeIcon icon={['fas', 'plus']} className="sidebar__icon" />
           </div>
           <div className="sidebar__iconWrapper--minus" onClick={this.changeMode}>
@@ -86,8 +82,6 @@ class SideBar extends PureComponent {
               </div>
             </div>
           )}
-          {projectFormVisible
-            && <ProjectForm action="new" refresh={refreshProject} closeModal={this.closeProjectForm} />}
           {editAccuountVisible
             && <EditAccount refresh={getProjectIndex} closeEditAccount={this.closeEditAccount} />}
         </div>
