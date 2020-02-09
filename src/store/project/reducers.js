@@ -2,6 +2,7 @@ import {
   OPEN_PROJECT_FORM,
   CLOSE_PROJECT_FORM,
   GET_ALL_PROJECTS,
+  CREATE_PROJECT,
 } from './actions';
 
 const initialProjectFormState = { visible: false, id: null };
@@ -22,6 +23,11 @@ export const projectReducer = (state = initialProjectState, action) => {
   switch (action.type) {
     case GET_ALL_PROJECTS:
       return { projects: action.projects };
+    case CREATE_PROJECT:
+      return {
+        ...state,
+        projects: [...state.projects, action.project],
+      };
     default:
       return state;
   }

@@ -17,9 +17,10 @@ import {
 import '../css/Form.scss';
 
 const mapDispatchToProps = (dispatch) => {
-  const { closeProjectForm } = actions;
+  const { closeProjectForm, createProject } = actions;
   return {
     closeProjectForm: () => dispatch(closeProjectForm()),
+    createProject: (params) => dispatch(createProject(params)),
   };
 };
 
@@ -66,35 +67,42 @@ class ProjectForm extends PureComponent {
     }
   }
 
-  handleCreate = async () => {
+  // handleCreate = async () => {
+  //   const { name, description } = this.state;
+  //   const { id } = this.props;
+  //   const request = Utils.preparingRequest(this.action, id, 'projects');
+  //   if (request === null) {
+  //     return;
+  //   }
+  //   const url = Utils.buildRequestUrl(request.uriPattern);
+  //   const params = { name, description };
+  //
+  //   const response = await fetch(url, {
+  //     method: request.method,
+  //     headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
+  //     body: JSON.stringify(params),
+  //   }).catch(() => {
+  //     this.openConfirm('error', serverError, reload, this.closeConfirm);
+  //   });
+  //
+  //   const { is_created, errors, project } = await response.json();
+  //   const { closeProjectForm, refresh } = this.props;
+  //   if (is_created && this.action === 'new') {
+  //     refresh(project, 'new');
+  //     closeProjectForm();
+  //   } else if (is_created && this.action === 'edit') {
+  //     refresh(project.name);
+  //     closeProjectForm();
+  //   } else {
+  //     this.setState({ errors });
+  //   }
+  // }
+
+  handleCreate = () => {
+    const { createProject } = this.props;
     const { name, description } = this.state;
-    const { id } = this.props;
-    const request = Utils.preparingRequest(this.action, id, 'projects');
-    if (request === null) {
-      return;
-    }
-    const url = Utils.buildRequestUrl(request.uriPattern);
     const params = { name, description };
-
-    const response = await fetch(url, {
-      method: request.method,
-      headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
-      body: JSON.stringify(params),
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_created, errors, project } = await response.json();
-    const { closeProjectForm, refresh } = this.props;
-    if (is_created && this.action === 'new') {
-      refresh(project, 'new');
-      closeProjectForm();
-    } else if (is_created && this.action === 'edit') {
-      refresh(project.name);
-      closeProjectForm();
-    } else {
-      this.setState({ errors });
-    }
+    createProject(params);
   }
 
   handleDestroy = async () => {

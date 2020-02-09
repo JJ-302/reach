@@ -41,6 +41,13 @@ class Projects extends Component {
     getAllProjects();
   }
 
+  componentDidUpdate(previousProps) {
+    const { projects, closeProjectForm } = this.props;
+    if (previousProps.projects.length !== projects.length) {
+      closeProjectForm();
+    }
+  }
+
   onClickEditProject = (event) => {
     const { openProjectForm } = this.props;
     const { id } = event.currentTarget.dataset;
