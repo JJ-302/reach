@@ -8,7 +8,6 @@ const mapStateToProps = (state) => {
   const { resourceForm, resource } = state;
   return {
     resourceFormVisible: resourceForm.visible,
-    targetID: resourceForm.id,
     resources: resource.resources,
   };
 };
@@ -42,9 +41,7 @@ class Resource extends Component {
   };
 
   render() {
-    const {
-      resources, refresh, resourceFormVisible, targetID,
-    } = this.props;
+    const { resources, resourceFormVisible } = this.props;
 
     return (
       <div className="resource">
@@ -54,7 +51,7 @@ class Resource extends Component {
             <div className="resource__name">{resource.name}</div>
           </div>
         ))}
-        {resourceFormVisible && <ResourceForm id={targetID} refresh={refresh} />}
+        {resourceFormVisible && <ResourceForm />}
       </div>
     );
   }
