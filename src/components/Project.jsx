@@ -69,10 +69,7 @@ class Projects extends Component {
   closeLinkForm = () => this.setState({ linkFormVisible: false })
 
   render() {
-    const {
-      projects, mode, projectFormVisible, taskFormVisible,
-    } = this.props;
-
+    const { projects, projectFormVisible, taskFormVisible } = this.props;
     const { linkFormVisible } = this.state;
 
     return (
@@ -101,7 +98,7 @@ class Projects extends Component {
                 onClick={this.openLinkForm}
               />
             </div>
-            {project.tasks && <Task destroyMode={mode} index={index} tasks={project.tasks} />}
+            {project.tasks && <Task index={index} tasks={project.tasks} />}
             {linkFormVisible && <LinkForm id={project.id} closeModal={this.closeLinkForm} />}
           </div>
         ))}

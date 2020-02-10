@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import * as resourceActions from '../store/resource/actions';
 import * as projectActions from '../store/project/actions';
 import * as accountActions from '../store/account/actions';
+import * as taskActions from '../store/task/actions';
 import EditAccount from './EditAccount';
 import '../css/SideBar.scss';
 
@@ -20,10 +21,12 @@ const mapDispatchToProps = (dispatch) => {
   const { openResourceForm } = resourceActions;
   const { openProjectForm } = projectActions;
   const { openAccountForm } = accountActions;
+  const { toggleDeleteButton } = taskActions;
   return {
     openResourceForm: () => dispatch(openResourceForm()),
     openProjectForm: () => dispatch(openProjectForm()),
     openAccountForm: () => dispatch(openAccountForm()),
+    toggleDeleteButton: () => dispatch(toggleDeleteButton()),
   };
 };
 
@@ -41,11 +44,6 @@ class SideBar extends PureComponent {
     this.setState({ accountMenuVisible: !accountMenuVisible });
   }
 
-  changeMode = () => {
-    const { changeMode } = this.props;
-    changeMode();
-  }
-
   signOut = () => {
     localStorage.removeItem('token');
     this.setState({ isSignOut: true });
@@ -54,7 +52,7 @@ class SideBar extends PureComponent {
   render() {
     const { accountMenuVisible, isSignOut } = this.state;
     const {
-      openResourceForm, openProjectForm, openAccountForm, accountFormVisible,
+      openResourceForm, openProjectForm, openAccountForm, accountFormVisible, toggleDeleteButton,
     } = this.props;
 
     return (
@@ -63,7 +61,7 @@ class SideBar extends PureComponent {
           <div className="sidebar__iconWrapper--plus" onClick={openProjectForm}>
             <FontAwesomeIcon icon={['fas', 'plus']} className="sidebar__icon" />
           </div>
-          <div className="sidebar__iconWrapper--minus" onClick={this.changeMode}>
+          <div className="sidebar__iconWrapper--minus" onClick={toggleDeleteButton}>
             <FontAwesomeIcon icon={['fas', 'minus']} className="sidebar__icon" />
           </div>
           <div className="sidebar__iconWrapper--resource" onClick={openResourceForm}>

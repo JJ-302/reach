@@ -97,7 +97,6 @@ class Main extends PureComponent {
     super(props);
     this.state = {
       type: 'weeks',
-      destroyMode: false,
       confirmVisible: false,
       confirmType: '',
       confirmTitle: '',
@@ -109,11 +108,6 @@ class Main extends PureComponent {
   changeScheduleType = (event) => {
     const { type } = event.target.dataset;
     this.setState({ type });
-  }
-
-  changeMode = () => {
-    const { destroyMode } = this.state;
-    this.setState({ destroyMode: !destroyMode });
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -131,7 +125,6 @@ class Main extends PureComponent {
   render() {
     const {
       type,
-      destroyMode,
       confirmVisible,
       confirmType,
       confirmTitle,
@@ -141,13 +134,13 @@ class Main extends PureComponent {
 
     return (
       <div className="App">
-        <SideBar changeMode={this.changeMode} />
+        <SideBar />
         <div className="mainContainer">
           <Header scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
             <div className="gantt-index">
               <ProjectHeader />
-              <Project mode={destroyMode} />
+              <Project />
             </div>
             <div className="gantt-schedule">
               <div className="gantt-schedule-header">

@@ -14,6 +14,13 @@ import {
 
 import '../css/Task.scss';
 
+const mapStateToProps = (state) => {
+  const { task } = state;
+  return {
+    deleteButtonVisible: task.deleteButtonVisible,
+  };
+};
+
 const mapDispatchToProps = (dispatch) => {
   const { openTaskForm } = actions;
   return {
@@ -88,7 +95,7 @@ class Task extends Component {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { tasks, destroyMode } = this.props;
+    const { tasks, deleteButtonVisible } = this.props;
     const {
       confirmVisible,
       confirmType,
@@ -103,7 +110,7 @@ class Task extends Component {
         return (
           <div key={task.id} data-id={task.id} className={className} onClick={this.onClick}>
             <div className="task__icon" onClick={this.onClickOverlay}>
-              {destroyMode ? (
+              {deleteButtonVisible ? (
                 <FontAwesomeIcon
                   data-id={task.id}
                   icon={['fas', 'minus-circle']}
@@ -136,4 +143,4 @@ class Task extends Component {
   }
 }
 
-export default connect(null, mapDispatchToProps)(Task);
+export default connect(mapStateToProps, mapDispatchToProps)(Task);
