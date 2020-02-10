@@ -1,7 +1,8 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 
-import * as actions from '../store/resource/actions';
+import * as projectActions from '../store/project/actions';
+import * as resourceActions from '../store/resource/actions';
 import Confirm from './Confirm';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
@@ -23,11 +24,13 @@ const mapStateToProps = (state) => {
 
 
 const mapDispatchToProps = (dispatch) => {
+  const { getAllProjects } = projectActions;
   const {
     closeResourceForm, createResource, deleteResource, updateResource,
-  } = actions;
+  } = resourceActions;
 
   return {
+    getAllProjects: () => dispatch(getAllProjects()),
     closeResourceForm: () => dispatch(closeResourceForm()),
     createResource: (params) => dispatch(createResource(params)),
     deleteResource: (resourceID) => dispatch(deleteResource(resourceID)),
@@ -109,11 +112,12 @@ class ResourceForm extends PureComponent {
     this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteResource(resourceID));
   }
 
-  handleUpdate = () => {
-    const { resourceID, updateResource } = this.props;
+  handleUpdate = async () => {
+    const { resourceID, updateResource, getAllProjects } = this.props;
     const { pickedColor, name } = this.state;
     const params = { name, color_id: pickedColor };
-    updateResource(resourceID, params);
+    await updateResource(resourceID, params);
+    getAllProjects();
   }
 
   openConfirm = (type, title, description, confirm) => {
