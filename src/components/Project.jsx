@@ -70,11 +70,7 @@ class Projects extends Component {
 
   render() {
     const {
-      refreshTask,
-      projects,
-      mode,
-      projectFormVisible,
-      taskFormVisible,
+      projects, mode, projectFormVisible, taskFormVisible,
     } = this.props;
 
     const { linkFormVisible } = this.state;
@@ -105,15 +101,7 @@ class Projects extends Component {
                 onClick={this.openLinkForm}
               />
             </div>
-            {project.tasks && (
-              <Task
-                destroyMode={mode}
-                index={index}
-                refresh={refreshTask}
-                tasks={project.tasks}
-                onClick={this.openModal}
-              />
-            )}
+            {project.tasks && <Task destroyMode={mode} index={index} tasks={project.tasks} />}
             {linkFormVisible && <LinkForm id={project.id} closeModal={this.closeLinkForm} />}
           </div>
         ))}

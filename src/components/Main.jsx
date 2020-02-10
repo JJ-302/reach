@@ -96,7 +96,6 @@ class Main extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      projects: [],
       type: 'weeks',
       destroyMode: false,
       confirmVisible: false,
@@ -129,39 +128,6 @@ class Main extends PureComponent {
 
   closeConfirm = () => this.setState({ confirmVisible: false })
 
-  refreshTask = (task, index, action) => {
-    const { projects } = this.state;
-    if (action === 'new') {
-      const projectsCopy = projects.slice();
-      projectsCopy[index].tasks.push(task);
-      this.updateProject(projectsCopy);
-    } else if (action === 'edit') {
-      const tasksCopy = projects[index].tasks.map((existingTask) => (
-        existingTask.id === task.id ? task : existingTask
-      ));
-      const projectsCopy = projects.map((_project, i) => {
-        const project = _project;
-        if (index === i) {
-          project.tasks = tasksCopy;
-        }
-        return project;
-      });
-      this.updateProject(projectsCopy);
-    } else if (action === 'destroy') {
-      const tasksCopy = projects[index].tasks.filter((existingTask) => (
-        existingTask.id !== task.id
-      ));
-      const projectsCopy = projects.map((_project, i) => {
-        const project = _project;
-        if (index === i) {
-          project.tasks = tasksCopy;
-        }
-        return project;
-      });
-      this.updateProject(projectsCopy);
-    }
-  }
-
   render() {
     const {
       type,
@@ -181,7 +147,7 @@ class Main extends PureComponent {
           <div className="gantt">
             <div className="gantt-index">
               <ProjectHeader />
-              <Project refreshTask={this.refreshTask} mode={destroyMode} />
+              <Project mode={destroyMode} />
             </div>
             <div className="gantt-schedule">
               <div className="gantt-schedule-header">
