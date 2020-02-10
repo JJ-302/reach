@@ -175,7 +175,7 @@ class Main extends PureComponent {
 
     return (
       <div className="App">
-        <SideBar getProjectIndex={this.getProjectIndex} changeMode={this.changeMode} />
+        <SideBar changeMode={this.changeMode} />
         <div className="mainContainer">
           <Header scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
