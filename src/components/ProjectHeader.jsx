@@ -24,7 +24,7 @@ const mapStateToProps = (state) => {
   };
 };
 
-export default class GanttIndexHeader extends Component {
+export default class ProjectHeader extends Component {
   constructor(props) {
     super(props);
     this.token = localStorage.getItem('token');

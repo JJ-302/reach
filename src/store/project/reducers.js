@@ -4,6 +4,7 @@ import {
   GET_ALL_PROJECTS,
   CREATE_PROJECT,
   DELETE_PROJECT,
+  UPDATE_PROJECT,
 } from './actions';
 
 const initialProjectFormState = { visible: false, id: null };
@@ -33,6 +34,13 @@ export const projectReducer = (state = initialProjectState, action) => {
       return {
         ...state,
         projects: state.projects.filter((project) => String(project.id) !== action.id),
+      };
+    case UPDATE_PROJECT:
+      return {
+        ...state,
+        projects: state.projects.map((project) => (
+          project.id === action.project.id ? action.project : project
+        )),
       };
     default:
       return state;

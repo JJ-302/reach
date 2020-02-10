@@ -2,7 +2,7 @@ import React, { PureComponent } from 'react';
 import Moment from 'moment';
 
 import SideBar from './SideBar';
-import GanttIndexHeader from './GanttIndexHeader';
+import ProjectHeader from './ProjectHeader';
 import Project from './Project';
 import Resource from './Resource';
 import Gantt from './Gantt';
@@ -129,22 +129,6 @@ class Main extends PureComponent {
 
   closeConfirm = () => this.setState({ confirmVisible: false })
 
-  updateProject = (projectsCopy) => this.setState({ projects: projectsCopy })
-
-  refreshProject = (project, action) => {
-    const { projects } = this.state;
-    if (action === 'new') {
-      const projectsCopy = projects.slice();
-      projectsCopy.push(project);
-      this.updateProject(projectsCopy);
-    } else if (action === 'destroy') {
-      const projectsCopy = projects.filter((existingProject) => (
-        existingProject.id !== project.id
-      ));
-      this.updateProject(projectsCopy);
-    }
-  }
-
   refreshTask = (task, index, action) => {
     const { projects } = this.state;
     if (action === 'new') {
@@ -196,12 +180,8 @@ class Main extends PureComponent {
           <Header scheduleType={type} onClick={this.changeScheduleType} />
           <div className="gantt">
             <div className="gantt-index">
-              <GanttIndexHeader updateProject={this.updateProject} />
-              <Project
-                refreshProject={this.refreshProject}
-                refreshTask={this.refreshTask}
-                mode={destroyMode}
-              />
+              <ProjectHeader />
+              <Project refreshTask={this.refreshTask} mode={destroyMode} />
             </div>
             <div className="gantt-schedule">
               <div className="gantt-schedule-header">

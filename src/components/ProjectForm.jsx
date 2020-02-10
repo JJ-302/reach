@@ -17,11 +17,15 @@ import {
 import '../css/Form.scss';
 
 const mapDispatchToProps = (dispatch) => {
-  const { closeProjectForm, createProject, deleteProject } = actions;
+  const {
+    closeProjectForm, createProject, deleteProject, updateProject,
+  } = actions;
+
   return {
     closeProjectForm: () => dispatch(closeProjectForm()),
     createProject: (params) => dispatch(createProject(params)),
     deleteProject: (id) => dispatch(deleteProject(id)),
+    updateProject: (id, params) => dispatch(updateProject(id, params)),
   };
 };
 
@@ -31,6 +35,7 @@ class ProjectForm extends PureComponent {
     this.token = localStorage.getItem('token');
     const { id } = this.props;
     this.action = id ? 'edit' : 'new';
+    this.submit = id ? this.handleUpdate : this.handleCreate;
     this.state = {
       name: '',
       description: '',
@@ -68,37 +73,6 @@ class ProjectForm extends PureComponent {
     }
   }
 
-  // handleCreate = async () => {
-  //   const { name, description } = this.state;
-  //   const { id } = this.props;
-  //   const request = Utils.preparingRequest(this.action, id, 'projects');
-  //   if (request === null) {
-  //     return;
-  //   }
-  //   const url = Utils.buildRequestUrl(request.uriPattern);
-  //   const params = { name, description };
-  //
-  //   const response = await fetch(url, {
-  //     method: request.method,
-  //     headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
-  //     body: JSON.stringify(params),
-  //   }).catch(() => {
-  //     this.openConfirm('error', serverError, reload, this.closeConfirm);
-  //   });
-  //
-  //   const { is_created, errors, project } = await response.json();
-  //   const { closeProjectForm, refresh } = this.props;
-  //   if (is_created && this.action === 'new') {
-  //     refresh(project, 'new');
-  //     closeProjectForm();
-  //   } else if (is_created && this.action === 'edit') {
-  //     refresh(project.name);
-  //     closeProjectForm();
-  //   } else {
-  //     this.setState({ errors });
-  //   }
-  // }
-
   handleCreate = () => {
     const { createProject } = this.props;
     const { name, description } = this.state;
@@ -109,6 +83,13 @@ class ProjectForm extends PureComponent {
   handleDestroy = () => {
     const { deleteProject, id } = this.props;
     this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteProject(id));
+  }
+
+  handleUpdate = () => {
+    const { updateProject, id } = this.props;
+    const { name, description } = this.state;
+    const params = { name, description };
+    updateProject(id, params);
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -167,7 +148,7 @@ class ProjectForm extends PureComponent {
             value={description}
             onChange={this.onChangeDescription}
           />
-          <button type="button" onClick={this.handleCreate} className="modalForm__button">
+          <button type="button" onClick={this.submit} className="modalForm__button">
             {title}
           </button>
           {this.action === 'edit' && (

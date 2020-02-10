@@ -66,12 +66,9 @@ class Projects extends Component {
 
   closeLinkForm = () => this.setState({ linkFormVisible: false })
 
-  // updateProject = (name) => this.setState({ name })
-
   render() {
     const {
       refreshTask,
-      refreshProject,
       projects,
       mode,
       projectFormVisible,
@@ -82,13 +79,7 @@ class Projects extends Component {
 
     return (
       <>
-        {projectFormVisible && (
-          <ProjectForm
-            id={targetID}
-            refreshProject={refreshProject}
-            refresh={this.updateProject}
-          />
-        )}
+        {projectFormVisible && <ProjectForm id={targetID} />}
         {projects.map((project, index) => (
           <div key={project.id} className="project">
             <div className="projectHeader">
