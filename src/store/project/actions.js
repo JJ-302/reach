@@ -6,6 +6,7 @@ export const GET_ALL_PROJECTS = 'GET_ALL_PROJESTS';
 export const CREATE_PROJECT = 'CREATE_PROJECT';
 export const DELETE_PROJECT = 'DELETE_PROJECT';
 export const UPDATE_PROJECT = 'UPDATE_PROJECT';
+export const SEARCH_PROJECT = 'SEARCH_PROJECT';
 
 export const openProjectForm = (id = null) => ({
   type: OPEN_PROJECT_FORM,
@@ -72,4 +73,16 @@ export const updateProject = (id, params) => async (dispatch) => {
   if (json.is_updated) {
     dispatch({ type: UPDATE_PROJECT, project: json.project });
   }
+};
+
+export const searchProjects = (params) => async (dispatch) => {
+  const url = Utils.buildRequestUrl('/tasks/search');
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+
+  const { projects } = await response.json();
+  dispatch({ type: SEARCH_PROJECT, projects });
 };

@@ -5,6 +5,7 @@ import {
   CREATE_PROJECT,
   DELETE_PROJECT,
   UPDATE_PROJECT,
+  SEARCH_PROJECT,
 } from './actions';
 
 const initialProjectFormState = { visible: false, id: null };
@@ -42,6 +43,8 @@ export const projectReducer = (state = initialProjectState, action) => {
           project.id === action.project.id ? action.project : project
         )),
       };
+    case SEARCH_PROJECT:
+      return { projects: action.projects };
     default:
       return state;
   }
