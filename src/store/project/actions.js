@@ -8,6 +8,7 @@ export const DELETE_PROJECT = 'DELETE_PROJECT';
 export const UPDATE_PROJECT = 'UPDATE_PROJECT';
 export const SEARCH_PROJECT = 'SEARCH_PROJECT';
 export const CREATE_TASK = 'CREATE_TASK';
+export const DELETE_TASK = 'DELETE_TASK';
 export const UPDATE_TASK = 'UPDATE_TASK';
 
 export const openProjectForm = (id = null) => ({
@@ -101,6 +102,20 @@ export const createTask = (params) => async (dispatch) => {
   const json = await response.json();
   if (json.is_created) {
     dispatch({ type: CREATE_TASK, task: json.task });
+  }
+};
+
+export const deleteTask = (id) => async (dispatch) => {
+  const url = Utils.buildRequestUrl(`/tasks/${id}`);
+  const token = localStorage.getItem('token');
+  const response = await fetch(url, {
+    method: 'DELETE',
+    headers: { 'X-Reach-token': token },
+  });
+
+  const json = await response.json();
+  if (json.is_delete) {
+    dispatch({ type: DELETE_TASK, task: json.task });
   }
 };
 

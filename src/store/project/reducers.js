@@ -7,6 +7,7 @@ import {
   UPDATE_PROJECT,
   SEARCH_PROJECT,
   CREATE_TASK,
+  DELETE_TASK,
   UPDATE_TASK,
 } from './actions';
 
@@ -28,16 +29,19 @@ export const projectReducer = (state = initialProjectState, action) => {
   switch (action.type) {
     case GET_ALL_PROJECTS:
       return { projects: action.projects };
+
     case CREATE_PROJECT:
       return {
         ...state,
         projects: [...state.projects, action.project],
       };
+
     case DELETE_PROJECT:
       return {
         ...state,
         projects: state.projects.filter((project) => String(project.id) !== action.id),
       };
+
     case UPDATE_PROJECT:
       return {
         ...state,
@@ -45,8 +49,10 @@ export const projectReducer = (state = initialProjectState, action) => {
           project.id === action.project.id ? action.project : project
         )),
       };
+
     case SEARCH_PROJECT:
       return { projects: action.projects };
+
     case CREATE_TASK: {
       const targetProject = state.projects.filter((project) => (
         project.id === action.task.projectID
@@ -59,6 +65,22 @@ export const projectReducer = (state = initialProjectState, action) => {
         )),
       };
     }
+
+    case DELETE_TASK: {
+      const targetProject = state.projects.filter((project) => (
+        project.id === action.task.projectID
+      ));
+      targetProject[0].tasks = targetProject[0].tasks.filter((task) => (
+        task.id !== action.task.id
+      ));
+      return {
+        ...state,
+        projects: state.projects.map((project) => (
+          project.id === targetProject[0].id ? targetProject[0] : project
+        )),
+      };
+    }
+
     case UPDATE_TASK: {
       const targetProject = state.projects.filter((project) => (
         project.id === action.task.projectID
@@ -73,6 +95,7 @@ export const projectReducer = (state = initialProjectState, action) => {
         )),
       };
     }
+
     default:
       return state;
   }

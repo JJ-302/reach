@@ -2,16 +2,9 @@ import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import * as actions from '../store/task/actions';
+import * as taskActions from '../store/task/actions';
+import * as projectActions from '../store/project/actions';
 import Confirm from './Confirm';
-import Utils from '../utils/Utils';
-import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-} from '../utils/Text';
-
 import '../css/Task.scss';
 
 const mapStateToProps = (state) => {
@@ -22,9 +15,11 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  const { openTaskForm } = actions;
+  const { openTaskForm } = taskActions;
+  const { deleteTask } = projectActions;
   return {
     openTaskForm: ({ taskID }) => dispatch(openTaskForm({ taskID })),
+    deleteTask: (id) => dispatch(deleteTask(id)),
   };
 };
 
@@ -52,26 +47,11 @@ class Task extends Component {
     };
   }
 
-  handleDestroy = async (event) => {
+  handleDestroy = (event) => {
     event.stopPropagation();
-    this.token = localStorage.getItem('token');
     const { id } = event.currentTarget.dataset;
-    const url = Utils.buildRequestUrl(`/tasks/${id}`);
-
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_delete, task } = await response.json();
-    if (is_delete) {
-      const { index, refresh } = this.props;
-      refresh(task, index, 'destroy');
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
-    }
+    const { deleteTask } = this.props;
+    deleteTask(id);
   }
 
   onClick = (event) => {
@@ -92,8 +72,6 @@ class Task extends Component {
 
   closeConfirm = () => this.setState({ confirmVisible: false })
 
-  onClickOverlay = (event) => event.stopPropagation()
-
   render() {
     const { tasks, deleteButtonVisible } = this.props;
     const {
@@ -109,7 +87,7 @@ class Task extends Component {
         const className = task.percentComplete === 'progress' ? 'task' : 'task--complete';
         return (
           <div key={task.id} data-id={task.id} className={className} onClick={this.onClick}>
-            <div className="task__icon" onClick={this.onClickOverlay}>
+            <div className="task__icon">
               {deleteButtonVisible ? (
                 <FontAwesomeIcon
                   data-id={task.id}
