@@ -8,6 +8,7 @@ export const DELETE_PROJECT = 'DELETE_PROJECT';
 export const UPDATE_PROJECT = 'UPDATE_PROJECT';
 export const SEARCH_PROJECT = 'SEARCH_PROJECT';
 export const CREATE_TASK = 'CREATE_TASK';
+export const UPDATE_TASK = 'UPDATE_TASK';
 
 export const openProjectForm = (id = null) => ({
   type: OPEN_PROJECT_FORM,
@@ -100,5 +101,20 @@ export const createTask = (params) => async (dispatch) => {
   const json = await response.json();
   if (json.is_created) {
     dispatch({ type: CREATE_TASK, task: json.task });
+  }
+};
+
+export const updateTask = (id, params) => async (dispatch) => {
+  const url = Utils.buildRequestUrl(`/tasks/${id}`);
+  const token = localStorage.getItem('token');
+  const response = await fetch(url, {
+    method: 'PATCH',
+    headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+
+  const json = await response.json();
+  if (json.is_updated) {
+    dispatch({ type: UPDATE_TASK, task: json.task });
   }
 };

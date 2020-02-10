@@ -7,6 +7,7 @@ import {
   UPDATE_PROJECT,
   SEARCH_PROJECT,
   CREATE_TASK,
+  UPDATE_TASK,
 } from './actions';
 
 const initialProjectFormState = { visible: false, id: null };
@@ -51,6 +52,20 @@ export const projectReducer = (state = initialProjectState, action) => {
         project.id === action.task.projectID
       ));
       targetProject[0].tasks = [...targetProject[0].tasks, action.task];
+      return {
+        ...state,
+        projects: state.projects.map((project) => (
+          project.id === targetProject[0].id ? targetProject[0] : project
+        )),
+      };
+    }
+    case UPDATE_TASK: {
+      const targetProject = state.projects.filter((project) => (
+        project.id === action.task.projectID
+      ));
+      targetProject[0].tasks = targetProject[0].tasks.map((task) => (
+        task.id === action.task.id ? action.task : task
+      ));
       return {
         ...state,
         projects: state.projects.map((project) => (

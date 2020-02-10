@@ -27,10 +27,11 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   const { closeTaskForm } = taskActions;
-  const { createTask } = projectActions;
+  const { createTask, updateTask } = projectActions;
   return {
     closeTaskForm: () => dispatch(closeTaskForm()),
     createTask: (params) => dispatch(createTask(params)),
+    updateTask: (id, params) => dispatch(updateTask(id, params)),
   };
 };
 
@@ -39,6 +40,7 @@ class TaskForm extends Component {
     super(props);
     const { taskID } = this.props;
     this.action = taskID ? 'edit' : 'new';
+    this.submit = taskID ? this.handleUpdate : this.handleCreate;
     this.state = {
       name: '',
       selectedResource: '',
@@ -154,60 +156,6 @@ class TaskForm extends Component {
     this.setState({ description });
   }
 
-  // createTask = async () => {
-  //   const { projectID, taskID } = this.props;
-  //   const {
-  //     name,
-  //     selectedResource,
-  //     startDate,
-  //     endDate,
-  //     complete,
-  //     inCharge,
-  //     description,
-  //   } = this.state;
-  //
-  //   const request = Utils.preparingRequest(action, taskID, 'tasks');
-  //   if (request === null) {
-  //     return;
-  //   }
-  //   const url = Utils.buildRequestUrl(request.uriPattern);
-  //   const duration = Moment(endDate).diff(Moment(startDate), 'days');
-  //   const percent_complete = complete ? 'complete' : 'progress';
-  //   const params = {
-  //     name,
-  //     description,
-  //     duration,
-  //     percent_complete,
-  //     resource_id: selectedResource,
-  //     project_id: projectID,
-  //     start_date: startDate,
-  //     end_date: endDate,
-  //     user_ids: inCharge,
-  //   };
-  //
-  //   if (action === 'edit') {
-  //     params.extend = endDate;
-  //     delete params.end_date;
-  //   }
-  //
-  //   const response = await fetch(url, {
-  //     method: request.method,
-  //     headers: { 'X-Reach-token': this.token, 'Content-Type': 'application/json' },
-  //     body: JSON.stringify(params),
-  //   }).catch(() => {
-  //     this.openConfirm('error', serverError, reload, this.closeConfirm);
-  //   });
-  //
-  //   const { is_created, errors, task } = await response.json();
-  //   if (is_created) {
-  //     const { refresh, index } = this.props;
-  //     refresh(task, index, action);
-  //     this.setState({ errors: [] });
-  //   } else {
-  //     this.setState({ errors });
-  //   }
-  // }
-
   handleCreate = () => {
     const { projectID, createTask } = this.props;
     const {
@@ -231,6 +179,33 @@ class TaskForm extends Component {
       user_ids: inCharge,
     };
     createTask(params);
+  }
+
+  handleUpdate = () => {
+    const {
+      name,
+      selectedResource,
+      startDate,
+      endDate,
+      complete,
+      inCharge,
+      description,
+    } = this.state;
+
+    const duration = Moment(endDate).diff(Moment(startDate), 'days');
+    const percent_complete = complete ? 'complete' : 'progress';
+    const params = {
+      name,
+      description,
+      duration,
+      percent_complete,
+      resource_id: selectedResource,
+      start_date: startDate,
+      extend: endDate,
+      user_ids: inCharge,
+    };
+    const { taskID, updateTask } = this.props;
+    updateTask(taskID, params);
   }
 
   render() {
@@ -337,7 +312,7 @@ class TaskForm extends Component {
             onChange={this.onChangeDescription}
           />
         </div>
-        <button type="button" onClick={this.handleCreate} className="taskForm__button">
+        <button type="button" onClick={this.submit} className="taskForm__button">
           {title}
         </button>
         {confirmVisible && (
