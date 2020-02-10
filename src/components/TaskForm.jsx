@@ -208,6 +208,8 @@ class TaskForm extends Component {
     updateTask(taskID, params);
   }
 
+  onClickOverlay = (event) => event.stopPropagation()
+
   render() {
     const { closeTaskForm, resources, users } = this.props;
     const title = this.action === 'edit' ? 'Update Task' : 'Add Task';
@@ -227,103 +229,104 @@ class TaskForm extends Component {
       confirm,
     } = this.state;
 
-
     return (
-      <div className="taskForm">
-        <div className="taskForm__close" onClick={closeTaskForm}>×</div>
-        <div className="taskForm__title">{title}</div>
-        {errors.length !== 0 && <ErrorMessage action="Task creation" errors={errors} />}
-        <div className="taskFormRow">
-          <div className="taskFormRow__label">タイトル</div>
-          <input
-            type="text"
-            className="taskFormRow__name"
-            value={name}
-            onChange={this.onChangeName}
-          />
-        </div>
-        <div className="taskFormRow">
-          <div className="taskFormRow__label">リソース</div>
-          <select
-            value={selectedResource}
-            onChange={this.onChangeResource}
-            className="taskFormRow__resource"
-          >
-            <option key="default" value={null} aria-label="...select" />
-            {resources.map((resource) => (
-              <option key={resource.id} value={resource.id}>{resource.name}</option>
-            ))}
-          </select>
-          <div className="taskFormRow__divide" />
-        </div>
-        <div className="taskFormRow">
-          <div className="taskFormRow__label">開始日</div>
-          <DatePicker
-            className="taskFormRow__date"
-            dateFormat="yyyy/MM/dd"
-            showWeekNumbers
-            selected={startDate}
-            onChange={this.onChangeStartDate}
-          />
-        </div>
-        <div className="taskFormRow">
-          <div className="taskFormRow__label">終了日</div>
-          <DatePicker
-            className="taskFormRow__date"
-            dateFormat="yyyy/MM/dd"
-            showWeekNumbers
-            selected={endDate}
-            onChange={this.onChangeEndDate}
-          />
-        </div>
-        {this.action === 'edit' && (
+      <div className="modalOverlay" onClick={closeTaskForm}>
+        <div className="taskForm" onClick={this.onClickOverlay}>
+          <div className="taskForm__close" onClick={closeTaskForm}>×</div>
+          <div className="taskForm__title">{title}</div>
+          {errors.length !== 0 && <ErrorMessage action="Task creation" errors={errors} />}
           <div className="taskFormRow">
-            <div className="taskFormRow__label">完了</div>
-            <div className="taskFormRow__complete" onClick={this.onCheck}>
-              <div className="taskFormRow__checkbox">
-                <FontAwesomeIcon icon={['far', 'square']} />
-                {complete && <FontAwesomeIcon icon={['fas', 'check']} className="taskFormRow__checked" />}
+            <div className="taskFormRow__label">タイトル</div>
+            <input
+              type="text"
+              className="taskFormRow__name"
+              value={name}
+              onChange={this.onChangeName}
+            />
+          </div>
+          <div className="taskFormRow">
+            <div className="taskFormRow__label">リソース</div>
+            <select
+              value={selectedResource}
+              onChange={this.onChangeResource}
+              className="taskFormRow__resource"
+            >
+              <option key="default" value={null} aria-label="...select" />
+              {resources.map((resource) => (
+                <option key={resource.id} value={resource.id}>{resource.name}</option>
+              ))}
+            </select>
+            <div className="taskFormRow__divide" />
+          </div>
+          <div className="taskFormRow">
+            <div className="taskFormRow__label">開始日</div>
+            <DatePicker
+              className="taskFormRow__date"
+              dateFormat="yyyy/MM/dd"
+              showWeekNumbers
+              selected={startDate}
+              onChange={this.onChangeStartDate}
+            />
+          </div>
+          <div className="taskFormRow">
+            <div className="taskFormRow__label">終了日</div>
+            <DatePicker
+              className="taskFormRow__date"
+              dateFormat="yyyy/MM/dd"
+              showWeekNumbers
+              selected={endDate}
+              onChange={this.onChangeEndDate}
+            />
+          </div>
+          {this.action === 'edit' && (
+            <div className="taskFormRow">
+              <div className="taskFormRow__label">完了</div>
+              <div className="taskFormRow__complete" onClick={this.onCheck}>
+                <div className="taskFormRow__checkbox">
+                  <FontAwesomeIcon icon={['far', 'square']} />
+                  {complete && <FontAwesomeIcon icon={['fas', 'check']} className="taskFormRow__checked" />}
+                </div>
               </div>
             </div>
-          </div>
-        )}
-        <div className="taskFormRow">
-          <div className="taskFormRow__label">担当</div>
-          <div className="taskFormRow__inCharge">
-            {users.map((user) => {
-              const targetIndex = inCharge.indexOf(String(user.id));
-              return (
-                <div key={user.id} className="avatar">
-                  <div data-id={user.id} onClick={this.onClickAvatar} className="avatar__wrapper">
-                    <img src={user.avatar} alt={user.name} className="avatar__image" />
-                    {targetIndex !== notExist && <div className="avatar__selected" />}
+          )}
+          <div className="taskFormRow">
+            <div className="taskFormRow__label">担当</div>
+            <div className="taskFormRow__inCharge">
+              {users.map((user) => {
+                const targetIndex = inCharge.indexOf(String(user.id));
+                return (
+                  <div key={user.id} className="avatar">
+                    <div data-id={user.id} onClick={this.onClickAvatar} className="avatar__wrapper">
+                      <img src={user.avatar} alt={user.name} className="avatar__image" />
+                      {targetIndex !== notExist && <div className="avatar__selected" />}
+                    </div>
+                    <div className="avatar__name">{user.name}</div>
                   </div>
-                  <div className="avatar__name">{user.name}</div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
+          <div className="taskFormRow">
+            <div className="taskFormRow__label">説明</div>
+            <textarea
+              className="taskFormRow__description"
+              value={description}
+              onChange={this.onChangeDescription}
+            />
+          </div>
+          <button type="button" onClick={this.submit} className="taskForm__button">
+            {title}
+          </button>
+          {confirmVisible && (
+            <Confirm
+              type={confirmType}
+              closeConfirm={this.closeConfirm}
+              title={confirmTitle}
+              description={confirmDescription}
+              confirm={confirm}
+            />
+          )}
         </div>
-        <div className="taskFormRow">
-          <div className="taskFormRow__label">説明</div>
-          <textarea
-            className="taskFormRow__description"
-            value={description}
-            onChange={this.onChangeDescription}
-          />
-        </div>
-        <button type="button" onClick={this.submit} className="taskForm__button">
-          {title}
-        </button>
-        {confirmVisible && (
-          <Confirm
-            type={confirmType}
-            closeConfirm={this.closeConfirm}
-            title={confirmTitle}
-            description={confirmDescription}
-            confirm={confirm}
-          />
-        )}
       </div>
     );
   }
