@@ -16,6 +16,13 @@ import {
 
 import '../css/Form.scss';
 
+const mapStateToProps = (state) => {
+  const { projectForm } = state;
+  return {
+    projectID: projectForm.id,
+  };
+};
+
 const mapDispatchToProps = (dispatch) => {
   const {
     closeProjectForm, createProject, deleteProject, updateProject,
@@ -24,8 +31,8 @@ const mapDispatchToProps = (dispatch) => {
   return {
     closeProjectForm: () => dispatch(closeProjectForm()),
     createProject: (params) => dispatch(createProject(params)),
-    deleteProject: (id) => dispatch(deleteProject(id)),
-    updateProject: (id, params) => dispatch(updateProject(id, params)),
+    deleteProject: (projectID) => dispatch(deleteProject(projectID)),
+    updateProject: (projectID, params) => dispatch(updateProject(projectID, params)),
   };
 };
 
@@ -33,9 +40,9 @@ class ProjectForm extends PureComponent {
   constructor(props) {
     super(props);
     this.token = localStorage.getItem('token');
-    const { id } = this.props;
-    this.action = id ? 'edit' : 'new';
-    this.submit = id ? this.handleUpdate : this.handleCreate;
+    const { projectID } = this.props;
+    this.action = projectID ? 'edit' : 'new';
+    this.submit = projectID ? this.handleUpdate : this.handleCreate;
     this.state = {
       name: '',
       description: '',
@@ -55,8 +62,8 @@ class ProjectForm extends PureComponent {
   }
 
   editProjectFormValue = async () => {
-    const { id } = this.props;
-    const url = Utils.buildRequestUrl(`/projects/${id}/edit`);
+    const { projectID } = this.props;
+    const url = Utils.buildRequestUrl(`/projects/${projectID}/edit`);
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
@@ -81,15 +88,15 @@ class ProjectForm extends PureComponent {
   }
 
   handleDestroy = () => {
-    const { deleteProject, id } = this.props;
-    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteProject(id));
+    const { deleteProject, projectID } = this.props;
+    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteProject(projectID));
   }
 
   handleUpdate = () => {
-    const { updateProject, id } = this.props;
+    const { updateProject, projectID } = this.props;
     const { name, description } = this.state;
     const params = { name, description };
-    updateProject(id, params);
+    updateProject(projectID, params);
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -171,4 +178,4 @@ class ProjectForm extends PureComponent {
   }
 }
 
-export default connect(null, mapDispatchToProps)(ProjectForm);
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectForm);

@@ -78,7 +78,7 @@ class Projects extends Component {
 
     return (
       <>
-        {projectFormVisible && <ProjectForm id={projectID} />}
+        {projectFormVisible && <ProjectForm />}
         {taskFormVisible && (
           <TaskForm projectID={projectID} taskID={taskID} refresh={refreshTask} />
         )}
