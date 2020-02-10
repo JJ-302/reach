@@ -2,7 +2,8 @@ import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { connect } from 'react-redux';
 
-import * as actions from '../store/project/actions';
+import * as projectActions from '../store/project/actions';
+import * as taskActions from '../store/task/actions';
 import Task from './Task';
 import TaskForm from './TaskForm';
 import ProjectForm from './ProjectForm';
@@ -10,20 +11,24 @@ import LinkForm from './LinkForm';
 import '../css/Project.scss';
 
 const mapStateToProps = (state) => {
-  const { projectForm, project } = state;
+  const { projectForm, project, taskForm } = state;
   return {
     projectFormVisible: projectForm.visible,
-    targetID: projectForm.id,
+    projectID: projectForm.id,
     projects: project.projects,
+    taskFormVisible: taskForm.visible,
+    taskID: taskForm.id,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
-  const { openProjectForm, closeProjectForm, getAllProjects } = actions;
+  const { openProjectForm, closeProjectForm, getAllProjects } = projectActions;
+  const { openTaskForm } = taskActions;
   return {
     openProjectForm: (id) => dispatch(openProjectForm(id)),
     closeProjectForm: () => dispatch(closeProjectForm()),
     getAllProjects: () => dispatch(getAllProjects()),
+    openTaskForm: () => dispatch(openTaskForm()),
   };
 };
 
@@ -31,7 +36,6 @@ class Projects extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      isVisible: false,
       linkFormVisible: false,
     };
   }
@@ -54,14 +58,6 @@ class Projects extends Component {
     openProjectForm(id);
   };
 
-  openModal = (event) => {
-    this.id = event.currentTarget.dataset.id || null;
-    this.action = event.currentTarget.dataset.action;
-    this.setState({ isVisible: true });
-  }
-
-  closeModal = () => this.setState({ isVisible: false })
-
   openLinkForm = () => this.setState({ linkFormVisible: true })
 
   closeLinkForm = () => this.setState({ linkFormVisible: false })
@@ -72,14 +68,20 @@ class Projects extends Component {
       projects,
       mode,
       projectFormVisible,
-      targetID,
+      projectID,
+      taskFormVisible,
+      openTaskForm,
+      taskID,
     } = this.props;
 
-    const { isVisible, linkFormVisible } = this.state;
+    const { linkFormVisible } = this.state;
 
     return (
       <>
-        {projectFormVisible && <ProjectForm id={targetID} />}
+        {projectFormVisible && <ProjectForm id={projectID} />}
+        {taskFormVisible && (
+          <TaskForm projectID={projectID} taskID={taskID} refresh={refreshTask} />
+        )}
         {projects.map((project, index) => (
           <div key={project.id} className="project">
             <div className="projectHeader">
@@ -92,9 +94,8 @@ class Projects extends Component {
               />
               <FontAwesomeIcon
                 icon={['fas', 'plus']}
-                data-action="new"
                 className="projectHeader__addTask"
-                onClick={this.openModal}
+                onClick={openTaskForm}
               />
               <FontAwesomeIcon
                 icon={['fas', 'link']}
@@ -109,16 +110,6 @@ class Projects extends Component {
                 refresh={refreshTask}
                 tasks={project.tasks}
                 onClick={this.openModal}
-              />
-            )}
-            {isVisible && (
-              <TaskForm
-                id={project.id}
-                action={this.action}
-                taskID={this.id}
-                refresh={refreshTask}
-                index={index}
-                closeModal={this.closeModal}
               />
             )}
             {linkFormVisible && <LinkForm id={project.id} closeModal={this.closeLinkForm} />}

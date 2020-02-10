@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import * as actions from '../store/task/actions';
 import Confirm from './Confirm';
 import Utils from '../utils/Utils';
 import {
@@ -11,6 +13,13 @@ import {
 } from '../utils/Text';
 
 import '../css/Task.scss';
+
+const mapDispatchToProps = (dispatch) => {
+  const { openTaskForm } = actions;
+  return {
+    openTaskForm: (id) => dispatch(openTaskForm(id)),
+  };
+};
 
 const Avatars = ({ members }) => (
   members.map((member, i) => {
@@ -24,7 +33,7 @@ const Avatars = ({ members }) => (
   })
 );
 
-export default class Task extends Component {
+class Task extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -58,6 +67,12 @@ export default class Task extends Component {
     }
   }
 
+  onClick = (event) => {
+    const { openTaskForm } = this.props;
+    const { id } = event.currentTarget.dataset;
+    openTaskForm(id);
+  }
+
   openConfirm = (type, title, description, confirm) => {
     this.setState({
       confirmVisible: true,
@@ -73,7 +88,7 @@ export default class Task extends Component {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { tasks, onClick, destroyMode } = this.props;
+    const { tasks, destroyMode } = this.props;
     const {
       confirmVisible,
       confirmType,
@@ -86,7 +101,7 @@ export default class Task extends Component {
       tasks.map((task) => {
         const className = task.percentComplete === 'progress' ? 'task' : 'task--complete';
         return (
-          <div key={task.id} data-action="edit" data-id={task.id} className={className} onClick={onClick}>
+          <div key={task.id} data-id={task.id} className={className} onClick={this.onClick}>
             <div className="task__icon" onClick={this.onClickOverlay}>
               {destroyMode ? (
                 <FontAwesomeIcon
@@ -120,3 +135,5 @@ export default class Task extends Component {
     );
   }
 }
+
+export default connect(null, mapDispatchToProps)(Task);

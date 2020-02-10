@@ -1,9 +1,11 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DatePicker from 'react-datepicker';
 import Moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 
+import * as taskActions from '../store/task/actions';
 import Confirm from './Confirm';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
@@ -18,14 +20,29 @@ import '../css/Form.scss';
 
 const notExist = -1;
 
-export default class TaskForm extends Component {
+const mapStateToProps = (state) => {
+  const { resource, account } = state;
+  return {
+    users: account.users,
+    resources: resource.resources,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  const { closeTaskForm } = taskActions;
+  return {
+    closeTaskForm: () => dispatch(closeTaskForm()),
+  };
+};
+
+class TaskForm extends Component {
   constructor(props) {
     super(props);
+    const { taskID } = this.props;
+    this.action = taskID ? 'edit' : 'new';
     this.state = {
-      resources: [],
-      users: [],
       name: '',
-      resource: '',
+      selectedResource: '',
       startDate: null,
       endDate: null,
       complete: false,
@@ -41,45 +58,21 @@ export default class TaskForm extends Component {
   }
 
   componentDidMount() {
-    const { taskID, action } = this.props;
-    if (action === 'new') {
-      this.getTaskFormValue();
-    } else if (action === 'edit') {
-      this.editTaskFormValue(taskID);
+    if (this.action === 'edit') {
+      this.editTaskFormValue();
     }
   }
 
-  getTaskFormValue = async () => {
-    this.token = localStorage.getItem('token');
-    const url = Utils.buildRequestUrl('/tasks/new');
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_authenticated, resources, users } = await response.json();
-    if (is_authenticated) {
-      this.setState({ resources, users });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
-    }
-  }
-
-  editTaskFormValue = async (taskID) => {
+  editTaskFormValue = async () => {
+    const { taskID } = this.props;
     this.token = localStorage.getItem('token');
     const url = Utils.buildRequestUrl(`/tasks/${taskID}/edit`);
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
     });
 
-    const {
-      is_authenticated, resources, users, task,
-    } = await response.json();
+    const { is_authenticated, task } = await response.json();
 
     if (is_authenticated) {
       const {
@@ -96,15 +89,13 @@ export default class TaskForm extends Component {
       const complete = percentComplete === 'complete';
       const stringUserIds = userIds.map((userId) => String(userId));
       this.setState({
-        resources,
-        users,
         name,
         complete,
         description,
         startDate: new Date(startDate),
         endDate: extend ? new Date(extend) : new Date(endDate),
         inCharge: stringUserIds,
-        resource: resourceId,
+        selectedResource: resourceId,
       });
     } else {
       this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
@@ -129,8 +120,8 @@ export default class TaskForm extends Component {
   }
 
   onChangeResource = (event) => {
-    const resource = event.target.value;
-    this.setState({ resource });
+    const selectedResource = event.target.value;
+    this.setState({ selectedResource });
   }
 
   onChangeStartDate = (date) => {
@@ -165,10 +156,10 @@ export default class TaskForm extends Component {
   }
 
   createTask = async () => {
-    const { id, taskID, action } = this.props;
+    const { projectID, taskID, action } = this.props;
     const {
       name,
-      resource,
+      selectedResource,
       startDate,
       endDate,
       complete,
@@ -188,8 +179,8 @@ export default class TaskForm extends Component {
       description,
       duration,
       percent_complete,
-      resource_id: resource,
-      project_id: id,
+      resource_id: selectedResource,
+      project_id: projectID,
       start_date: startDate,
       end_date: endDate,
       user_ids: inCharge,
@@ -219,12 +210,10 @@ export default class TaskForm extends Component {
   }
 
   render() {
-    const { closeModal, action } = this.props;
-    const title = action === 'edit' ? 'Update' : 'Add';
+    const { closeTaskForm, resources } = this.props;
+    const title = this.action === 'edit' ? 'Update Task' : 'Add Task';
     const {
-      users,
-      resources,
-      resource,
+      selectedResource,
       name,
       startDate,
       endDate,
@@ -241,11 +230,8 @@ export default class TaskForm extends Component {
 
     return (
       <div className="taskForm">
-        <div className="taskForm__close" onClick={closeModal}>×</div>
-        <div className="taskForm__title">
-          {title}
-          Task
-        </div>
+        <div className="taskForm__close" onClick={closeTaskForm}>×</div>
+        <div className="taskForm__title">{title}</div>
         {errors.length !== 0 && <ErrorMessage action="Task creation" errors={errors} />}
         <div className="taskFormRow">
           <div className="taskFormRow__label">タイトル</div>
@@ -259,12 +245,14 @@ export default class TaskForm extends Component {
         <div className="taskFormRow">
           <div className="taskFormRow__label">リソース</div>
           <select
-            value={resource}
+            value={selectedResource}
             onChange={this.onChangeResource}
             className="taskFormRow__resource"
           >
             <option key="default" value={null} aria-label="...select" />
-            <Resources resources={resources} />
+            {resources.map((resource) => (
+              <option key={resource.id} value={resource.id}>{resource.name}</option>
+            ))}
           </select>
           <div className="taskFormRow__divide" />
         </div>
@@ -288,7 +276,7 @@ export default class TaskForm extends Component {
             onChange={this.onChangeEndDate}
           />
         </div>
-        {action === 'edit' && (
+        {this.action === 'edit' && (
           <div className="taskFormRow">
             <div className="taskFormRow__label">完了</div>
             <div className="taskFormRow__complete" onClick={this.onCheck}>
@@ -303,7 +291,7 @@ export default class TaskForm extends Component {
         <div className="taskFormRow">
           <div className="taskFormRow__label">担当</div>
           <div className="taskFormRow__inCharge">
-            <Users users={users} inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
+            <Users inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
           </div>
         </div>
         <div className="taskFormRow">
@@ -331,13 +319,7 @@ export default class TaskForm extends Component {
   }
 }
 
-const Resources = ({ resources }) => (
-  resources.map((resource) => (
-    <option key={resource.id} value={resource.id}>{resource.name}</option>
-  ))
-);
-
-const Users = ({ users, onClickAvatar, inCharge }) => (
+const Users = connect(mapStateToProps)(({ users, onClickAvatar, inCharge }) => (
   users.map((user) => {
     const targetIndex = inCharge.indexOf(String(user.id));
     return (
@@ -350,4 +332,6 @@ const Users = ({ users, onClickAvatar, inCharge }) => (
       </div>
     );
   })
-);
+));
+
+export default connect(mapStateToProps, mapDispatchToProps)(TaskForm);
