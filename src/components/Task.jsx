@@ -17,7 +17,7 @@ import '../css/Task.scss';
 const mapDispatchToProps = (dispatch) => {
   const { openTaskForm } = actions;
   return {
-    openTaskForm: (id) => dispatch(openTaskForm(id)),
+    openTaskForm: ({ taskID }) => dispatch(openTaskForm({ taskID })),
   };
 };
 
@@ -70,7 +70,7 @@ class Task extends Component {
   onClick = (event) => {
     const { openTaskForm } = this.props;
     const { id } = event.currentTarget.dataset;
-    openTaskForm(id);
+    openTaskForm({ taskID: id });
   }
 
   openConfirm = (type, title, description, confirm) => {

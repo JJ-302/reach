@@ -7,6 +7,7 @@ export const CREATE_PROJECT = 'CREATE_PROJECT';
 export const DELETE_PROJECT = 'DELETE_PROJECT';
 export const UPDATE_PROJECT = 'UPDATE_PROJECT';
 export const SEARCH_PROJECT = 'SEARCH_PROJECT';
+export const CREATE_TASK = 'CREATE_TASK';
 
 export const openProjectForm = (id = null) => ({
   type: OPEN_PROJECT_FORM,
@@ -85,4 +86,19 @@ export const searchProjects = (params) => async (dispatch) => {
 
   const { projects } = await response.json();
   dispatch({ type: SEARCH_PROJECT, projects });
+};
+
+export const createTask = (params) => async (dispatch) => {
+  const url = Utils.buildRequestUrl('/tasks');
+  const token = localStorage.getItem('token');
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
+    body: JSON.stringify(params),
+  });
+
+  const json = await response.json();
+  if (json.is_created) {
+    dispatch({ type: CREATE_TASK, task: json.task });
+  }
 };

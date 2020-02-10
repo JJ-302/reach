@@ -28,7 +28,7 @@ const mapDispatchToProps = (dispatch) => {
     openProjectForm: (id) => dispatch(openProjectForm(id)),
     closeProjectForm: () => dispatch(closeProjectForm()),
     getAllProjects: () => dispatch(getAllProjects()),
-    openTaskForm: () => dispatch(openTaskForm()),
+    openTaskForm: ({ projectID }) => dispatch(openTaskForm({ projectID })),
   };
 };
 
@@ -58,6 +58,12 @@ class Projects extends Component {
     openProjectForm(id);
   };
 
+  onClickAddTask = (event) => {
+    const { openTaskForm } = this.props;
+    const { id } = event.currentTarget.dataset;
+    openTaskForm({ projectID: id });
+  }
+
   openLinkForm = () => this.setState({ linkFormVisible: true })
 
   closeLinkForm = () => this.setState({ linkFormVisible: false })
@@ -68,10 +74,7 @@ class Projects extends Component {
       projects,
       mode,
       projectFormVisible,
-      projectID,
       taskFormVisible,
-      openTaskForm,
-      taskID,
     } = this.props;
 
     const { linkFormVisible } = this.state;
@@ -79,9 +82,7 @@ class Projects extends Component {
     return (
       <>
         {projectFormVisible && <ProjectForm />}
-        {taskFormVisible && (
-          <TaskForm projectID={projectID} taskID={taskID} refresh={refreshTask} />
-        )}
+        {taskFormVisible && <TaskForm />}
         {projects.map((project, index) => (
           <div key={project.id} className="project">
             <div className="projectHeader">
@@ -95,7 +96,8 @@ class Projects extends Component {
               <FontAwesomeIcon
                 icon={['fas', 'plus']}
                 className="projectHeader__addTask"
-                onClick={openTaskForm}
+                data-id={project.id}
+                onClick={this.onClickAddTask}
               />
               <FontAwesomeIcon
                 icon={['fas', 'link']}

@@ -1,9 +1,9 @@
 export const OPEN_TASK_FORM = 'OPEN_TASK_FORM';
 export const CLOSE_TASK_FORM = 'CLOSE_TASK_FORM';
 
-export const openTaskForm = (id = null) => ({
+export const openTaskForm = ({ projectID = null, taskID = null }) => ({
   type: OPEN_TASK_FORM,
-  id,
+  payload: { projectID, taskID },
 });
 
 export const closeTaskForm = () => ({

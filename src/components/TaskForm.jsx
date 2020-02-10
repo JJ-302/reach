@@ -6,32 +6,31 @@ import Moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 
 import * as taskActions from '../store/task/actions';
+import * as projectActions from '../store/project/actions';
 import Confirm from './Confirm';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
-import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-} from '../utils/Text';
-
+import { badRequest, checkParams } from '../utils/Text';
 import '../css/Form.scss';
 
 const notExist = -1;
 
 const mapStateToProps = (state) => {
-  const { resource, account } = state;
+  const { resource, account, taskForm } = state;
   return {
     users: account.users,
     resources: resource.resources,
+    taskID: taskForm.taskID,
+    projectID: taskForm.projectID,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   const { closeTaskForm } = taskActions;
+  const { createTask } = projectActions;
   return {
     closeTaskForm: () => dispatch(closeTaskForm()),
+    createTask: (params) => dispatch(createTask(params)),
   };
 };
 
@@ -155,62 +154,87 @@ class TaskForm extends Component {
     this.setState({ description });
   }
 
-  createTask = async () => {
-    const { projectID, taskID, action } = this.props;
+  // createTask = async () => {
+  //   const { projectID, taskID } = this.props;
+  //   const {
+  //     name,
+  //     selectedResource,
+  //     startDate,
+  //     endDate,
+  //     complete,
+  //     inCharge,
+  //     description,
+  //   } = this.state;
+  //
+  //   const request = Utils.preparingRequest(action, taskID, 'tasks');
+  //   if (request === null) {
+  //     return;
+  //   }
+  //   const url = Utils.buildRequestUrl(request.uriPattern);
+  //   const duration = Moment(endDate).diff(Moment(startDate), 'days');
+  //   const percent_complete = complete ? 'complete' : 'progress';
+  //   const params = {
+  //     name,
+  //     description,
+  //     duration,
+  //     percent_complete,
+  //     resource_id: selectedResource,
+  //     project_id: projectID,
+  //     start_date: startDate,
+  //     end_date: endDate,
+  //     user_ids: inCharge,
+  //   };
+  //
+  //   if (action === 'edit') {
+  //     params.extend = endDate;
+  //     delete params.end_date;
+  //   }
+  //
+  //   const response = await fetch(url, {
+  //     method: request.method,
+  //     headers: { 'X-Reach-token': this.token, 'Content-Type': 'application/json' },
+  //     body: JSON.stringify(params),
+  //   }).catch(() => {
+  //     this.openConfirm('error', serverError, reload, this.closeConfirm);
+  //   });
+  //
+  //   const { is_created, errors, task } = await response.json();
+  //   if (is_created) {
+  //     const { refresh, index } = this.props;
+  //     refresh(task, index, action);
+  //     this.setState({ errors: [] });
+  //   } else {
+  //     this.setState({ errors });
+  //   }
+  // }
+
+  handleCreate = () => {
+    const { projectID, createTask } = this.props;
     const {
       name,
       selectedResource,
       startDate,
       endDate,
-      complete,
       inCharge,
       description,
     } = this.state;
 
-    const request = Utils.preparingRequest(action, taskID, 'tasks');
-    if (request === null) {
-      return;
-    }
-    const url = Utils.buildRequestUrl(request.uriPattern);
     const duration = Moment(endDate).diff(Moment(startDate), 'days');
-    const percent_complete = complete ? 'complete' : 'progress';
     const params = {
       name,
       description,
       duration,
-      percent_complete,
       resource_id: selectedResource,
       project_id: projectID,
       start_date: startDate,
       end_date: endDate,
       user_ids: inCharge,
     };
-
-    if (action === 'edit') {
-      params.extend = endDate;
-      delete params.end_date;
-    }
-
-    const response = await fetch(url, {
-      method: request.method,
-      headers: { 'X-Reach-token': this.token, 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_created, errors, task } = await response.json();
-    if (is_created) {
-      const { refresh, index } = this.props;
-      refresh(task, index, action);
-      this.setState({ errors: [] });
-    } else {
-      this.setState({ errors });
-    }
+    createTask(params);
   }
 
   render() {
-    const { closeTaskForm, resources } = this.props;
+    const { closeTaskForm, resources, users } = this.props;
     const title = this.action === 'edit' ? 'Update Task' : 'Add Task';
     const {
       selectedResource,
@@ -227,6 +251,7 @@ class TaskForm extends Component {
       confirmDescription,
       confirm,
     } = this.state;
+
 
     return (
       <div className="taskForm">
@@ -282,8 +307,7 @@ class TaskForm extends Component {
             <div className="taskFormRow__complete" onClick={this.onCheck}>
               <div className="taskFormRow__checkbox">
                 <FontAwesomeIcon icon={['far', 'square']} />
-                {complete
-                  && <FontAwesomeIcon icon={['fas', 'check']} className="taskFormRow__checked" />}
+                {complete && <FontAwesomeIcon icon={['fas', 'check']} className="taskFormRow__checked" />}
               </div>
             </div>
           </div>
@@ -291,7 +315,18 @@ class TaskForm extends Component {
         <div className="taskFormRow">
           <div className="taskFormRow__label">担当</div>
           <div className="taskFormRow__inCharge">
-            <Users inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
+            {users.map((user) => {
+              const targetIndex = inCharge.indexOf(String(user.id));
+              return (
+                <div key={user.id} className="avatar">
+                  <div data-id={user.id} onClick={this.onClickAvatar} className="avatar__wrapper">
+                    <img src={user.avatar} alt={user.name} className="avatar__image" />
+                    {targetIndex !== notExist && <div className="avatar__selected" />}
+                  </div>
+                  <div className="avatar__name">{user.name}</div>
+                </div>
+              );
+            })}
           </div>
         </div>
         <div className="taskFormRow">
@@ -302,7 +337,7 @@ class TaskForm extends Component {
             onChange={this.onChangeDescription}
           />
         </div>
-        <button type="button" onClick={this.createTask} className="taskForm__button">
+        <button type="button" onClick={this.handleCreate} className="taskForm__button">
           {title}
         </button>
         {confirmVisible && (
@@ -318,20 +353,5 @@ class TaskForm extends Component {
     );
   }
 }
-
-const Users = connect(mapStateToProps)(({ users, onClickAvatar, inCharge }) => (
-  users.map((user) => {
-    const targetIndex = inCharge.indexOf(String(user.id));
-    return (
-      <div key={user.id} className="avatar">
-        <div data-id={user.id} onClick={onClickAvatar} className="avatar__wrapper">
-          <img src={user.avatar} alt={user.name} className="avatar__image" />
-          {targetIndex !== notExist && <div className="avatar__selected" />}
-        </div>
-        <div className="avatar__name">{user.name}</div>
-      </div>
-    );
-  })
-));
 
 export default connect(mapStateToProps, mapDispatchToProps)(TaskForm);

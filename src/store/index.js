@@ -9,7 +9,7 @@ import {
 import { resourceFormReducer, resourceReducer } from './resource/reducers';
 import { projectFormReducer, projectReducer } from './project/reducers';
 import { accountFormReducer, accountReducer } from './account/reducers';
-import { taskFormReducer } from './task/reducers';
+import taskFormReducer from './task/reducers';
 
 const rootReducer = combineReducers({
   resourceForm: resourceFormReducer,

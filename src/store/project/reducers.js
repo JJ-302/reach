@@ -6,6 +6,7 @@ import {
   DELETE_PROJECT,
   UPDATE_PROJECT,
   SEARCH_PROJECT,
+  CREATE_TASK,
 } from './actions';
 
 const initialProjectFormState = { visible: false, id: null };
@@ -45,6 +46,18 @@ export const projectReducer = (state = initialProjectState, action) => {
       };
     case SEARCH_PROJECT:
       return { projects: action.projects };
+    case CREATE_TASK: {
+      const targetProject = state.projects.filter((project) => (
+        project.id === action.task.projectID
+      ));
+      targetProject[0].tasks = [...targetProject[0].tasks, action.task];
+      return {
+        ...state,
+        projects: state.projects.map((project) => (
+          project.id === targetProject[0].id ? targetProject[0] : project
+        )),
+      };
+    }
     default:
       return state;
   }
