@@ -17,10 +17,11 @@ import {
 import '../css/Session.scss';
 
 const mapDispatchToProps = (dispatch) => {
-  const { closeAccountForm } = accountActions;
+  const { closeAccountForm, updateAccount } = accountActions;
   const { getAllProjects } = projectActions;
   return {
     closeAccountForm: () => dispatch(closeAccountForm()),
+    updateAccount: (params) => dispatch(updateAccount(params)),
     getAllProjects: () => dispatch(getAllProjects()),
   };
 };
@@ -77,22 +78,9 @@ class EditAccuount extends Component {
       params.append('user[avatar]', avatar);
     }
 
-    const url = Utils.buildRequestUrl('/users/update');
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: { 'X-Reach-token': this.token },
-      body: params,
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_updated, errors } = await response.json();
-    if (is_updated) {
-      const { getAllProjects } = this.props;
-      getAllProjects();
-    } else {
-      this.setState({ errors });
-    }
+    const { getAllProjects, updateAccount } = this.props;
+    await updateAccount(params);
+    getAllProjects();
   }
 
   onChangeFile = (event) => {

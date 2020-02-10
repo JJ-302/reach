@@ -8,7 +8,7 @@ import {
 
 import { resourceFormReducer, resourceReducer } from './resource/reducers';
 import { projectFormReducer, projectReducer } from './project/reducers';
-import { accountFormReducer } from './account/reducers';
+import { accountFormReducer, accountReducer } from './account/reducers';
 
 const rootReducer = combineReducers({
   resourceForm: resourceFormReducer,
@@ -16,6 +16,7 @@ const rootReducer = combineReducers({
   projectForm: projectFormReducer,
   project: projectReducer,
   accountForm: accountFormReducer,
+  account: accountReducer,
 });
 
 /* eslint-disable no-underscore-dangle */

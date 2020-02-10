@@ -3,43 +3,36 @@ import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
-import * as actions from '../store/project/actions';
+import * as projectActions from '../store/project/actions';
+import * as accountActions from '../store/account/actions';
 import Confirm from './Confirm';
-
-import Utils from '../utils/Utils';
-import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-} from '../utils/Text';
 
 const notExist = -1;
 
 const stopPropagation = (event) => event.stopPropagation();
 
 const mapStateToProps = (state) => {
-  const { project, resource } = state;
+  const { project, resource, account } = state;
   return {
     projects: project.projects,
     resources: resource.resources,
+    users: account.users,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
-  const { searchProjects } = actions;
-
+  const { searchProjects } = projectActions;
+  const { getAllAccount } = accountActions;
   return {
     searchProjects: (params) => dispatch(searchProjects(params)),
+    getAllAccount: () => dispatch(getAllAccount()),
   };
 };
 
 class ProjectHeader extends Component {
   constructor(props) {
     super(props);
-    this.token = localStorage.getItem('token');
     this.state = {
-      users: [],
       searchByNameVisible: false,
       searchByDateVisible: false,
       searchByDurationVisible: false,
@@ -69,24 +62,8 @@ class ProjectHeader extends Component {
   }
 
   componentDidMount() {
-    this.getUserIndex();
-  }
-
-  getUserIndex = async () => {
-    const url = Utils.buildRequestUrl('/users');
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { users, is_authenticated } = await response.json();
-    if (is_authenticated) {
-      this.setState({ users });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
-    }
+    const { getAllAccount } = this.props;
+    getAllAccount();
   }
 
   search = () => {
@@ -376,7 +353,6 @@ class ProjectHeader extends Component {
 
   render() {
     const {
-      users,
       searchByNameVisible,
       searchByDateVisible,
       searchByDurationVisible,
@@ -405,14 +381,9 @@ class ProjectHeader extends Component {
     } = this.state;
 
     const resourceIconClass = selectedResources.length === 0 ? 'resourceIcon' : 'resourceIcon--selected';
-    const dateProps = this.sortingByDateRange(dateType);
     const {
-      rangeStart,
-      rangeEnd,
-      onChangeRangeStart,
-      onChangeRangeEnd,
-      order,
-    } = dateProps;
+      rangeStart, rangeEnd, onChangeRangeStart, onChangeRangeEnd, order,
+    } = this.sortingByDateRange(dateType);
 
     return (
       <div className="gantt-index-header">
@@ -432,9 +403,8 @@ class ProjectHeader extends Component {
 
         <div className="gantt-index-header__startDate">
           {startDateFrom === '' && startDateTo === '' && orderStartDate === ''
-            ? (
-              <span className="gantt-index-header__label" data-type="start" onClick={this.onClickDate}>開始日</span>
-            ) : (
+            ? <span className="gantt-index-header__label" data-type="start" onClick={this.onClickDate}>開始日</span>
+            : (
               <div className="selected">
                 <span className="selected__label" data-type="start" onClick={this.onClickDate}>開始日</span>
                 <span className="selected__clear" onClick={this.clearSearchStartDate}>×</span>
@@ -444,9 +414,8 @@ class ProjectHeader extends Component {
 
         <div className="gantt-index-header__endDate">
           {endDateFrom === '' && endDateTo === '' && orderEndDate === ''
-            ? (
-              <span className="gantt-index-header__label" data-type="end" onClick={this.onClickDate}>終了日</span>
-            ) : (
+            ? <span className="gantt-index-header__label" data-type="end" onClick={this.onClickDate}>終了日</span>
+            : (
               <div className="selected">
                 <span className="selected__label" data-type="end" onClick={this.onClickDate}>終了日</span>
                 <span className="selected__clear" onClick={this.clearSearchEndDate}>×</span>
@@ -456,9 +425,8 @@ class ProjectHeader extends Component {
 
         <div className="gantt-index-header__extend">
           {extendFrom === '' && extendTo === '' && orderExtend === ''
-            ? (
-              <span className="gantt-index-header__label" data-type="extend" onClick={this.onClickDate}>延長</span>
-            ) : (
+            ? <span className="gantt-index-header__label" data-type="extend" onClick={this.onClickDate}>延長</span>
+            : (
               <div className="selected">
                 <span className="selected__label" data-type="extend" onClick={this.onClickDate}>延長</span>
                 <span className="selected__clear" onClick={this.clearSearchExtend}>×</span>
@@ -524,7 +492,7 @@ class ProjectHeader extends Component {
         )}
         {searchByUsersVisible && (
           <div className="overlay" onClick={this.closeAllModal}>
-            <SearchByUsers users={users} inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
+            <SearchByUsers inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
           </div>
         )}
         {confirmVisible && (
@@ -607,11 +575,7 @@ const SearchByDate = (props) => {
 
 const SearchByName = connect(mapStateToProps)((props) => {
   const {
-    projectId,
-    projects,
-    onChangeProject,
-    taskName,
-    onChangeTask,
+    projectId, projects, onChangeProject, taskName, onChangeTask,
   } = props;
 
   return (
@@ -630,32 +594,28 @@ const SearchByName = connect(mapStateToProps)((props) => {
   );
 });
 
-const Users = ({ users, onClickAvatar, inCharge }) => (
-  users.map((user) => {
-    const targetIndex = inCharge.indexOf(String(user.id));
-    return (
-      <div key={user.id} className="avatar">
-        <div data-id={user.id} onClick={onClickAvatar} className="avatar__wrapper">
-          <img src={user.avatar} alt={user.name} className="avatar__image" />
-          {targetIndex !== notExist && <div className="avatar__selected" />}
-        </div>
-        <div className="avatar__name">{user.name}</div>
-      </div>
-    );
-  })
-);
-
-const SearchByUsers = (props) => {
+const SearchByUsers = connect(mapStateToProps)((props) => {
   const { users, inCharge, onClickAvatar } = props;
   return (
     <div className="search--user" onClick={stopPropagation}>
       <div className="search__label">担当で絞り込み</div>
       <div className="search__usersWrapper">
-        <Users users={users} inCharge={inCharge} onClickAvatar={onClickAvatar} />
+        {users.map((user) => {
+          const targetIndex = inCharge.indexOf(String(user.id));
+          return (
+            <div key={user.id} className="avatar">
+              <div data-id={user.id} onClick={onClickAvatar} className="avatar__wrapper">
+                <img src={user.avatar} alt={user.name} className="avatar__image" />
+                {targetIndex !== notExist && <div className="avatar__selected" />}
+              </div>
+              <div className="avatar__name">{user.name}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-};
+});
 
 const SearchByResource = connect(mapStateToProps)((props) => {
   const { resources, selectedResources, onClickResource } = props;
