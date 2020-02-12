@@ -150,7 +150,7 @@
 }
 
 .taskForm {
-  max-height: 90vh;
+  max-height: 80vh;
   width: 660px;
   display: flex;
   align-items: center;
@@ -172,7 +172,6 @@
     width: calc(100vw - 780px);
   }
   @media (max-height: 625px) {
-    top: auto;
     bottom: 0;
   }
   &__close {
@@ -233,7 +232,7 @@
       &::-webkit-scrollbar {
         display: none;
       }
-      @media (max-height: 755px) {
+      @media (max-height: 800px) {
         flex-wrap: nowrap;
         height: auto;
       }

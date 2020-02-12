@@ -1,25 +1,38 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
+import * as projectActions from '../store/project/actions';
+import * as accountActions from '../store/account/actions';
 import Confirm from './Confirm';
-
-import Utils from '../utils/Utils';
-import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-} from '../utils/Text';
 
 const notExist = -1;
 
-export default class GanttIndexHeader extends Component {
+const stopPropagation = (event) => event.stopPropagation();
+
+const mapStateToProps = (state) => {
+  const { project, resource, account } = state;
+  return {
+    projects: project.projects,
+    resources: resource.resources,
+    users: account.users,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  const { searchProjects } = projectActions;
+  const { getAllAccount } = accountActions;
+  return {
+    searchProjects: (params) => dispatch(searchProjects(params)),
+    getAllAccount: () => dispatch(getAllAccount()),
+  };
+};
+
+class ProjectHeader extends Component {
   constructor(props) {
     super(props);
-    this.token = localStorage.getItem('token');
     this.state = {
-      users: [],
       searchByNameVisible: false,
       searchByDateVisible: false,
       searchByDurationVisible: false,
@@ -49,27 +62,11 @@ export default class GanttIndexHeader extends Component {
   }
 
   componentDidMount() {
-    this.getUserIndex();
+    const { getAllAccount } = this.props;
+    getAllAccount();
   }
 
-  getUserIndex = async () => {
-    const url = Utils.buildRequestUrl('/users');
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { users, is_authenticated } = await response.json();
-    if (is_authenticated) {
-      this.setState({ users });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
-    }
-  }
-
-  search = async () => {
+  search = () => {
     const {
       projectId,
       taskName,
@@ -98,22 +95,8 @@ export default class GanttIndexHeader extends Component {
       resources: selectedResources,
     };
 
-    const url = Utils.buildRequestUrl('/tasks/search');
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(params),
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { projects } = await response.json();
-    if (projects === undefined) {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    } else {
-      const { updateProject } = this.props;
-      updateProject(projects);
-    }
+    const { searchProjects } = this.props;
+    searchProjects(params);
   }
 
   sortingByDateRange = (type) => {
@@ -368,12 +351,8 @@ export default class GanttIndexHeader extends Component {
     });
   }
 
-  stopPropagation = (event) => event.stopPropagation()
-
   render() {
-    const { projects, resources } = this.props;
     const {
-      users,
       searchByNameVisible,
       searchByDateVisible,
       searchByDurationVisible,
@@ -402,14 +381,9 @@ export default class GanttIndexHeader extends Component {
     } = this.state;
 
     const resourceIconClass = selectedResources.length === 0 ? 'resourceIcon' : 'resourceIcon--selected';
-    const dateProps = this.sortingByDateRange(dateType);
     const {
-      rangeStart,
-      rangeEnd,
-      onChangeRangeStart,
-      onChangeRangeEnd,
-      order,
-    } = dateProps;
+      rangeStart, rangeEnd, onChangeRangeStart, onChangeRangeEnd, order,
+    } = this.sortingByDateRange(dateType);
 
     return (
       <div className="gantt-index-header">
@@ -421,7 +395,7 @@ export default class GanttIndexHeader extends Component {
             ? <span className="gantt-index-header__label" onClick={this.onClickName}>タイトル</span>
             : (
               <div className="selected">
-                <span className="selected__label" onClick={this.onClickName}>Name</span>
+                <span className="selected__label" onClick={this.onClickName}>タイトル</span>
                 <span className="selected__clear" onClick={this.clearSearchName}>×</span>
               </div>
             )}
@@ -429,15 +403,10 @@ export default class GanttIndexHeader extends Component {
 
         <div className="gantt-index-header__startDate">
           {startDateFrom === '' && startDateTo === '' && orderStartDate === ''
-            ? (
-              <span className="gantt-index-header__label" data-type="start" onClick={this.onClickDate}>
-                開始日
-              </span>
-            ) : (
+            ? <span className="gantt-index-header__label" data-type="start" onClick={this.onClickDate}>開始日</span>
+            : (
               <div className="selected">
-                <span className="selected__label" data-type="start" onClick={this.onClickDate}>
-                  開始日
-                </span>
+                <span className="selected__label" data-type="start" onClick={this.onClickDate}>開始日</span>
                 <span className="selected__clear" onClick={this.clearSearchStartDate}>×</span>
               </div>
             )}
@@ -445,15 +414,10 @@ export default class GanttIndexHeader extends Component {
 
         <div className="gantt-index-header__endDate">
           {endDateFrom === '' && endDateTo === '' && orderEndDate === ''
-            ? (
-              <span className="gantt-index-header__label" data-type="end" onClick={this.onClickDate}>
-                終了日
-              </span>
-            ) : (
+            ? <span className="gantt-index-header__label" data-type="end" onClick={this.onClickDate}>終了日</span>
+            : (
               <div className="selected">
-                <span className="selected__label" data-type="end" onClick={this.onClickDate}>
-                  終了日
-                </span>
+                <span className="selected__label" data-type="end" onClick={this.onClickDate}>終了日</span>
                 <span className="selected__clear" onClick={this.clearSearchEndDate}>×</span>
               </div>
             )}
@@ -461,15 +425,10 @@ export default class GanttIndexHeader extends Component {
 
         <div className="gantt-index-header__extend">
           {extendFrom === '' && extendTo === '' && orderExtend === ''
-            ? (
-              <span className="gantt-index-header__label" data-type="extend" onClick={this.onClickDate}>
-                延長
-              </span>
-            ) : (
+            ? <span className="gantt-index-header__label" data-type="extend" onClick={this.onClickDate}>延長</span>
+            : (
               <div className="selected">
-                <span className="selected__label" data-type="extend" onClick={this.onClickDate}>
-                  延長
-                </span>
+                <span className="selected__label" data-type="extend" onClick={this.onClickDate}>延長</span>
                 <span className="selected__clear" onClick={this.clearSearchExtend}>×</span>
               </div>
             )}
@@ -498,10 +457,8 @@ export default class GanttIndexHeader extends Component {
         {searchByResourceVisible && (
           <div className="overlay" onClick={this.closeAllModal}>
             <SearchByResource
-              resources={resources}
               selectedResources={selectedResources}
               onClickResource={this.onClickResourceIcon}
-              stopPropagation={this.stopPropagation}
             />
           </div>
         )}
@@ -509,11 +466,9 @@ export default class GanttIndexHeader extends Component {
           <div className="overlay" onClick={this.closeAllModal}>
             <SearchByName
               projectId={projectId}
-              projects={projects}
               onChangeProject={this.onChangeProject}
               taskName={taskName}
               onChangeTask={this.onChangeTask}
-              stopPropagation={this.stopPropagation}
             />
           </div>
         )}
@@ -527,27 +482,17 @@ export default class GanttIndexHeader extends Component {
               onChangeRangeEnd={onChangeRangeEnd}
               onChangeOrder={this.onChangeOrder}
               selected={order}
-              stopPropagation={this.stopPropagation}
             />
           </div>
         )}
         {searchByDurationVisible && (
           <div className="overlay" onClick={this.closeAllModal}>
-            <SearchByDuration
-              onChangeOrder={this.onChangeOrder}
-              selected={orderDuration}
-              stopPropagation={this.stopPropagation}
-            />
+            <SearchByDuration onChangeOrder={this.onChangeOrder} selected={orderDuration} />
           </div>
         )}
         {searchByUsersVisible && (
           <div className="overlay" onClick={this.closeAllModal}>
-            <SearchByUsers
-              users={users}
-              inCharge={inCharge}
-              onClickAvatar={this.onClickAvatar}
-              stopPropagation={this.stopPropagation}
-            />
+            <SearchByUsers inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
           </div>
         )}
         {confirmVisible && (
@@ -578,7 +523,7 @@ const OrderBy = (props) => {
 };
 
 const SearchByDuration = (props) => {
-  const { onChangeOrder, selected, stopPropagation } = props;
+  const { onChangeOrder, selected } = props;
   return (
     <div className="search--duration" onClick={stopPropagation}>
       <div className="search__label">並べ替え</div>
@@ -597,7 +542,6 @@ const SearchByDate = (props) => {
     dateType,
     onChangeOrder,
     order,
-    stopPropagation,
   } = props;
 
   const className = `search--${dateType}`;
@@ -629,14 +573,9 @@ const SearchByDate = (props) => {
   );
 };
 
-const SearchByName = (props) => {
+const SearchByName = connect(mapStateToProps)((props) => {
   const {
-    projectId,
-    projects,
-    onChangeProject,
-    taskName,
-    onChangeTask,
-    stopPropagation,
+    projectId, projects, onChangeProject, taskName, onChangeTask,
   } = props;
 
   return (
@@ -653,74 +592,52 @@ const SearchByName = (props) => {
       <input type="text" className="search__task" value={taskName} onChange={onChangeTask} />
     </div>
   );
-};
+});
 
-const Users = ({ users, onClickAvatar, inCharge }) => (
-  users.map((user) => {
-    const targetIndex = inCharge.indexOf(String(user.id));
-    return (
-      <div key={user.id} className="avatar">
-        <div data-id={user.id} onClick={onClickAvatar} className="avatar__wrapper">
-          <img src={user.avatar} alt={user.name} className="avatar__image" />
-          {targetIndex !== notExist && <div className="avatar__selected" />}
-        </div>
-        <div className="avatar__name">{user.name}</div>
-      </div>
-    );
-  })
-);
-
-const SearchByUsers = (props) => {
-  const {
-    users,
-    inCharge,
-    onClickAvatar,
-    stopPropagation,
-  } = props;
-
+const SearchByUsers = connect(mapStateToProps)((props) => {
+  const { users, inCharge, onClickAvatar } = props;
   return (
     <div className="search--user" onClick={stopPropagation}>
       <div className="search__label">担当で絞り込み</div>
       <div className="search__usersWrapper">
-        <Users users={users} inCharge={inCharge} onClickAvatar={onClickAvatar} />
+        {users.map((user) => {
+          const targetIndex = inCharge.indexOf(String(user.id));
+          return (
+            <div key={user.id} className="avatar">
+              <div data-id={user.id} onClick={onClickAvatar} className="avatar__wrapper">
+                <img src={user.avatar} alt={user.name} className="avatar__image" />
+                {targetIndex !== notExist && <div className="avatar__selected" />}
+              </div>
+              <div className="avatar__name">{user.name}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-};
+});
 
-const Resources = ({ resources, selectedResources, onClickResource }) => (
-  resources.map((resource) => {
-    const targetIndex = selectedResources.indexOf(String(resource.id));
-    return (
-      <div key={resource.id} className="resource">
-        <div data-id={resource.id} onClick={onClickResource} className="resource__wrapper">
-          <div className="resource__icon" style={{ backgroundColor: resource.color }} />
-          {targetIndex !== notExist && <div className="resource__selected" />}
-        </div>
-        <div className="resource__name">{resource.name}</div>
-      </div>
-    );
-  })
-);
-
-const SearchByResource = (props) => {
-  const {
-    resources,
-    selectedResources,
-    onClickResource,
-    stopPropagation,
-  } = props;
-
+const SearchByResource = connect(mapStateToProps)((props) => {
+  const { resources, selectedResources, onClickResource } = props;
   return (
     <div className="search--resource" onClick={stopPropagation}>
       <div className="search__label">リソースで絞り込み</div>
       <div className="search__resourceWrapper">
-        <Resources
-          resources={resources}
-          selectedResources={selectedResources}
-          onClickResource={onClickResource}
-        />
+        {resources.map((resource) => {
+          const targetIndex = selectedResources.indexOf(String(resource.id));
+          return (
+            <div key={resource.id} className="resource">
+              <div data-id={resource.id} onClick={onClickResource} className="resource__wrapper">
+                <div className="resource__icon" style={{ backgroundColor: resource.color }} />
+                {targetIndex !== notExist && <div className="resource__selected" />}
+              </div>
+              <div className="resource__name">{resource.name}</div>
+            </div>
+          );
+        })}
       </div>
     </div>
   );
-};
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectHeader);

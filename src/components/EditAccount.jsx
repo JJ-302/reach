@@ -1,6 +1,9 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import * as accountActions from '../store/account/actions';
+import * as projectActions from '../store/project/actions';
 import ErrorMessage from './Error';
 import Confirm from './Confirm';
 import Utils from '../utils/Utils';
@@ -9,12 +12,21 @@ import {
   checkParams,
   reload,
   serverError,
-  updated,
 } from '../utils/Text';
 
 import '../css/Session.scss';
 
-export default class EditAccuount extends Component {
+const mapDispatchToProps = (dispatch) => {
+  const { closeAccountForm, updateAccount } = accountActions;
+  const { getAllProjects } = projectActions;
+  return {
+    closeAccountForm: () => dispatch(closeAccountForm()),
+    updateAccount: (params) => dispatch(updateAccount(params)),
+    getAllProjects: () => dispatch(getAllProjects()),
+  };
+};
+
+class EditAccuount extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -66,23 +78,9 @@ export default class EditAccuount extends Component {
       params.append('user[avatar]', avatar);
     }
 
-    const url = Utils.buildRequestUrl('/users/update');
-    const response = await fetch(url, {
-      method: 'PATCH',
-      headers: { 'X-Reach-token': this.token },
-      body: params,
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_updated, errors } = await response.json();
-    if (is_updated) {
-      const { refresh } = this.props;
-      refresh();
-      this.openConfirm('success', updated, '', this.closeConfirm);
-    } else {
-      this.setState({ errors });
-    }
+    const { getAllProjects, updateAccount } = this.props;
+    await updateAccount(params);
+    getAllProjects();
   }
 
   onChangeFile = (event) => {
@@ -101,11 +99,6 @@ export default class EditAccuount extends Component {
     this.setState({ email });
   }
 
-  closeEditAccount = () => {
-    const { closeEditAccount } = this.props;
-    closeEditAccount();
-  }
-
   openConfirm = (type, title, description, confirm) => {
     this.setState({
       confirmVisible: true,
@@ -121,6 +114,7 @@ export default class EditAccuount extends Component {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
+    const { closeAccountForm } = this.props;
     const {
       uri,
       name,
@@ -134,7 +128,7 @@ export default class EditAccuount extends Component {
     } = this.state;
 
     return (
-      <div className="background--edit" onClick={this.closeEditAccount}>
+      <div className="background--edit" onClick={closeAccountForm}>
         <div className="session" onClick={this.onClickOverlay}>
           <div className="session__title">Edit account</div>
           {errors.length !== 0 && <ErrorMessage action="Registration" errors={errors} />}
@@ -181,3 +175,5 @@ export default class EditAccuount extends Component {
     );
   }
 }
+
+export default connect(null, mapDispatchToProps)(EditAccuount);

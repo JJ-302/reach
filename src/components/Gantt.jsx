@@ -1,79 +1,79 @@
-import React, { Component } from 'react';
+import React from 'react';
+import { connect } from 'react-redux';
 import Moment from 'moment';
 
+import { WEEKS, DAYS } from '../store/schedule/types';
 import ChartBar from './ChartBar';
 import '../css/Project.scss';
-import Utils from '../utils/Utils';
+import { START_DAY } from '../utils/ScheduleConfig';
 
-class GanttTask extends Component {
-  constructor(props) {
-    super(props);
-    this.start = Utils.dateRangeStart();
-    this.baseChartWidth = 45;
-  }
+const BASE_CHART_WIDTH = 45;
 
-  calcOffset = (task) => {
-    const start = Moment(new Date()).subtract(2, 'weeks');
-    const offset = Moment(task.startDate, 'YYYY/MM/DD').startOf('days').diff(start, 'days');
+const mapStateToProps = (state) => {
+  const { project, schedule } = state;
+  return {
+    projects: project.projects,
+    scheduleType: schedule.scheduleType,
+  };
+};
 
-    return (offset + 1) * this.baseChartWidth;
-  }
+const calcOffset = (task) => {
+  const offset = Moment(task.startDate, 'YYYY/MM/DD').startOf('days').diff(START_DAY, 'days');
 
-  calcOffsetForWeeks = (task) => {
-    const offset = Math.ceil(
-      Moment(task.startDate, 'YYYY/MM/DD').startOf('week').diff(this.start, 'weeks', true),
-    );
-    return offset * this.baseChartWidth;
-  }
+  return (offset) * BASE_CHART_WIDTH;
+};
 
-  calcChartWidthForWeeks = (task) => {
-    const end = task.extend || task.endDate;
-    const startDate = Moment(task.startDate, 'YYYY/MM/DD').startOf('week');
-    const endDate = Moment(end, 'YYYY/MM/DD').endOf('week');
-    return Math.ceil(endDate.diff(startDate, 'weeks', true));
-  }
+const calcOffsetForWeeks = (task) => {
+  const offset = Math.ceil(
+    Moment(task.startDate, 'YYYY/MM/DD').startOf('week').diff(START_DAY, 'weeks', true),
+  );
+  return offset * BASE_CHART_WIDTH;
+};
 
-  isBefore = (task) => Moment(task.startDate, 'YYYY/MM/DD').isSameOrBefore(this.start)
+const calcChartWidthForWeeks = (task) => {
+  const end = task.extend || task.endDate;
+  const startDate = Moment(task.startDate, 'YYYY/MM/DD').startOf('week');
+  const endDate = Moment(end, 'YYYY/MM/DD').endOf('week');
+  return Math.ceil(endDate.diff(startDate, 'weeks', true));
+};
 
-  isBeforeForWeek = (task) => Moment(task.startDate, 'YYYY/MM/DD').isBefore(this.start.startOf('week'))
+const isBefore = (task) => Moment(task.startDate, 'YYYY/MM/DD').isBefore(START_DAY);
 
-  render() {
-    const { scheduleType, tasks } = this.props;
-    return (
-      tasks.map((task) => {
-        const offset = scheduleType === 'days' ? this.calcOffset(task) : this.calcOffsetForWeeks(task);
-        let diff = scheduleType === 'days' ? task.duration : this.calcChartWidthForWeeks(task);
+const isBeforeForWeek = (task) => Moment(task.startDate, 'YYYY/MM/DD').isBefore(START_DAY.startOf('week'));
 
-        if (this.isBefore(task) && scheduleType === 'days') {
-          diff -= Math.ceil(
-            this.start.diff(Moment(task.startDate, 'YYYY/MM/DD').startOf('days'), 'days', true),
+
+const Gantt = (props) => {
+  const { projects, scheduleType } = props;
+  return (
+    projects.map((project) => (
+      <div key={project.name} className="project">
+        <div className="projectHeader" />
+        {project.tasks && project.tasks.map((task) => {
+          const offset = scheduleType === DAYS ? calcOffset(task) : calcOffsetForWeeks(task);
+          let diff = scheduleType === DAYS ? task.duration : calcChartWidthForWeeks(task);
+
+          if (isBefore(task) && scheduleType === DAYS) {
+            diff -= START_DAY.diff(Moment(task.startDate, 'YYYY/MM/DD').startOf('days'), 'days', true);
+          } else if (isBeforeForWeek(task) && scheduleType === WEEKS) {
+            diff -= Math.ceil(START_DAY.diff(Moment(task.startDate, 'YYYY/MM/DD'), 'week', true));
+          }
+
+          if (scheduleType === DAYS) {
+            diff += 1;
+          }
+
+          const chartWidth = BASE_CHART_WIDTH * diff;
+          const className = task.percentComplete === 'progress' ? 'task' : 'task--complete';
+
+          return (
+            <div key={task.id} style={{ paddingLeft: offset }} className={className}>
+              <ChartBar chartWidth={chartWidth} data={task} />
+            </div>
           );
-        } else if (this.isBeforeForWeek(task) && scheduleType === 'weeks') {
-          diff -= Math.ceil(this.start.diff(Moment(task.startDate, 'YYYY/MM/DD'), 'week', true));
-        } else if (scheduleType === 'days') {
-          diff += 1;
-        }
+        })}
+      </div>
+    ))
+  );
+};
 
-        const chartWidth = this.baseChartWidth * diff;
-        const className = task.percentComplete === 'progress' ? 'task' : 'task--complete';
-
-        return (
-          <div key={task.id} style={{ paddingLeft: offset }} className={className}>
-            <ChartBar chartWidth={chartWidth} data={task} />
-          </div>
-        );
-      })
-    );
-  }
-}
-
-const Gantt = (props) => (
-  props.projects.map((project) => (
-    <div key={project.name} className="project">
-      <div className="projectHeader" />
-      {project.tasks && <GanttTask tasks={project.tasks} scheduleType={props.scheduleType} />}
-    </div>
-  ))
-);
-
-export default Gantt;
+export default connect(mapStateToProps)(Gantt);

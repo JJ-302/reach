@@ -1,5 +1,7 @@
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 
+import * as actions from '../store/project/actions';
 import Utils from '../utils/Utils';
 import Confirm from './Confirm';
 import ErrorMessage from './Error';
@@ -14,12 +16,33 @@ import {
 
 import '../css/Form.scss';
 
-export default class ProjectForm extends PureComponent {
+const mapStateToProps = (state) => {
+  const { projectForm } = state;
+  return {
+    projectID: projectForm.id,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  const {
+    closeProjectForm, createProject, deleteProject, updateProject,
+  } = actions;
+
+  return {
+    closeProjectForm: () => dispatch(closeProjectForm()),
+    createProject: (params) => dispatch(createProject(params)),
+    deleteProject: (projectID) => dispatch(deleteProject(projectID)),
+    updateProject: (projectID, params) => dispatch(updateProject(projectID, params)),
+  };
+};
+
+class ProjectForm extends PureComponent {
   constructor(props) {
     super(props);
     this.token = localStorage.getItem('token');
-    const { action } = this.props;
-    this.action = action;
+    const { projectID } = this.props;
+    this.action = projectID ? 'edit' : 'new';
+    this.submit = projectID ? this.handleUpdate : this.handleCreate;
     this.state = {
       name: '',
       description: '',
@@ -39,8 +62,8 @@ export default class ProjectForm extends PureComponent {
   }
 
   editProjectFormValue = async () => {
-    const { id } = this.props;
-    const url = Utils.buildRequestUrl(`/projects/${id}/edit`);
+    const { projectID } = this.props;
+    const url = Utils.buildRequestUrl(`/projects/${projectID}/edit`);
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
@@ -57,53 +80,23 @@ export default class ProjectForm extends PureComponent {
     }
   }
 
-  handleCreate = async () => {
+  handleCreate = () => {
+    const { createProject } = this.props;
     const { name, description } = this.state;
-    const { id } = this.props;
-    const request = Utils.preparingRequest(this.action, id, 'projects');
-    if (request === null) {
-      return;
-    }
-    const url = Utils.buildRequestUrl(request.uriPattern);
     const params = { name, description };
-
-    const response = await fetch(url, {
-      method: request.method,
-      headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
-      body: JSON.stringify(params),
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { is_created, errors, project } = await response.json();
-    const { closeModal, refresh } = this.props;
-    if (is_created && this.action === 'new') {
-      refresh(project, 'new');
-      closeModal();
-    } else if (is_created && this.action === 'edit') {
-      refresh(project.name);
-      closeModal();
-    } else {
-      this.setState({ errors });
-    }
+    createProject(params);
   }
 
-  handleDestroy = async () => {
-    const { id, refreshProject } = this.props;
-    const url = Utils.buildRequestUrl(`/projects/${id}`);
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+  handleDestroy = () => {
+    const { deleteProject, projectID } = this.props;
+    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteProject(projectID));
+  }
 
-    const { is_delete, project } = await response.json();
-    if (is_delete) {
-      refreshProject(project, 'destroy');
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
-    }
+  handleUpdate = () => {
+    const { updateProject, projectID } = this.props;
+    const { name, description } = this.state;
+    const params = { name, description };
+    updateProject(projectID, params);
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -131,7 +124,7 @@ export default class ProjectForm extends PureComponent {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { closeModal } = this.props;
+    const { closeProjectForm } = this.props;
     const {
       name,
       description,
@@ -143,14 +136,11 @@ export default class ProjectForm extends PureComponent {
       confirm,
     } = this.state;
 
-    const title = this.action === 'new' ? 'Create ' : 'Update ';
+    const title = this.action === 'new' ? 'Create Project' : 'Update Project';
     return (
-      <div className="modalOverlay" onClick={closeModal}>
+      <div className="modalOverlay" onClick={closeProjectForm}>
         <div className="modalForm" onClick={this.onClickOverlay}>
-          <div className="modalForm__title">
-            {title}
-            Project
-          </div>
+          <div className="modalForm__title">{title}</div>
           {errors.length !== 0 && <ErrorMessage action="Project creation" errors={errors} />}
           <input
             type="text"
@@ -165,15 +155,11 @@ export default class ProjectForm extends PureComponent {
             value={description}
             onChange={this.onChangeDescription}
           />
-          <button type="button" onClick={this.handleCreate} className="modalForm__button">
+          <button type="button" onClick={this.submit} className="modalForm__button">
             {title}
           </button>
           {this.action === 'edit' && (
-            <button
-              type="button"
-              onClick={() => this.openConfirm('ask', `Project ${destroy}`, ask, this.handleDestroy)}
-              className="modalForm__button--delete"
-            >
+            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
               Delete Project
             </button>
           )}
@@ -191,3 +177,5 @@ export default class ProjectForm extends PureComponent {
     );
   }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(ProjectForm);

@@ -1,5 +1,8 @@
 import React, { PureComponent } from 'react';
+import { connect } from 'react-redux';
 
+import * as projectActions from '../store/project/actions';
+import * as resourceActions from '../store/resource/actions';
 import Confirm from './Confirm';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
@@ -12,11 +15,35 @@ import {
   destroy,
 } from '../utils/Text';
 
-export default class ResourceForm extends PureComponent {
+const mapStateToProps = (state) => {
+  const { resourceForm } = state;
+  return {
+    resourceID: resourceForm.id,
+  };
+};
+
+
+const mapDispatchToProps = (dispatch) => {
+  const { getAllProjects } = projectActions;
+  const {
+    closeResourceForm, createResource, deleteResource, updateResource,
+  } = resourceActions;
+
+  return {
+    getAllProjects: () => dispatch(getAllProjects()),
+    closeResourceForm: () => dispatch(closeResourceForm()),
+    createResource: (params) => dispatch(createResource(params)),
+    deleteResource: (resourceID) => dispatch(deleteResource(resourceID)),
+    updateResource: (resourceID, params) => dispatch(updateResource(resourceID, params)),
+  };
+};
+
+class ResourceForm extends PureComponent {
   constructor(props) {
     super(props);
-    const { action } = this.props;
-    this.action = action;
+    const { resourceID } = this.props;
+    this.action = resourceID ? 'edit' : 'new';
+    this.submit = resourceID ? this.handleUpdate : this.handleCreate;
     this.state = {
       name: '',
       colors: [],
@@ -56,8 +83,8 @@ export default class ResourceForm extends PureComponent {
   }
 
   editResourceFormValue = async () => {
-    const { id } = this.props;
-    const url = Utils.buildRequestUrl(`/resources/${id}/edit`);
+    const { resourceID } = this.props;
+    const url = Utils.buildRequestUrl(`/resources/${resourceID}/edit`);
     const response = await fetch(url, {
       method: 'GET',
       headers: { 'X-Reach-token': this.token },
@@ -73,51 +100,24 @@ export default class ResourceForm extends PureComponent {
     }
   }
 
-  handleCreate = async () => {
-    const { id, closeModal, refresh } = this.props;
+  handleCreate = () => {
+    const { createResource } = this.props;
     const { pickedColor, name } = this.state;
-    const request = Utils.preparingRequest(this.action, id, 'resources');
-    if (request === null) {
-      return;
-    }
-    const url = Utils.buildRequestUrl(request.uriPattern);
     const params = { name, color_id: pickedColor };
-    const response = await fetch(url, {
-      method: request.method,
-      headers: { 'Content-Type': 'application/json', 'X-Reach-token': this.token },
-      body: JSON.stringify(params),
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
-
-    const { errors, is_created, resource } = await response.json();
-    if (is_created && this.action === 'new') {
-      refresh(resource);
-      closeModal();
-    } else if (is_created && this.action === 'edit') {
-      refresh();
-      closeModal();
-    } else {
-      this.setState({ errors });
-    }
+    createResource(params);
   }
 
-  handleDestroy = async () => {
-    const { id, refresh } = this.props;
-    const url = Utils.buildRequestUrl(`/resources/${id}`);
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+  handleDestroy = () => {
+    const { resourceID, deleteResource } = this.props;
+    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteResource(resourceID));
+  }
 
-    const { is_delete } = await response.json();
-    if (is_delete) {
-      refresh();
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
-    }
+  handleUpdate = async () => {
+    const { resourceID, updateResource, getAllProjects } = this.props;
+    const { pickedColor, name } = this.state;
+    const params = { name, color_id: pickedColor };
+    await updateResource(resourceID, params);
+    getAllProjects();
   }
 
   openConfirm = (type, title, description, confirm) => {
@@ -145,8 +145,8 @@ export default class ResourceForm extends PureComponent {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const title = this.action === 'new' ? 'Create ' : 'Update ';
-    const { closeModal } = this.props;
+    const title = this.action === 'new' ? 'Create Resource' : 'Update Resource';
+    const { closeResourceForm } = this.props;
     const {
       name,
       colors,
@@ -160,12 +160,9 @@ export default class ResourceForm extends PureComponent {
     } = this.state;
 
     return (
-      <div className="modalOverlay" onClick={closeModal}>
+      <div className="modalOverlay" onClick={closeResourceForm}>
         <div className="modalForm" onClick={this.onClickOverlay}>
-          <div className="modalForm__title">
-            {title}
-            Resource
-          </div>
+          <div className="modalForm__title">{title}</div>
           {errors.length !== 0 && <ErrorMessage action="Resource creation" errors={errors} />}
           <input
             type="text"
@@ -182,15 +179,11 @@ export default class ResourceForm extends PureComponent {
               onPickColor={this.onPickColor}
             />
           </div>
-          <button type="button" onClick={this.handleCreate} className="modalForm__button">
+          <button type="button" onClick={this.submit} className="modalForm__button">
             {title}
           </button>
           {this.action === 'edit' && (
-            <button
-              type="button"
-              onClick={() => this.openConfirm('ask', `Project ${destroy}`, ask, this.handleDestroy)}
-              className="modalForm__button--delete"
-            >
+            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
               Delete Resource
             </button>
           )}
@@ -225,3 +218,5 @@ const ColorPallets = ({ colors, pickedColor, onPickColor }) => (
     );
   })
 );
+
+export default connect(mapStateToProps, mapDispatchToProps)(ResourceForm);

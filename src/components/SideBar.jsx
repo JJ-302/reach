@@ -1,44 +1,47 @@
 import React, { PureComponent } from 'react';
 import { Redirect } from 'react-router-dom';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import ProjectForm from './ProjectForm';
-import ResourceForm from './ResourceForm';
+import * as resourceActions from '../store/resource/actions';
+import * as projectActions from '../store/project/actions';
+import * as accountActions from '../store/account/actions';
+import * as taskActions from '../store/task/actions';
 import EditAccount from './EditAccount';
 import '../css/SideBar.scss';
 
-export default class SideBar extends PureComponent {
+const mapStateToProps = (state) => {
+  const { accountForm } = state;
+  return {
+    accountFormVisible: accountForm.visible,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  const { openResourceForm } = resourceActions;
+  const { openProjectForm } = projectActions;
+  const { openAccountForm } = accountActions;
+  const { toggleDeleteButton } = taskActions;
+  return {
+    openResourceForm: () => dispatch(openResourceForm()),
+    openProjectForm: () => dispatch(openProjectForm()),
+    openAccountForm: () => dispatch(openAccountForm()),
+    toggleDeleteButton: () => dispatch(toggleDeleteButton()),
+  };
+};
+
+class SideBar extends PureComponent {
   constructor(props) {
     super(props);
     this.state = {
-      projectFormVisible: false,
-      resourceFormVisible: false,
       accountMenuVisible: false,
-      editAccuountVisible: false,
       isSignOut: false,
     };
   }
 
-  openProjectForm = () => this.setState({ projectFormVisible: true })
-
-  closeProjectForm = () => this.setState({ projectFormVisible: false })
-
-  openResourceForm = () => this.setState({ resourceFormVisible: true })
-
-  closeResourceForm = () => this.setState({ resourceFormVisible: false })
-
-  openEditAccount = () => this.setState({ editAccuountVisible: true })
-
-  closeEditAccount = () => this.setState({ editAccuountVisible: false })
-
   toggleAccountMenu = () => {
     const { accountMenuVisible } = this.state;
     this.setState({ accountMenuVisible: !accountMenuVisible });
-  }
-
-  changeMode = () => {
-    const { changeMode } = this.props;
-    changeMode();
   }
 
   signOut = () => {
@@ -47,25 +50,21 @@ export default class SideBar extends PureComponent {
   }
 
   render() {
-    const { refreshProject, getProjectIndex, refreshResource } = this.props;
+    const { accountMenuVisible, isSignOut } = this.state;
     const {
-      projectFormVisible,
-      resourceFormVisible,
-      accountMenuVisible,
-      editAccuountVisible,
-      isSignOut,
-    } = this.state;
+      openResourceForm, openProjectForm, openAccountForm, accountFormVisible, toggleDeleteButton,
+    } = this.props;
 
     return (
       isSignOut ? <Redirect to="/reach/signin" /> : (
         <div className="sidebar">
-          <div className="sidebar__iconWrapper--plus" onClick={this.openProjectForm}>
+          <div className="sidebar__iconWrapper--plus" onClick={openProjectForm}>
             <FontAwesomeIcon icon={['fas', 'plus']} className="sidebar__icon" />
           </div>
-          <div className="sidebar__iconWrapper--minus" onClick={this.changeMode}>
+          <div className="sidebar__iconWrapper--minus" onClick={toggleDeleteButton}>
             <FontAwesomeIcon icon={['fas', 'minus']} className="sidebar__icon" />
           </div>
-          <div className="sidebar__iconWrapper--resource" onClick={this.openResourceForm}>
+          <div className="sidebar__iconWrapper--resource" onClick={openResourceForm}>
             <FontAwesomeIcon icon={['fas', 'tags']} className="sidebar__icon" />
           </div>
           <div className="sidebar__iconWrapper--account" onClick={this.toggleAccountMenu}>
@@ -74,19 +73,16 @@ export default class SideBar extends PureComponent {
           {accountMenuVisible && (
             <div className="overlay" onClick={this.toggleAccountMenu}>
               <div className="accountMenu">
-                <div className="accountMenu__edit" onClick={this.openEditAccount}>アカウント編集</div>
+                <div className="accountMenu__edit" onClick={openAccountForm}>アカウント編集</div>
                 <div className="accountMenu__signout" onClick={this.signOut}>サインアウト</div>
               </div>
             </div>
           )}
-          {projectFormVisible
-            && <ProjectForm action="new" refresh={refreshProject} closeModal={this.closeProjectForm} />}
-          {resourceFormVisible
-            && <ResourceForm action="new" refresh={refreshResource} closeModal={this.closeResourceForm} />}
-          {editAccuountVisible
-            && <EditAccount refresh={getProjectIndex} closeEditAccount={this.closeEditAccount} />}
+          {accountFormVisible && <EditAccount />}
         </div>
       )
     );
   }
 }
+
+export default connect(mapStateToProps, mapDispatchToProps)(SideBar);

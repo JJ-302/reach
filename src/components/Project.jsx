@@ -1,132 +1,110 @@
 import React, { Component } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { connect } from 'react-redux';
 
+import * as projectActions from '../store/project/actions';
+import * as taskActions from '../store/task/actions';
 import Task from './Task';
 import TaskForm from './TaskForm';
 import ProjectForm from './ProjectForm';
 import LinkForm from './LinkForm';
 import '../css/Project.scss';
 
-class Project extends Component {
+const mapStateToProps = (state) => {
+  const { projectForm, project, taskForm } = state;
+  return {
+    projectFormVisible: projectForm.visible,
+    projectID: projectForm.id,
+    projects: project.projects,
+    taskFormVisible: taskForm.visible,
+    taskID: taskForm.id,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  const { openProjectForm, closeProjectForm, getAllProjects } = projectActions;
+  const { openTaskForm } = taskActions;
+  return {
+    openProjectForm: (id) => dispatch(openProjectForm(id)),
+    closeProjectForm: () => dispatch(closeProjectForm()),
+    getAllProjects: () => dispatch(getAllProjects()),
+    openTaskForm: ({ projectID }) => dispatch(openTaskForm({ projectID })),
+  };
+};
+
+class Projects extends Component {
   constructor(props) {
     super(props);
-    const { project } = this.props;
     this.state = {
-      name: project.name,
-      isVisible: false,
-      projectFormVisible: false,
       linkFormVisible: false,
     };
   }
 
-  openModal = (event) => {
-    this.id = event.currentTarget.dataset.id || null;
-    this.action = event.currentTarget.dataset.action;
-    this.setState({ isVisible: true });
+  componentDidMount() {
+    const { getAllProjects } = this.props;
+    getAllProjects();
   }
 
-  closeModal = () => this.setState({ isVisible: false })
+  componentDidUpdate(previousProps) {
+    const { projects, closeProjectForm } = this.props;
+    if (previousProps.projects.length !== projects.length) {
+      closeProjectForm();
+    }
+  }
 
-  openProjectForm = () => this.setState({ projectFormVisible: true })
+  onClickEditProject = (event) => {
+    const { openProjectForm } = this.props;
+    const { id } = event.currentTarget.dataset;
+    openProjectForm(id);
+  };
 
-  closeProjectForm = () => this.setState({ projectFormVisible: false })
+  onClickAddTask = (event) => {
+    const { openTaskForm } = this.props;
+    const { id } = event.currentTarget.dataset;
+    openTaskForm({ projectID: id });
+  }
 
   openLinkForm = () => this.setState({ linkFormVisible: true })
 
   closeLinkForm = () => this.setState({ linkFormVisible: false })
 
-  updateProject = (name) => this.setState({ name })
-
   render() {
-    const {
-      project,
-      index,
-      refreshTask,
-      destroyMode,
-      refreshProject,
-    } = this.props;
-
-    const { tasks, id } = project;
-    const {
-      isVisible,
-      projectFormVisible,
-      linkFormVisible,
-      name,
-    } = this.state;
+    const { projects, projectFormVisible, taskFormVisible } = this.props;
+    const { linkFormVisible } = this.state;
 
     return (
-      <div key={name} className="project">
-        <div className="projectHeader">
-          <div className="projectHeader__name">{name}</div>
-          <FontAwesomeIcon
-            icon={['fas', 'edit']}
-            className="projectHeader__edit"
-            onClick={this.openProjectForm}
-          />
-          <FontAwesomeIcon
-            icon={['fas', 'plus']}
-            data-action="new"
-            className="projectHeader__addTask"
-            onClick={this.openModal}
-          />
-          <FontAwesomeIcon
-            icon={['fas', 'link']}
-            className="projectHeader__link"
-            onClick={this.openLinkForm}
-          />
-        </div>
-        {tasks && (
-          <Task
-            destroyMode={destroyMode}
-            index={index}
-            refresh={refreshTask}
-            tasks={tasks}
-            onClick={this.openModal}
-          />
-        )}
-        {isVisible && (
-          <TaskForm
-            id={id}
-            action={this.action}
-            taskID={this.id}
-            refresh={refreshTask}
-            index={index}
-            closeModal={this.closeModal}
-          />
-        )}
-        {projectFormVisible && (
-          <ProjectForm
-            id={id}
-            refreshProject={refreshProject}
-            refresh={this.updateProject}
-            action="edit"
-            closeModal={this.closeProjectForm}
-          />
-        )}
-        {linkFormVisible && <LinkForm id={id} closeModal={this.closeLinkForm} />}
-      </div>
+      <>
+        {projectFormVisible && <ProjectForm />}
+        {taskFormVisible && <TaskForm />}
+        {projects.map((project, index) => (
+          <div key={project.id} className="project">
+            <div className="projectHeader">
+              <div className="projectHeader__name">{project.name}</div>
+              <FontAwesomeIcon
+                icon={['fas', 'edit']}
+                className="projectHeader__edit"
+                data-id={project.id}
+                onClick={this.onClickEditProject}
+              />
+              <FontAwesomeIcon
+                icon={['fas', 'plus']}
+                className="projectHeader__addTask"
+                data-id={project.id}
+                onClick={this.onClickAddTask}
+              />
+              <FontAwesomeIcon
+                icon={['fas', 'link']}
+                className="projectHeader__link"
+                onClick={this.openLinkForm}
+              />
+            </div>
+            {project.tasks && <Task index={index} tasks={project.tasks} />}
+            {linkFormVisible && <LinkForm id={project.id} closeModal={this.closeLinkForm} />}
+          </div>
+        ))}
+      </>
     );
   }
 }
 
-const Projects = (props) => {
-  const {
-    projects,
-    refreshTask,
-    mode,
-    refreshProject,
-  } = props;
-
-  return projects.map((project, index) => (
-    <Project
-      refreshTask={refreshTask}
-      refreshProject={refreshProject}
-      project={project}
-      key={project.name}
-      index={index}
-      destroyMode={mode}
-    />
-  ));
-};
-
-export default Projects;
+export default connect(mapStateToProps, mapDispatchToProps)(Projects);
