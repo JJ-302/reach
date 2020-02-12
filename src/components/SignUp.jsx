@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import ErrorMessage from './Error';
@@ -43,19 +44,18 @@ export default class SignUp extends Component {
     }
 
     const url = Utils.buildRequestUrl('/users');
-    const response = await fetch(url, {
-      method: 'POST',
-      body: params,
-    });
+    const response = await axios.post(url, params).catch((error) => error.response);
+    if (response.status !== 200) {
+      this.openConfirm();
+      return;
+    }
 
-    const { is_created, errors, token } = await response.json();
+    const { is_created, errors, token } = response.data;
     if (is_created) {
       localStorage.setItem('token', token);
       this.setState({ isSignIn: true });
-    } else if (errors !== undefined) {
-      this.setState({ errors });
     } else {
-      this.openConfirm();
+      this.setState({ errors });
     }
   }
 
