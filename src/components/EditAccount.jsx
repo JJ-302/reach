@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import * as accountActions from '../store/account/actions';
@@ -7,13 +8,7 @@ import * as projectActions from '../store/project/actions';
 import ErrorMessage from './Error';
 import Confirm from './Confirm';
 import Utils from '../utils/Utils';
-import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-} from '../utils/Text';
-
+import { reload, serverError } from '../utils/Text';
 import '../css/Session.scss';
 
 const mapDispatchToProps = (dispatch) => {
@@ -44,29 +39,23 @@ class EditAccuount extends Component {
   }
 
   componentDidMount() {
-    this.token = localStorage.getItem('token');
     this.getCurrentAccount();
   }
 
   getCurrentAccount = async () => {
     const url = Utils.buildRequestUrl('/users/edit');
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+    const token = localStorage.getItem('token');
+    const response = await axios.get(url, {
+      headers: { 'X-Reach-token': token },
+    }).catch((error) => error.response);
 
-    const { is_authenticated, user } = await response.json();
-    if (is_authenticated) {
-      const { avatar, name, email } = user;
-      this.avatar = avatar;
-      this.name = name;
-      this.email = email;
-      this.setState({ uri: avatar, name, email });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      return;
     }
+
+    const { avatar, name, email } = response.data.user;
+    this.setState({ uri: avatar, name, email });
   }
 
   handleUpdate = async () => {
@@ -78,9 +67,10 @@ class EditAccuount extends Component {
       params.append('user[avatar]', avatar);
     }
 
-    const { getAllProjects, updateAccount } = this.props;
+    const { getAllProjects, updateAccount, closeAccountForm } = this.props;
     await updateAccount(params);
     getAllProjects();
+    closeAccountForm();
   }
 
   onChangeFile = (event) => {
@@ -129,7 +119,7 @@ class EditAccuount extends Component {
 
     return (
       <div className="background--edit" onClick={closeAccountForm}>
-        <div className="session" onClick={this.onClickOverlay}>
+        <div className="session--edit" onClick={this.onClickOverlay}>
           <div className="session__title">Edit account</div>
           {errors.length !== 0 && <ErrorMessage action="Registration" errors={errors} />}
           <label htmlFor="avatarForm" className="session__avatar">

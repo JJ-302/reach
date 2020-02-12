@@ -15,7 +15,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    background: $overlay;
+    background: rgba(0, 0, 0, 0.3);
     z-index: 30;
   }
 }
@@ -28,6 +28,10 @@
   padding: 30px 150px;
   background-color: rgba(0, 0, 0, 0.3);
   border-radius: 5px;
+  &--edit {
+    @extend .session;
+    background: $overlay;
+  }
   &__title {
     @include form-title();
     margin-bottom: 40px;
