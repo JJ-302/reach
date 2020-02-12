@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DatePicker from 'react-datepicker';
 import Moment from 'moment';
@@ -10,7 +11,7 @@ import * as projectActions from '../store/project/actions';
 import Confirm from './Confirm';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
-import { badRequest, checkParams } from '../utils/Text';
+import { serverError, reload } from '../utils/Text';
 import '../css/Form.scss';
 
 const notExist = -1;
@@ -66,41 +67,39 @@ class TaskForm extends Component {
 
   editTaskFormValue = async () => {
     const { taskID } = this.props;
-    this.token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     const url = Utils.buildRequestUrl(`/tasks/${taskID}/edit`);
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': this.token },
-    });
+    const response = await axios.get(url, {
+      headers: { 'X-Reach-token': token },
+    }).catch((error) => error.response);
 
-    const { is_authenticated, task } = await response.json();
-
-    if (is_authenticated) {
-      const {
-        description,
-        startDate,
-        endDate,
-        extend,
-        name,
-        percentComplete,
-        userIds,
-        resourceId,
-      } = task;
-
-      const complete = percentComplete === 'complete';
-      const stringUserIds = userIds.map((userId) => String(userId));
-      this.setState({
-        name,
-        complete,
-        description,
-        startDate: new Date(startDate),
-        endDate: extend ? new Date(extend) : new Date(endDate),
-        inCharge: stringUserIds,
-        selectedResource: resourceId,
-      });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      return;
     }
+
+    const {
+      description,
+      startDate,
+      endDate,
+      extend,
+      name,
+      percentComplete,
+      userIds,
+      resourceId,
+    } = response.data.task;
+
+    const complete = percentComplete === 'complete';
+    const stringUserIds = userIds.map((userId) => String(userId));
+    this.setState({
+      name,
+      complete,
+      description,
+      startDate: new Date(startDate),
+      endDate: extend ? new Date(extend) : new Date(endDate),
+      inCharge: stringUserIds,
+      selectedResource: resourceId,
+    });
   }
 
   openConfirm = (type, title, description, confirm) => {
