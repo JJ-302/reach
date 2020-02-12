@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import { Link, Redirect } from 'react-router-dom';
+import axios from 'axios';
 
 import ErrorMessage from './Error';
 import Confirm from './Confirm';
@@ -24,20 +25,21 @@ export default class SignIn extends Component {
     const { email, password } = this.state;
     const url = Utils.buildRequestUrl('/sessions');
     const params = { email, password };
-    const response = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(params),
+    const response = await axios.post(url, params, {
       headers: { 'Content-Type': 'application/json' },
-    });
+    }).catch((error) => error.response);
 
-    const { result, token, errors } = await response.json();
+    if (response.status !== 200) {
+      this.openConfirm();
+      return;
+    }
+
+    const { result, token, errors } = response.data;
     if (result) {
       localStorage.setItem('token', token);
       this.setState({ isSignIn: true });
-    } else if (errors !== undefined) {
-      this.setState({ errors });
     } else {
-      this.openConfirm();
+      this.setState({ errors });
     }
   }
 
