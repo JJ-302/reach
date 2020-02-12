@@ -5,9 +5,8 @@ import Moment from 'moment';
 import { WEEKS, DAYS } from '../store/schedule/types';
 import ChartBar from './ChartBar';
 import '../css/Project.scss';
-import Utils from '../utils/Utils';
+import { START_DAY } from '../utils/ScheduleConfig';
 
-const START_DAY = Utils.dateRangeStart();
 const BASE_CHART_WIDTH = 45;
 
 const mapStateToProps = (state) => {
@@ -19,10 +18,9 @@ const mapStateToProps = (state) => {
 };
 
 const calcOffset = (task) => {
-  const start = Moment(new Date()).subtract(2, 'weeks');
-  const offset = Moment(task.startDate, 'YYYY/MM/DD').startOf('days').diff(start, 'days');
+  const offset = Moment(task.startDate, 'YYYY/MM/DD').startOf('days').diff(START_DAY, 'days');
 
-  return (offset + 1) * BASE_CHART_WIDTH;
+  return (offset) * BASE_CHART_WIDTH;
 };
 
 const calcOffsetForWeeks = (task) => {
@@ -39,7 +37,7 @@ const calcChartWidthForWeeks = (task) => {
   return Math.ceil(endDate.diff(startDate, 'weeks', true));
 };
 
-const isBefore = (task) => Moment(task.startDate, 'YYYY/MM/DD').isSameOrBefore(START_DAY);
+const isBefore = (task) => Moment(task.startDate, 'YYYY/MM/DD').isBefore(START_DAY);
 
 const isBeforeForWeek = (task) => Moment(task.startDate, 'YYYY/MM/DD').isBefore(START_DAY.startOf('week'));
 
@@ -55,12 +53,12 @@ const Gantt = (props) => {
           let diff = scheduleType === DAYS ? task.duration : calcChartWidthForWeeks(task);
 
           if (isBefore(task) && scheduleType === DAYS) {
-            diff -= Math.ceil(
-              START_DAY.diff(Moment(task.startDate, 'YYYY/MM/DD').startOf('days'), 'days', true),
-            );
+            diff -= START_DAY.diff(Moment(task.startDate, 'YYYY/MM/DD').startOf('days'), 'days', true);
           } else if (isBeforeForWeek(task) && scheduleType === WEEKS) {
             diff -= Math.ceil(START_DAY.diff(Moment(task.startDate, 'YYYY/MM/DD'), 'week', true));
-          } else if (scheduleType === DAYS) {
+          }
+
+          if (scheduleType === DAYS) {
             diff += 1;
           }
 

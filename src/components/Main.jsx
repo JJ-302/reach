@@ -11,7 +11,9 @@ import Resource from './Resource';
 import Gantt from './Gantt';
 import Confirm from './Confirm';
 import '../css/Main.scss';
-import Utils from '../utils/Utils';
+import {
+  START_DAY, END_DAY, SUN, SAT,
+} from '../utils/ScheduleConfig';
 
 const mapStateToProps = (state) => {
   const { schedule } = state;
@@ -28,17 +30,11 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-const sun = 0;
-const sat = 6;
-const startDate = Moment(new Date()).subtract(2, 'weeks');
-const endDate = Utils.dateRangeEnd();
-
-
 const modifireForDays = (day) => {
   switch (day.get('day')) {
-    case sun:
+    case SUN:
       return '--sun';
-    case sat:
+    case SAT:
       return '--sat';
     default:
       return '';
@@ -61,7 +57,7 @@ const scheduleAttr = (day, scheduleType) => {
 const Schedule = connect(mapStateToProps)((props) => {
   const { scheduleType } = props;
   const schedules = [];
-  for (let day = Moment(startDate); day <= endDate; day.add(1, scheduleType)) {
+  for (let day = Moment(START_DAY); day <= END_DAY; day.add(1, scheduleType)) {
     const attr = scheduleAttr(day, scheduleType);
     schedules.push(
       <div className={attr.className} key={day.format('YYYYMMDD')}>
