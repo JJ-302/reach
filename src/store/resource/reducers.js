@@ -5,17 +5,23 @@ import {
   CREATE_RESOURCE,
   DELETE_RESOURCE,
   UPDATE_RESOURCE,
+  INVALID_RESOURCE_PARAMS,
 } from './actions';
 
-const initialResouceFormState = { visible: false, id: null };
+const initialResouceFormState = { visible: false, id: null, errors: [] };
 const initialResouceState = { resources: [] };
 
 export const resourceFormReducer = (state = initialResouceFormState, action) => {
   switch (action.type) {
     case OPEN_RESOURCE_FORM:
-      return { visible: true, id: action.id };
+      return { visible: true, id: action.id, errors: [] };
     case CLOSE_RESOURCE_FORM:
-      return { visible: false, id: null };
+      return { visible: false, id: null, errors: [] };
+    case INVALID_RESOURCE_PARAMS:
+      return {
+        ...state,
+        errors: action.errors,
+      };
     default:
       return state;
   }

@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Utils from '../../utils/Utils';
 
 export const OPEN_RESOURCE_FORM = 'OPEN_RESOURCE_FORM';
@@ -6,6 +7,7 @@ export const GET_ALL_RESOURCES = 'GET_ALL_RESOURCES';
 export const CREATE_RESOURCE = 'CREATE_RESOURCE';
 export const DELETE_RESOURCE = 'DELETE_RESOURCE';
 export const UPDATE_RESOURCE = 'UPDATE_RESOURCE';
+export const INVALID_RESOURCE_PARAMS = 'INVALID_RESOURCE_PARAMS';
 
 export const openResourceForm = (id = null) => ({
   type: OPEN_RESOURCE_FORM,
@@ -19,38 +21,49 @@ export const closeResourceForm = () => ({
 export const getAllResources = () => async (dispatch) => {
   const url = Utils.buildRequestUrl('/resources');
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'GET',
+  const response = await axios.get(url, {
     headers: { 'X-Reach-token': token },
-  });
-  const { resources } = await response.json();
+  }).catch((error) => error.response);
+
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { resources } = response.data;
   dispatch({ type: GET_ALL_RESOURCES, resources });
 };
 
 export const createResource = (params) => async (dispatch) => {
   const url = Utils.buildRequestUrl('/resources');
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'POST',
+  const response = await axios.post(url, params, {
     headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
-  });
+  }).catch((error) => error.response);
 
-  const json = await response.json();
-  if (json.is_created) {
-    dispatch({ type: CREATE_RESOURCE, resource: json.resource });
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { is_created, resource, errors } = response.data;
+  if (is_created) {
+    dispatch({ type: CREATE_RESOURCE, resource });
+  } else {
+    dispatch({ type: INVALID_RESOURCE_PARAMS, errors });
   }
 };
 
 export const deleteResource = (id) => async (dispatch) => {
   const url = Utils.buildRequestUrl(`/resources/${id}`);
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'DELETE',
+  const response = await axios.delete(url, {
     headers: { 'X-Reach-token': token },
-  });
+  }).catch((error) => error.response);
 
-  const { is_delete } = await response.json();
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { is_delete } = response.data;
   if (is_delete) {
     dispatch({ type: DELETE_RESOURCE, id });
   }
@@ -59,14 +72,18 @@ export const deleteResource = (id) => async (dispatch) => {
 export const updateResource = (id, params) => async (dispatch) => {
   const url = Utils.buildRequestUrl(`/resources/${id}`);
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'PATCH',
+  const response = await axios.patch(url, params, {
     headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
-  });
+  }).catch((error) => error.response);
 
-  const json = await response.json();
-  if (json.is_updated) {
-    dispatch({ type: UPDATE_RESOURCE, resource: json.resource });
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { is_updated, errors, resource } = response.data;
+  if (is_updated) {
+    dispatch({ type: UPDATE_RESOURCE, resource });
+  } else {
+    dispatch({ type: INVALID_RESOURCE_PARAMS, errors });
   }
 };

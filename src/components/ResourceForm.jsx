@@ -15,6 +15,7 @@ const mapStateToProps = (state) => {
   const { resourceForm } = state;
   return {
     resourceID: resourceForm.id,
+    errors: resourceForm.errors,
   };
 };
 
@@ -43,7 +44,6 @@ class ResourceForm extends PureComponent {
       name: '',
       colors: [],
       pickedColor: '',
-      errors: [],
       confirmVisible: false,
       confirmType: '',
       confirmTitle: '',
@@ -135,12 +135,11 @@ class ResourceForm extends PureComponent {
 
   render() {
     const title = this.action === 'new' ? 'Create Resource' : 'Update Resource';
-    const { closeResourceForm } = this.props;
+    const { closeResourceForm, errors } = this.props;
     const {
       name,
       colors,
       pickedColor,
-      errors,
       confirmVisible,
       confirmType,
       confirmTitle,
