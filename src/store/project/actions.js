@@ -1,3 +1,4 @@
+import axios from 'axios';
 import Utils from '../../utils/Utils';
 
 export const OPEN_PROJECT_FORM = 'OPEN_PROJECT_FORM';
@@ -10,6 +11,7 @@ export const SEARCH_PROJECT = 'SEARCH_PROJECT';
 export const CREATE_TASK = 'CREATE_TASK';
 export const DELETE_TASK = 'DELETE_TASK';
 export const UPDATE_TASK = 'UPDATE_TASK';
+export const INVALID_PROJECT_PARAMS = 'INVALID_PROJECT_PARAMS';
 
 export const openProjectForm = (id = null) => ({
   type: OPEN_PROJECT_FORM,
@@ -23,42 +25,50 @@ export const closeProjectForm = () => ({
 export const getAllProjects = () => async (dispatch) => {
   const url = Utils.buildRequestUrl('/projects');
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'GET',
+  const response = await axios.get(url, {
     headers: { 'X-Reach-token': token },
-  });
+  }).catch((error) => error.response);
 
-  const json = await response.json();
-  if (json.is_authenticated) {
-    dispatch(({ type: GET_ALL_PROJECTS, projects: json.projects }));
+  if (response.status !== 200) {
+    console.log(response);
+    return;
   }
+  const { projects } = response.data;
+  dispatch(({ type: GET_ALL_PROJECTS, projects }));
 };
 
 export const createProject = (params) => async (dispatch) => {
   const url = Utils.buildRequestUrl('/projects');
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'POST',
+  const response = await axios.post(url, params, {
     headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
-  });
+  }).catch((error) => error.response);
 
-  const json = await response.json();
-  if (json.is_created) {
-    dispatch({ type: CREATE_PROJECT, project: json.project });
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { is_created, errors, project } = response.data;
+  if (is_created) {
+    dispatch({ type: CREATE_PROJECT, project });
+  } else {
+    dispatch({ type: INVALID_PROJECT_PARAMS, errors });
   }
 };
 
 export const deleteProject = (id) => async (dispatch) => {
   const url = Utils.buildRequestUrl(`/projects/${id}`);
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'DELETE',
+  const response = await axios.delete(url, {
     headers: { 'X-Reach-token': token },
-  });
+  }).catch((error) => error.response);
 
-  const json = await response.json();
-  if (json.is_delete) {
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { is_delete } = response.data;
+  if (is_delete) {
     dispatch({ type: DELETE_PROJECT, id });
   }
 };
@@ -66,27 +76,33 @@ export const deleteProject = (id) => async (dispatch) => {
 export const updateProject = (id, params) => async (dispatch) => {
   const url = Utils.buildRequestUrl(`/projects/${id}`);
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'PATCH',
+  const response = await axios.patch(url, params, {
     headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
-  });
+  }).catch((error) => error.response);
 
-  const json = await response.json();
-  if (json.is_updated) {
-    dispatch({ type: UPDATE_PROJECT, project: json.project });
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { is_updated, errors, project } = response.data;
+  if (is_updated) {
+    dispatch({ type: UPDATE_PROJECT, project });
+  } else {
+    dispatch({ type: INVALID_PROJECT_PARAMS, errors });
   }
 };
 
 export const searchProjects = (params) => async (dispatch) => {
   const url = Utils.buildRequestUrl('/tasks/search');
-  const response = await fetch(url, {
-    method: 'POST',
+  const response = await axios.post(url, params, {
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
-  });
+  }).catch((error) => error.response);
 
-  const { projects } = await response.json();
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { projects } = response.data;
   dispatch({ type: SEARCH_PROJECT, projects });
 };
 

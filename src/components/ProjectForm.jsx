@@ -16,6 +16,7 @@ const mapStateToProps = (state) => {
   const { projectForm } = state;
   return {
     projectID: projectForm.id,
+    errors: projectForm.errors,
   };
 };
 
@@ -41,7 +42,6 @@ class ProjectForm extends PureComponent {
     this.state = {
       name: '',
       description: '',
-      errors: [],
       confirmVisible: false,
       confirmType: '',
       confirmTitle: '',
@@ -116,11 +116,10 @@ class ProjectForm extends PureComponent {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { closeProjectForm } = this.props;
+    const { closeProjectForm, errors } = this.props;
     const {
       name,
       description,
-      errors,
       confirmVisible,
       confirmType,
       confirmTitle,
