@@ -1,5 +1,7 @@
 import axios from 'axios';
 import Utils from '../../utils/Utils';
+import { OPEN_CONFIRM } from '../confirm/actions';
+import { INTERNAL_SERVER_ERROR } from '../confirm/types';
 
 export const OPEN_RESOURCE_FORM = 'OPEN_RESOURCE_FORM';
 export const CLOSE_RESOURCE_FORM = 'CLOSE_RESOURCE_FORM';
@@ -26,7 +28,7 @@ export const getAllResources = () => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { resources } = response.data;
@@ -41,7 +43,7 @@ export const createResource = (params) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { is_created, resource, errors } = response.data;
@@ -60,7 +62,7 @@ export const deleteResource = (id) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { is_delete } = response.data;
@@ -77,7 +79,7 @@ export const updateResource = (id, params) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { is_updated, errors, resource } = response.data;

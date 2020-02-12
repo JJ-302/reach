@@ -3,12 +3,12 @@ import { connect } from 'react-redux';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as accountActions from '../store/account/actions';
 import * as projectActions from '../store/project/actions';
 import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
-import { reload, serverError } from '../utils/Text';
 import '../css/Session.scss';
 
 const mapStateToProps = (state) => {
@@ -53,9 +53,8 @@ class EditAccuount extends Component {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      const confirmConfig = { type: 'error', title: serverError, description: reload };
       const { openConfirm } = this.props;
-      openConfirm(confirmConfig);
+      openConfirm(INTERNAL_SERVER_ERROR);
       return;
     }
     const { avatar, name, email } = response.data.user;

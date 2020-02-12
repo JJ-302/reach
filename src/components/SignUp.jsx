@@ -4,10 +4,10 @@ import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
-import { reload, serverError } from '../utils/Text';
 import '../css/Session.scss';
 
 const mapDispatchToProps = (dispatch) => {
@@ -53,9 +53,8 @@ class SignUp extends Component {
     const url = Utils.buildRequestUrl('/users');
     const response = await axios.post(url, params).catch((error) => error.response);
     if (response.status !== 200) {
-      const confirmConfig = { type: 'error', title: serverError, description: reload };
       const { openConfirm } = this.props;
-      openConfirm(confirmConfig);
+      openConfirm(INTERNAL_SERVER_ERROR);
       return;
     }
 

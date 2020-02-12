@@ -1,5 +1,7 @@
 import axios from 'axios';
 import Utils from '../../utils/Utils';
+import { OPEN_CONFIRM } from '../confirm/actions';
+import { INTERNAL_SERVER_ERROR } from '../confirm/types';
 
 export const OPEN_ACCOUNT_FORM = 'OPEN_ACCOUNT_FORM';
 export const CLOSE_ACCOUNT_FORM = 'CLOSE_ACCOUNT_FORM';
@@ -23,7 +25,7 @@ export const getAllAccount = () => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { users } = response.data;
@@ -38,7 +40,7 @@ export const updateAccount = (params) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
 

@@ -1,5 +1,7 @@
 import axios from 'axios';
 import Utils from '../../utils/Utils';
+import { OPEN_CONFIRM } from '../confirm/actions';
+import { INTERNAL_SERVER_ERROR } from '../confirm/types';
 
 export const OPEN_PROJECT_FORM = 'OPEN_PROJECT_FORM';
 export const CLOSE_PROJECT_FORM = 'CLOSE_PROJECT_FORM';
@@ -31,7 +33,7 @@ export const getAllProjects = () => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { projects } = response.data;
@@ -46,7 +48,7 @@ export const createProject = (params) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { is_created, errors, project } = response.data;
@@ -65,7 +67,7 @@ export const deleteProject = (id) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { is_delete } = response.data;
@@ -82,7 +84,7 @@ export const updateProject = (id, params) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { is_updated, errors, project } = response.data;
@@ -100,7 +102,7 @@ export const searchProjects = (params) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { projects } = response.data;
@@ -115,7 +117,7 @@ export const createTask = (params) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { is_created, errors, task } = response.data;
@@ -134,7 +136,7 @@ export const deleteTask = (id) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { is_delete, task } = response.data;
@@ -151,7 +153,7 @@ export const updateTask = (id, params) => async (dispatch) => {
   }).catch((error) => error.response);
 
   if (response.status !== 200) {
-    console.log(response);
+    dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
   const { is_updated, errors, task } = response.data;

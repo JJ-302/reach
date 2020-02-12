@@ -6,12 +6,12 @@ import DatePicker from 'react-datepicker';
 import Moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 
+import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as taskActions from '../store/task/actions';
 import * as projectActions from '../store/project/actions';
 import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
-import { serverError, reload } from '../utils/Text';
 import '../css/Form.scss';
 
 const notExist = -1;
@@ -71,9 +71,8 @@ class TaskForm extends Component {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      const confirmConfig = { type: 'error', title: serverError, description: reload };
       const { openConfirm } = this.props;
-      openConfirm(confirmConfig);
+      openConfirm(INTERNAL_SERVER_ERROR);
       return;
     }
 

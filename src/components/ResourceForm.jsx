@@ -2,14 +2,13 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 
+import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as projectActions from '../store/project/actions';
 import * as resourceActions from '../store/resource/actions';
 import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
-import {
-  reload, serverError, ask, destroy,
-} from '../utils/Text';
+import { ask, destroy } from '../utils/Text';
 
 const mapStateToProps = (state) => {
   const { resourceForm } = state;
@@ -64,9 +63,8 @@ class ResourceForm extends PureComponent {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      const confirmConfig = { type: 'error', title: serverError, description: reload };
       const { openConfirm } = this.props;
-      openConfirm(confirmConfig);
+      openConfirm(INTERNAL_SERVER_ERROR);
       return;
     }
     const { colors } = response.data;
@@ -81,9 +79,8 @@ class ResourceForm extends PureComponent {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      const confirmConfig = { type: 'error', title: serverError, description: reload };
       const { openConfirm } = this.props;
-      openConfirm(confirmConfig);
+      openConfirm(INTERNAL_SERVER_ERROR);
       return;
     }
     const { resource } = response.data;
