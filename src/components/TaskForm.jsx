@@ -23,6 +23,7 @@ const mapStateToProps = (state) => {
     resources: resource.resources,
     taskID: taskForm.taskID,
     projectID: taskForm.projectID,
+    errors: taskForm.errors,
   };
 };
 
@@ -50,7 +51,6 @@ class TaskForm extends Component {
       complete: false,
       inCharge: [],
       description: '',
-      errors: [],
       confirmVisible: false,
       confirmType: '',
       confirmTitle: '',
@@ -210,8 +210,11 @@ class TaskForm extends Component {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { closeTaskForm, resources, users } = this.props;
     const title = this.action === 'edit' ? 'Update Task' : 'Add Task';
+    const {
+      closeTaskForm, resources, users, errors,
+    } = this.props;
+
     const {
       selectedResource,
       name,
@@ -220,7 +223,6 @@ class TaskForm extends Component {
       complete,
       inCharge,
       description,
-      errors,
       confirmVisible,
       confirmType,
       confirmTitle,

@@ -12,6 +12,7 @@ export const CREATE_TASK = 'CREATE_TASK';
 export const DELETE_TASK = 'DELETE_TASK';
 export const UPDATE_TASK = 'UPDATE_TASK';
 export const INVALID_PROJECT_PARAMS = 'INVALID_PROJECT_PARAMS';
+export const INVALID_TASK_PARAMS = 'INVALID_TASK_PARAMS';
 
 export const openProjectForm = (id = null) => ({
   type: OPEN_PROJECT_FORM,
@@ -109,43 +110,54 @@ export const searchProjects = (params) => async (dispatch) => {
 export const createTask = (params) => async (dispatch) => {
   const url = Utils.buildRequestUrl('/tasks');
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'POST',
+  const response = await axios.post(url, params, {
     headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
-  });
+  }).catch((error) => error.response);
 
-  const json = await response.json();
-  if (json.is_created) {
-    dispatch({ type: CREATE_TASK, task: json.task });
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { is_created, errors, task } = response.data;
+  if (is_created) {
+    dispatch({ type: CREATE_TASK, task });
+  } else {
+    dispatch({ type: INVALID_TASK_PARAMS, errors });
   }
 };
 
 export const deleteTask = (id) => async (dispatch) => {
   const url = Utils.buildRequestUrl(`/tasks/${id}`);
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'DELETE',
+  const response = await axios.delete(url, {
     headers: { 'X-Reach-token': token },
-  });
+  }).catch((error) => error.response);
 
-  const json = await response.json();
-  if (json.is_delete) {
-    dispatch({ type: DELETE_TASK, task: json.task });
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { is_delete, task } = response.data;
+  if (is_delete) {
+    dispatch({ type: DELETE_TASK, task });
   }
 };
 
 export const updateTask = (id, params) => async (dispatch) => {
   const url = Utils.buildRequestUrl(`/tasks/${id}`);
   const token = localStorage.getItem('token');
-  const response = await fetch(url, {
-    method: 'PATCH',
+  const response = await axios.patch(url, params, {
     headers: { 'X-Reach-token': token, 'Content-Type': 'application/json' },
-    body: JSON.stringify(params),
-  });
+  }).catch((error) => error.response);
 
-  const json = await response.json();
-  if (json.is_updated) {
-    dispatch({ type: UPDATE_TASK, task: json.task });
+  if (response.status !== 200) {
+    console.log(response);
+    return;
+  }
+  const { is_updated, errors, task } = response.data;
+  if (is_updated) {
+    dispatch({ type: UPDATE_TASK, task });
+  } else {
+    dispatch({ type: INVALID_TASK_PARAMS, errors });
   }
 };
