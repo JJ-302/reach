@@ -11,6 +11,13 @@ import Utils from '../utils/Utils';
 import { reload, serverError } from '../utils/Text';
 import '../css/Session.scss';
 
+const mapStateToProps = (state) => {
+  const { accountForm } = state;
+  return {
+    errors: accountForm.errors,
+  };
+};
+
 const mapDispatchToProps = (dispatch) => {
   const { closeAccountForm, updateAccount } = accountActions;
   const { getAllProjects } = projectActions;
@@ -29,7 +36,6 @@ class EditAccuount extends Component {
       avatar: null,
       name: '',
       email: '',
-      errors: [],
       confirmVisible: false,
       confirmType: '',
       confirmTitle: '',
@@ -53,7 +59,6 @@ class EditAccuount extends Component {
       this.openConfirm('error', serverError, reload, this.closeConfirm);
       return;
     }
-
     const { avatar, name, email } = response.data.user;
     this.setState({ uri: avatar, name, email });
   }
@@ -67,10 +72,9 @@ class EditAccuount extends Component {
       params.append('user[avatar]', avatar);
     }
 
-    const { getAllProjects, updateAccount, closeAccountForm } = this.props;
+    const { getAllProjects, updateAccount } = this.props;
     await updateAccount(params);
     getAllProjects();
-    closeAccountForm();
   }
 
   onChangeFile = (event) => {
@@ -104,12 +108,11 @@ class EditAccuount extends Component {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { closeAccountForm } = this.props;
+    const { closeAccountForm, errors } = this.props;
     const {
       uri,
       name,
       email,
-      errors,
       confirmVisible,
       confirmType,
       confirmTitle,
@@ -166,4 +169,4 @@ class EditAccuount extends Component {
   }
 }
 
-export default connect(null, mapDispatchToProps)(EditAccuount);
+export default connect(mapStateToProps, mapDispatchToProps)(EditAccuount);
