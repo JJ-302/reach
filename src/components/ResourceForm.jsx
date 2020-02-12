@@ -1,5 +1,6 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 
 import * as projectActions from '../store/project/actions';
 import * as resourceActions from '../store/resource/actions';
@@ -7,12 +8,7 @@ import Confirm from './Confirm';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
 import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-  ask,
-  destroy,
+  reload, serverError, ask, destroy,
 } from '../utils/Text';
 
 const mapStateToProps = (state) => {
@@ -21,7 +17,6 @@ const mapStateToProps = (state) => {
     resourceID: resourceForm.id,
   };
 };
-
 
 const mapDispatchToProps = (dispatch) => {
   const { getAllProjects } = projectActions;
@@ -57,8 +52,8 @@ class ResourceForm extends PureComponent {
     };
   }
 
-  async componentDidMount() {
-    this.token = await localStorage.getItem('token');
+  componentDidMount() {
+    this.token = localStorage.getItem('token');
     this.getIndexColors();
     if (this.action === 'edit') {
       this.editResourceFormValue();
@@ -67,37 +62,31 @@ class ResourceForm extends PureComponent {
 
   getIndexColors = async () => {
     const url = Utils.buildRequestUrl('/colors');
-    const response = await fetch(url, {
-      method: 'GET',
+    const response = await axios.get(url, {
       headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+    }).catch((error) => error.response);
 
-    const { is_authenticated, colors } = await response.json();
-    if (is_authenticated) {
-      this.setState({ colors });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      return;
     }
+    const { colors } = response.data;
+    this.setState({ colors });
   }
 
   editResourceFormValue = async () => {
     const { resourceID } = this.props;
     const url = Utils.buildRequestUrl(`/resources/${resourceID}/edit`);
-    const response = await fetch(url, {
-      method: 'GET',
+    const response = await axios.get(url, {
       headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+    }).catch((error) => error.response);
 
-    const { is_authenticated, resource } = await response.json();
-    if (is_authenticated) {
-      this.setState({ name: resource.name, pickedColor: String(resource.color_id) });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      return;
     }
+    const { resource } = response.data;
+    this.setState({ name: resource.name, pickedColor: String(resource.color_id) });
   }
 
   handleCreate = () => {
