@@ -1,17 +1,13 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 
 import * as actions from '../store/project/actions';
 import Utils from '../utils/Utils';
 import Confirm from './Confirm';
 import ErrorMessage from './Error';
 import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-  ask,
-  destroy,
+  reload, serverError, ask, destroy,
 } from '../utils/Text';
 
 import '../css/Form.scss';
@@ -39,7 +35,6 @@ const mapDispatchToProps = (dispatch) => {
 class ProjectForm extends PureComponent {
   constructor(props) {
     super(props);
-    this.token = localStorage.getItem('token');
     const { projectID } = this.props;
     this.action = projectID ? 'edit' : 'new';
     this.submit = projectID ? this.handleUpdate : this.handleCreate;
@@ -64,20 +59,17 @@ class ProjectForm extends PureComponent {
   editProjectFormValue = async () => {
     const { projectID } = this.props;
     const url = Utils.buildRequestUrl(`/projects/${projectID}/edit`);
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+    const token = localStorage.getItem('token');
+    const response = await axios.get(url, {
+      headers: { 'X-Reach-token': token },
+    }).catch((error) => error.response);
 
-    const { is_authenticated, project } = await response.json();
-    if (is_authenticated) {
-      const { name, description } = project;
-      this.setState({ name, description });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      return;
     }
+    const { name, description } = response.data.project;
+    this.setState({ name, description });
   }
 
   handleCreate = () => {
