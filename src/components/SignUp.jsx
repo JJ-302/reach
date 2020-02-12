@@ -1,15 +1,23 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
-import Confirm from './Confirm';
 import Utils from '../utils/Utils';
 import { reload, serverError } from '../utils/Text';
 import '../css/Session.scss';
 
-export default class SignUp extends Component {
+const mapDispatchToProps = (dispatch) => {
+  const { openConfirm } = confirmActions;
+  return {
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
+  };
+};
+
+class SignUp extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -21,7 +29,6 @@ export default class SignUp extends Component {
       passwordConfirmation: '',
       errors: [],
       isSignIn: false,
-      confirmVisible: false,
     };
   }
 
@@ -46,7 +53,9 @@ export default class SignUp extends Component {
     const url = Utils.buildRequestUrl('/users');
     const response = await axios.post(url, params).catch((error) => error.response);
     if (response.status !== 200) {
-      this.openConfirm();
+      const confirmConfig = { type: 'error', title: serverError, description: reload };
+      const { openConfirm } = this.props;
+      openConfirm(confirmConfig);
       return;
     }
 
@@ -58,10 +67,6 @@ export default class SignUp extends Component {
       this.setState({ errors });
     }
   }
-
-  openConfirm = () => this.setState({ confirmVisible: true })
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onChangeFile = (event) => {
     const avatar = event.target.files[0];
@@ -98,7 +103,6 @@ export default class SignUp extends Component {
       passwordConfirmation,
       errors,
       isSignIn,
-      confirmVisible,
     } = this.state;
 
     return (
@@ -152,17 +156,10 @@ export default class SignUp extends Component {
             </button>
             <Link to="/reach/signin" className="session__switch">Move to Sign In</Link>
           </div>
-          {confirmVisible && (
-            <Confirm
-              type="error"
-              closeConfirm={this.closeConfirm}
-              title={serverError}
-              description={reload}
-              confirm={this.closeConfirm}
-            />
-          )}
         </div>
       )
     );
   }
 }
+
+export default connect(null, mapDispatchToProps)(SignUp);

@@ -1,4 +1,5 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import {
   BrowserRouter,
   Route,
@@ -9,6 +10,14 @@ import {
 import Main from './Main';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
+import Confirm from './Confirm';
+
+const mapStateToProps = (state) => {
+  const { confirm } = state;
+  return {
+    confirmVisible: confirm.visible,
+  };
+};
 
 class Home extends Component {
   constructor(props) {
@@ -26,15 +35,21 @@ class Home extends Component {
   }
 }
 
-const App = () => (
-  <BrowserRouter>
-    <Switch>
-      <Route path="/reach/signin"><SignIn /></Route>
-      <Route path="/reach/signup"><SignUp /></Route>
-      <Route exact path="/reach"><Home /></Route>
-      <Route exact><SignIn /></Route>
-    </Switch>
-  </BrowserRouter>
-);
+const App = (props) => {
+  const { confirmVisible } = props;
+  return (
+    <>
+      <BrowserRouter>
+        <Switch>
+          <Route path="/reach/signin"><SignIn /></Route>
+          <Route path="/reach/signup"><SignUp /></Route>
+          <Route exact path="/reach"><Home /></Route>
+          <Route exact><SignIn /></Route>
+        </Switch>
+      </BrowserRouter>
+      {confirmVisible && <Confirm />}
+    </>
+  );
+};
 
-export default App;
+export default connect(mapStateToProps)(App);

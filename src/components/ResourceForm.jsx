@@ -4,7 +4,7 @@ import axios from 'axios';
 
 import * as projectActions from '../store/project/actions';
 import * as resourceActions from '../store/resource/actions';
-import Confirm from './Confirm';
+import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
 import {
@@ -21,6 +21,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   const { getAllProjects } = projectActions;
+  const { openConfirm } = confirmActions;
   const {
     closeResourceForm, createResource, deleteResource, updateResource,
   } = resourceActions;
@@ -31,6 +32,7 @@ const mapDispatchToProps = (dispatch) => {
     createResource: (params) => dispatch(createResource(params)),
     deleteResource: (resourceID) => dispatch(deleteResource(resourceID)),
     updateResource: (resourceID, params) => dispatch(updateResource(resourceID, params)),
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
   };
 };
 
@@ -44,11 +46,6 @@ class ResourceForm extends PureComponent {
       name: '',
       colors: [],
       pickedColor: '',
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
     };
   }
 
@@ -67,7 +64,9 @@ class ResourceForm extends PureComponent {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      const confirmConfig = { type: 'error', title: serverError, description: reload };
+      const { openConfirm } = this.props;
+      openConfirm(confirmConfig);
       return;
     }
     const { colors } = response.data;
@@ -82,7 +81,9 @@ class ResourceForm extends PureComponent {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      const confirmConfig = { type: 'error', title: serverError, description: reload };
+      const { openConfirm } = this.props;
+      openConfirm(confirmConfig);
       return;
     }
     const { resource } = response.data;
@@ -97,8 +98,14 @@ class ResourceForm extends PureComponent {
   }
 
   handleDestroy = () => {
-    const { resourceID, deleteResource } = this.props;
-    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteResource(resourceID));
+    const { deleteResource, resourceID, openConfirm } = this.props;
+    const confirmConfig = {
+      type: 'ask',
+      title: `Resource ${destroy}`,
+      description: ask,
+      confirm: () => deleteResource(resourceID),
+    };
+    openConfirm(confirmConfig);
   }
 
   handleUpdate = async () => {
@@ -108,18 +115,6 @@ class ResourceForm extends PureComponent {
     await updateResource(resourceID, params);
     getAllProjects();
   }
-
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onPickColor = (event) => {
     const pickedColor = event.target.dataset.color;
@@ -136,16 +131,7 @@ class ResourceForm extends PureComponent {
   render() {
     const title = this.action === 'new' ? 'Create Resource' : 'Update Resource';
     const { closeResourceForm, errors } = this.props;
-    const {
-      name,
-      colors,
-      pickedColor,
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
-    } = this.state;
+    const { name, colors, pickedColor } = this.state;
 
     return (
       <div className="modalOverlay" onClick={closeResourceForm}>
@@ -176,15 +162,6 @@ class ResourceForm extends PureComponent {
             </button>
           )}
         </div>
-        {confirmVisible && (
-          <Confirm
-            type={confirmType}
-            closeConfirm={this.closeConfirm}
-            title={confirmTitle}
-            description={confirmDescription}
-            confirm={confirm}
-          />
-        )}
       </div>
     );
   }

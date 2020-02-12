@@ -11,6 +11,7 @@ import { projectFormReducer, projectReducer } from './project/reducers';
 import { accountFormReducer, accountReducer } from './account/reducers';
 import { taskFormReducer, taskReducer } from './task/reducers';
 import scheduleReducer from './schedule/reducers';
+import confirmReducer from './confirm/reducers';
 
 const rootReducer = combineReducers({
   resourceForm: resourceFormReducer,
@@ -22,6 +23,7 @@ const rootReducer = combineReducers({
   taskForm: taskFormReducer,
   task: taskReducer,
   schedule: scheduleReducer,
+  confirm: confirmReducer,
 });
 
 /* eslint-disable no-underscore-dangle */

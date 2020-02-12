@@ -5,8 +5,8 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import * as accountActions from '../store/account/actions';
 import * as projectActions from '../store/project/actions';
+import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
-import Confirm from './Confirm';
 import Utils from '../utils/Utils';
 import { reload, serverError } from '../utils/Text';
 import '../css/Session.scss';
@@ -21,10 +21,12 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   const { closeAccountForm, updateAccount } = accountActions;
   const { getAllProjects } = projectActions;
+  const { openConfirm } = confirmActions;
   return {
     closeAccountForm: () => dispatch(closeAccountForm()),
     updateAccount: (params) => dispatch(updateAccount(params)),
     getAllProjects: () => dispatch(getAllProjects()),
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
   };
 };
 
@@ -36,11 +38,6 @@ class EditAccuount extends Component {
       avatar: null,
       name: '',
       email: '',
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
     };
   }
 
@@ -56,7 +53,9 @@ class EditAccuount extends Component {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      const confirmConfig = { type: 'error', title: serverError, description: reload };
+      const { openConfirm } = this.props;
+      openConfirm(confirmConfig);
       return;
     }
     const { avatar, name, email } = response.data.user;
@@ -93,32 +92,11 @@ class EditAccuount extends Component {
     this.setState({ email });
   }
 
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
-
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
     const { closeAccountForm, errors } = this.props;
-    const {
-      uri,
-      name,
-      email,
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
-    } = this.state;
+    const { uri, name, email } = this.state;
 
     return (
       <div className="background--edit" onClick={closeAccountForm}>
@@ -155,15 +133,6 @@ class EditAccuount extends Component {
             Update
           </button>
         </div>
-        {confirmVisible && (
-          <Confirm
-            type={confirmType}
-            closeConfirm={this.closeConfirm}
-            title={confirmTitle}
-            description={confirmDescription}
-            confirm={confirm}
-          />
-        )}
       </div>
     );
   }

@@ -8,7 +8,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import * as taskActions from '../store/task/actions';
 import * as projectActions from '../store/project/actions';
-import Confirm from './Confirm';
+import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
 import { serverError, reload } from '../utils/Text';
@@ -30,10 +30,12 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   const { closeTaskForm } = taskActions;
   const { createTask, updateTask } = projectActions;
+  const { openConfirm } = confirmActions;
   return {
     closeTaskForm: () => dispatch(closeTaskForm()),
     createTask: (params) => dispatch(createTask(params)),
     updateTask: (id, params) => dispatch(updateTask(id, params)),
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
   };
 };
 
@@ -51,11 +53,6 @@ class TaskForm extends Component {
       complete: false,
       inCharge: [],
       description: '',
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
     };
   }
 
@@ -74,7 +71,9 @@ class TaskForm extends Component {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      const confirmConfig = { type: 'error', title: serverError, description: reload };
+      const { openConfirm } = this.props;
+      openConfirm(confirmConfig);
       return;
     }
 
@@ -101,18 +100,6 @@ class TaskForm extends Component {
       selectedResource: resourceId,
     });
   }
-
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onChangeName = (event) => {
     const name = event.target.value;
@@ -223,11 +210,6 @@ class TaskForm extends Component {
       complete,
       inCharge,
       description,
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
     } = this.state;
 
     return (
@@ -318,15 +300,6 @@ class TaskForm extends Component {
           <button type="button" onClick={this.submit} className="taskForm__button">
             {title}
           </button>
-          {confirmVisible && (
-            <Confirm
-              type={confirmType}
-              closeConfirm={this.closeConfirm}
-              title={confirmTitle}
-              description={confirmDescription}
-              confirm={confirm}
-            />
-          )}
         </div>
       </div>
     );

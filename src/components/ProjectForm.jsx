@@ -2,9 +2,9 @@ import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 
-import * as actions from '../store/project/actions';
+import * as projectActions from '../store/project/actions';
+import * as confirmActions from '../store/confirm/actions';
 import Utils from '../utils/Utils';
-import Confirm from './Confirm';
 import ErrorMessage from './Error';
 import {
   reload, serverError, ask, destroy,
@@ -21,15 +21,17 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
+  const { openConfirm } = confirmActions;
   const {
     closeProjectForm, createProject, deleteProject, updateProject,
-  } = actions;
+  } = projectActions;
 
   return {
     closeProjectForm: () => dispatch(closeProjectForm()),
     createProject: (params) => dispatch(createProject(params)),
     deleteProject: (projectID) => dispatch(deleteProject(projectID)),
     updateProject: (projectID, params) => dispatch(updateProject(projectID, params)),
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
   };
 };
 
@@ -42,11 +44,6 @@ class ProjectForm extends PureComponent {
     this.state = {
       name: '',
       description: '',
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
     };
   }
 
@@ -65,7 +62,9 @@ class ProjectForm extends PureComponent {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
+      const confirmConfig = { type: 'error', title: serverError, description: reload };
+      const { openConfirm } = this.props;
+      openConfirm(confirmConfig);
       return;
     }
     const { name, description } = response.data.project;
@@ -80,8 +79,14 @@ class ProjectForm extends PureComponent {
   }
 
   handleDestroy = () => {
-    const { deleteProject, projectID } = this.props;
-    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteProject(projectID));
+    const { deleteProject, projectID, openConfirm } = this.props;
+    const confirmConfig = {
+      type: 'ask',
+      title: `Project ${destroy}`,
+      description: ask,
+      confirm: () => deleteProject(projectID),
+    };
+    openConfirm(confirmConfig);
   }
 
   handleUpdate = () => {
@@ -90,18 +95,6 @@ class ProjectForm extends PureComponent {
     const params = { name, description };
     updateProject(projectID, params);
   }
-
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onChangeName = (event) => {
     const name = event.target.value;
@@ -117,15 +110,7 @@ class ProjectForm extends PureComponent {
 
   render() {
     const { closeProjectForm, errors } = this.props;
-    const {
-      name,
-      description,
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
-    } = this.state;
+    const { name, description } = this.state;
 
     const title = this.action === 'new' ? 'Create Project' : 'Update Project';
     return (
@@ -155,15 +140,6 @@ class ProjectForm extends PureComponent {
             </button>
           )}
         </div>
-        {confirmVisible && (
-          <Confirm
-            type={confirmType}
-            closeConfirm={this.closeConfirm}
-            title={confirmTitle}
-            description={confirmDescription}
-            confirm={confirm}
-          />
-        )}
       </div>
     );
   }

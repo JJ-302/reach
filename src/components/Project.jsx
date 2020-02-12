@@ -4,6 +4,7 @@ import { connect } from 'react-redux';
 
 import * as projectActions from '../store/project/actions';
 import * as taskActions from '../store/task/actions';
+import * as confirmActions from '../store/confirm/actions';
 import Task from './Task';
 import TaskForm from './TaskForm';
 import ProjectForm from './ProjectForm';
@@ -24,11 +25,13 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   const { openProjectForm, closeProjectForm, getAllProjects } = projectActions;
   const { openTaskForm } = taskActions;
+  const { closeConfirm } = confirmActions;
   return {
     openProjectForm: (id) => dispatch(openProjectForm(id)),
     closeProjectForm: () => dispatch(closeProjectForm()),
     getAllProjects: () => dispatch(getAllProjects()),
     openTaskForm: ({ projectID }) => dispatch(openTaskForm({ projectID })),
+    closeConfirm: () => dispatch(closeConfirm()),
   };
 };
 
@@ -46,9 +49,10 @@ class Projects extends Component {
   }
 
   componentDidUpdate(previousProps) {
-    const { projects, closeProjectForm } = this.props;
+    const { projects, closeProjectForm, closeConfirm } = this.props;
     if (previousProps.projects.length !== projects.length) {
       closeProjectForm();
+      closeConfirm();
     }
   }
 

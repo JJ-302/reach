@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 
-import * as actions from '../store/resource/actions';
+import * as resourceActions from '../store/resource/actions';
+import * as confirmActions from '../store/confirm/actions';
 import ResourceForm from './ResourceForm';
 
 const mapStateToProps = (state) => {
@@ -13,11 +14,13 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  const { openResourceForm, getAllResources, closeResourceForm } = actions;
+  const { openResourceForm, getAllResources, closeResourceForm } = resourceActions;
+  const { closeConfirm } = confirmActions;
   return {
     getAllResources: () => dispatch(getAllResources()),
     openResourceForm: (id) => dispatch(openResourceForm(id)),
     closeResourceForm: () => dispatch(closeResourceForm()),
+    closeConfirm: () => dispatch(closeConfirm()),
   };
 };
 
@@ -28,9 +31,10 @@ class Resource extends Component {
   }
 
   componentDidUpdate(previousProps) {
-    const { resources, closeResourceForm } = this.props;
+    const { resources, closeResourceForm, closeConfirm } = this.props;
     if (previousProps.resources.length !== resources.length) {
       closeResourceForm();
+      closeConfirm();
     }
   }
 
