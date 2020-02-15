@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import Moment from 'moment';
 
@@ -9,7 +9,6 @@ import ProjectHeader from './ProjectHeader';
 import Project from './Project';
 import Resource from './Resource';
 import Gantt from './Gantt';
-import Confirm from './Confirm';
 import '../css/Main.scss';
 import {
   START_DAY, END_DAY, SUN, SAT,
@@ -89,69 +88,25 @@ const Header = connect(mapStateToProps, mapDispatchToProps)((props) => {
   );
 });
 
-class Main extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
-    };
-  }
-
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
-
-  render() {
-    const {
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
-    } = this.state;
-
-    return (
-      <div className="App">
-        <SideBar />
-        <div className="mainContainer">
-          <Header />
-          <div className="gantt">
-            <div className="gantt-index">
-              <ProjectHeader />
-              <Project />
-            </div>
-            <div className="gantt-schedule">
-              <div className="gantt-schedule-header">
-                <Schedule />
-              </div>
-              <Gantt />
-            </div>
-          </div>
+const Main = () => (
+  <div className="App">
+    <SideBar />
+    <div className="mainContainer">
+      <Header />
+      <div className="gantt">
+        <div className="gantt-index">
+          <ProjectHeader />
+          <Project />
         </div>
-        {confirmVisible && (
-          <Confirm
-            type={confirmType}
-            closeConfirm={this.closeConfirm}
-            title={confirmTitle}
-            description={confirmDescription}
-            confirm={confirm}
-          />
-        )}
+        <div className="gantt-schedule">
+          <div className="gantt-schedule-header">
+            <Schedule />
+          </div>
+          <Gantt />
+        </div>
       </div>
-    );
-  }
-}
+    </div>
+  </div>
+);
 
 export default connect(mapStateToProps, mapDispatchToProps)(Main);

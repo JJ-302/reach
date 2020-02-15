@@ -3,17 +3,20 @@ import {
   CLOSE_ACCOUNT_FORM,
   GET_ALL_ACCOUNT,
   UPDATE_ACCOUNT,
+  INVALID_ACCOUNT_PARAMS,
 } from './actions';
 
-const initialAccountFormState = { visible: false };
+const initialAccountFormState = { visible: false, errors: [] };
 const initialAccountState = { users: [] };
 
 export const accountFormReducer = (state = initialAccountFormState, action) => {
   switch (action.type) {
     case OPEN_ACCOUNT_FORM:
-      return { visible: true };
+      return { visible: true, errors: [] };
     case CLOSE_ACCOUNT_FORM:
-      return { visible: false };
+      return { visible: false, errors: [] };
+    case INVALID_ACCOUNT_PARAMS:
+      return { visible: state.visible, errors: action.errors };
     default:
       return state;
   }

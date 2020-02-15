@@ -9,17 +9,23 @@ import {
   CREATE_TASK,
   DELETE_TASK,
   UPDATE_TASK,
+  INVALID_PROJECT_PARAMS,
 } from './actions';
 
-const initialProjectFormState = { visible: false, id: null };
+const initialProjectFormState = { visible: false, id: null, errors: [] };
 const initialProjectState = { projects: [] };
 
 export const projectFormReducer = (state = initialProjectFormState, action) => {
   switch (action.type) {
     case OPEN_PROJECT_FORM:
-      return { visible: true, id: action.id };
+      return { visible: true, id: action.id, errors: [] };
     case CLOSE_PROJECT_FORM:
-      return { visible: false, id: null };
+      return { visible: false, id: null, errors: [] };
+    case INVALID_PROJECT_PARAMS:
+      return {
+        ...state,
+        errors: action.errors,
+      };
     default:
       return state;
   }

@@ -1,18 +1,13 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 
-import * as actions from '../store/project/actions';
+import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
+import * as projectActions from '../store/project/actions';
+import * as confirmActions from '../store/confirm/actions';
 import Utils from '../utils/Utils';
-import Confirm from './Confirm';
 import ErrorMessage from './Error';
-import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-  ask,
-  destroy,
-} from '../utils/Text';
+import { ask, destroy } from '../utils/Text';
 
 import '../css/Form.scss';
 
@@ -20,38 +15,34 @@ const mapStateToProps = (state) => {
   const { projectForm } = state;
   return {
     projectID: projectForm.id,
+    errors: projectForm.errors,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
+  const { openConfirm } = confirmActions;
   const {
     closeProjectForm, createProject, deleteProject, updateProject,
-  } = actions;
+  } = projectActions;
 
   return {
     closeProjectForm: () => dispatch(closeProjectForm()),
     createProject: (params) => dispatch(createProject(params)),
     deleteProject: (projectID) => dispatch(deleteProject(projectID)),
     updateProject: (projectID, params) => dispatch(updateProject(projectID, params)),
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
   };
 };
 
 class ProjectForm extends PureComponent {
   constructor(props) {
     super(props);
-    this.token = localStorage.getItem('token');
     const { projectID } = this.props;
     this.action = projectID ? 'edit' : 'new';
     this.submit = projectID ? this.handleUpdate : this.handleCreate;
     this.state = {
       name: '',
       description: '',
-      errors: [],
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
     };
   }
 
@@ -64,20 +55,18 @@ class ProjectForm extends PureComponent {
   editProjectFormValue = async () => {
     const { projectID } = this.props;
     const url = Utils.buildRequestUrl(`/projects/${projectID}/edit`);
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+    const token = localStorage.getItem('token');
+    const response = await axios.get(url, {
+      headers: { 'X-Reach-token': token },
+    }).catch((error) => error.response);
 
-    const { is_authenticated, project } = await response.json();
-    if (is_authenticated) {
-      const { name, description } = project;
-      this.setState({ name, description });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      const { openConfirm } = this.props;
+      openConfirm(INTERNAL_SERVER_ERROR);
+      return;
     }
+    const { name, description } = response.data.project;
+    this.setState({ name, description });
   }
 
   handleCreate = () => {
@@ -88,8 +77,14 @@ class ProjectForm extends PureComponent {
   }
 
   handleDestroy = () => {
-    const { deleteProject, projectID } = this.props;
-    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteProject(projectID));
+    const { deleteProject, projectID, openConfirm } = this.props;
+    const confirmConfig = {
+      type: 'ask',
+      title: `Project ${destroy}`,
+      description: ask,
+      confirm: () => deleteProject(projectID),
+    };
+    openConfirm(confirmConfig);
   }
 
   handleUpdate = () => {
@@ -98,18 +93,6 @@ class ProjectForm extends PureComponent {
     const params = { name, description };
     updateProject(projectID, params);
   }
-
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onChangeName = (event) => {
     const name = event.target.value;
@@ -124,17 +107,8 @@ class ProjectForm extends PureComponent {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { closeProjectForm } = this.props;
-    const {
-      name,
-      description,
-      errors,
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
-    } = this.state;
+    const { closeProjectForm, errors } = this.props;
+    const { name, description } = this.state;
 
     const title = this.action === 'new' ? 'Create Project' : 'Update Project';
     return (
@@ -164,15 +138,6 @@ class ProjectForm extends PureComponent {
             </button>
           )}
         </div>
-        {confirmVisible && (
-          <Confirm
-            type={confirmType}
-            closeConfirm={this.closeConfirm}
-            title={confirmTitle}
-            description={confirmDescription}
-            confirm={confirm}
-          />
-        )}
       </div>
     );
   }

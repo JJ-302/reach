@@ -1,7 +1,26 @@
 import React from 'react';
+import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import * as confirmActions from '../store/confirm/actions';
 import '../css/Confirm.scss';
+
+const mapStateToProps = (state) => {
+  const { confirm } = state;
+  return {
+    type: confirm.type,
+    title: confirm.title,
+    description: confirm.description,
+    confirm: confirm.confirm,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  const { closeConfirm } = confirmActions;
+  return {
+    closeConfirm: () => dispatch(closeConfirm()),
+  };
+};
 
 const confirmType = (type) => {
   switch (type) {
@@ -27,6 +46,7 @@ const Confirm = (props) => {
     confirm,
   } = props;
 
+  const onClickConfirm = type === 'ask' ? confirm : closeConfirm;
   const iconType = confirmType(type);
   return (
     <div className="confirmOverlay" onClick={stopPropagation}>
@@ -43,11 +63,11 @@ const Confirm = (props) => {
         <div className="confirmButton">
           {type === 'ask'
             && <div className="confirmButton__cancel" onClick={closeConfirm}>Cancel</div>}
-          <div className="confirmButton__confirm" onClick={confirm}>OK</div>
+          <div className="confirmButton__confirm" onClick={onClickConfirm}>OK</div>
         </div>
       </div>
     </div>
   );
 };
 
-export default Confirm;
+export default connect(mapStateToProps, mapDispatchToProps)(Confirm);

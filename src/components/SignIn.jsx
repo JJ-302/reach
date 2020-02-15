@@ -1,14 +1,23 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
+import axios from 'axios';
 
+import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
+import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
-import Confirm from './Confirm';
 import Utils from '../utils/Utils';
-import { reload, serverError } from '../utils/Text';
 
 import '../css/Session.scss';
 
-export default class SignIn extends Component {
+const mapDispatchToProps = (dispatch) => {
+  const { openConfirm } = confirmActions;
+  return {
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
+  };
+};
+
+class SignIn extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -16,7 +25,6 @@ export default class SignIn extends Component {
       password: '',
       isSignIn: false,
       errors: [],
-      confirmVisible: false,
     };
   }
 
@@ -24,26 +32,24 @@ export default class SignIn extends Component {
     const { email, password } = this.state;
     const url = Utils.buildRequestUrl('/sessions');
     const params = { email, password };
-    const response = await fetch(url, {
-      method: 'POST',
-      body: JSON.stringify(params),
+    const response = await axios.post(url, params, {
       headers: { 'Content-Type': 'application/json' },
-    });
+    }).catch((error) => error.response);
 
-    const { result, token, errors } = await response.json();
+    if (response.status !== 200) {
+      const { openConfirm } = this.props;
+      openConfirm(INTERNAL_SERVER_ERROR);
+      return;
+    }
+
+    const { result, token, errors } = response.data;
     if (result) {
       localStorage.setItem('token', token);
       this.setState({ isSignIn: true });
-    } else if (errors !== undefined) {
-      this.setState({ errors });
     } else {
-      this.openConfirm();
+      this.setState({ errors });
     }
   }
-
-  openConfirm = () => this.setState({ confirmVisible: true })
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
 
   emailOnChange = (event) => {
     const email = event.target.value;
@@ -57,11 +63,7 @@ export default class SignIn extends Component {
 
   render() {
     const {
-      email,
-      password,
-      isSignIn,
-      errors,
-      confirmVisible,
+      email, password, isSignIn, errors,
     } = this.state;
 
     return (
@@ -89,17 +91,10 @@ export default class SignIn extends Component {
             </button>
             <Link to="/reach/signup" className="session__switch">Create account</Link>
           </div>
-          {confirmVisible && (
-            <Confirm
-              type="error"
-              closeConfirm={this.closeConfirm}
-              title={serverError}
-              description={reload}
-              confirm={this.closeConfirm}
-            />
-          )}
         </div>
       )
     );
   }
 }
+
+export default connect(null, mapDispatchToProps)(SignIn);

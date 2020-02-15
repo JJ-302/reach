@@ -1,16 +1,17 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import DatePicker from 'react-datepicker';
 import Moment from 'moment';
 import 'react-datepicker/dist/react-datepicker.css';
 
+import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as taskActions from '../store/task/actions';
 import * as projectActions from '../store/project/actions';
-import Confirm from './Confirm';
+import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
-import { badRequest, checkParams } from '../utils/Text';
 import '../css/Form.scss';
 
 const notExist = -1;
@@ -22,16 +23,19 @@ const mapStateToProps = (state) => {
     resources: resource.resources,
     taskID: taskForm.taskID,
     projectID: taskForm.projectID,
+    errors: taskForm.errors,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   const { closeTaskForm } = taskActions;
   const { createTask, updateTask } = projectActions;
+  const { openConfirm } = confirmActions;
   return {
     closeTaskForm: () => dispatch(closeTaskForm()),
     createTask: (params) => dispatch(createTask(params)),
     updateTask: (id, params) => dispatch(updateTask(id, params)),
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
   };
 };
 
@@ -49,12 +53,6 @@ class TaskForm extends Component {
       complete: false,
       inCharge: [],
       description: '',
-      errors: [],
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
     };
   }
 
@@ -66,54 +64,41 @@ class TaskForm extends Component {
 
   editTaskFormValue = async () => {
     const { taskID } = this.props;
-    this.token = localStorage.getItem('token');
+    const token = localStorage.getItem('token');
     const url = Utils.buildRequestUrl(`/tasks/${taskID}/edit`);
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': this.token },
-    });
+    const response = await axios.get(url, {
+      headers: { 'X-Reach-token': token },
+    }).catch((error) => error.response);
 
-    const { is_authenticated, task } = await response.json();
-
-    if (is_authenticated) {
-      const {
-        description,
-        startDate,
-        endDate,
-        extend,
-        name,
-        percentComplete,
-        userIds,
-        resourceId,
-      } = task;
-
-      const complete = percentComplete === 'complete';
-      const stringUserIds = userIds.map((userId) => String(userId));
-      this.setState({
-        name,
-        complete,
-        description,
-        startDate: new Date(startDate),
-        endDate: extend ? new Date(extend) : new Date(endDate),
-        inCharge: stringUserIds,
-        selectedResource: resourceId,
-      });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      const { openConfirm } = this.props;
+      openConfirm(INTERNAL_SERVER_ERROR);
+      return;
     }
-  }
 
-  openConfirm = (type, title, description, confirm) => {
+    const {
+      description,
+      startDate,
+      endDate,
+      extend,
+      name,
+      percentComplete,
+      userIds,
+      resourceId,
+    } = response.data.task;
+
+    const complete = percentComplete === 'complete';
+    const stringUserIds = userIds.map((userId) => String(userId));
     this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
+      name,
+      complete,
+      description,
+      startDate: new Date(startDate),
+      endDate: extend ? new Date(extend) : new Date(endDate),
+      inCharge: stringUserIds,
+      selectedResource: resourceId,
     });
   }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onChangeName = (event) => {
     const name = event.target.value;
@@ -211,8 +196,11 @@ class TaskForm extends Component {
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { closeTaskForm, resources, users } = this.props;
     const title = this.action === 'edit' ? 'Update Task' : 'Add Task';
+    const {
+      closeTaskForm, resources, users, errors,
+    } = this.props;
+
     const {
       selectedResource,
       name,
@@ -221,12 +209,6 @@ class TaskForm extends Component {
       complete,
       inCharge,
       description,
-      errors,
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
     } = this.state;
 
     return (
@@ -317,15 +299,6 @@ class TaskForm extends Component {
           <button type="button" onClick={this.submit} className="taskForm__button">
             {title}
           </button>
-          {confirmVisible && (
-            <Confirm
-              type={confirmType}
-              closeConfirm={this.closeConfirm}
-              title={confirmTitle}
-              description={confirmDescription}
-              confirm={confirm}
-            />
-          )}
         </div>
       </div>
     );

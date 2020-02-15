@@ -1,30 +1,26 @@
 import React, { PureComponent } from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 
+import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as projectActions from '../store/project/actions';
 import * as resourceActions from '../store/resource/actions';
-import Confirm from './Confirm';
+import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
-import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-  ask,
-  destroy,
-} from '../utils/Text';
+import { ask, destroy } from '../utils/Text';
 
 const mapStateToProps = (state) => {
   const { resourceForm } = state;
   return {
     resourceID: resourceForm.id,
+    errors: resourceForm.errors,
   };
 };
 
-
 const mapDispatchToProps = (dispatch) => {
   const { getAllProjects } = projectActions;
+  const { openConfirm } = confirmActions;
   const {
     closeResourceForm, createResource, deleteResource, updateResource,
   } = resourceActions;
@@ -35,6 +31,7 @@ const mapDispatchToProps = (dispatch) => {
     createResource: (params) => dispatch(createResource(params)),
     deleteResource: (resourceID) => dispatch(deleteResource(resourceID)),
     updateResource: (resourceID, params) => dispatch(updateResource(resourceID, params)),
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
   };
 };
 
@@ -48,17 +45,11 @@ class ResourceForm extends PureComponent {
       name: '',
       colors: [],
       pickedColor: '',
-      errors: [],
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
     };
   }
 
-  async componentDidMount() {
-    this.token = await localStorage.getItem('token');
+  componentDidMount() {
+    this.token = localStorage.getItem('token');
     this.getIndexColors();
     if (this.action === 'edit') {
       this.editResourceFormValue();
@@ -67,37 +58,33 @@ class ResourceForm extends PureComponent {
 
   getIndexColors = async () => {
     const url = Utils.buildRequestUrl('/colors');
-    const response = await fetch(url, {
-      method: 'GET',
+    const response = await axios.get(url, {
       headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+    }).catch((error) => error.response);
 
-    const { is_authenticated, colors } = await response.json();
-    if (is_authenticated) {
-      this.setState({ colors });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      const { openConfirm } = this.props;
+      openConfirm(INTERNAL_SERVER_ERROR);
+      return;
     }
+    const { colors } = response.data;
+    this.setState({ colors });
   }
 
   editResourceFormValue = async () => {
     const { resourceID } = this.props;
     const url = Utils.buildRequestUrl(`/resources/${resourceID}/edit`);
-    const response = await fetch(url, {
-      method: 'GET',
+    const response = await axios.get(url, {
       headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+    }).catch((error) => error.response);
 
-    const { is_authenticated, resource } = await response.json();
-    if (is_authenticated) {
-      this.setState({ name: resource.name, pickedColor: String(resource.color_id) });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      const { openConfirm } = this.props;
+      openConfirm(INTERNAL_SERVER_ERROR);
+      return;
     }
+    const { resource } = response.data;
+    this.setState({ name: resource.name, pickedColor: String(resource.color_id) });
   }
 
   handleCreate = () => {
@@ -108,8 +95,14 @@ class ResourceForm extends PureComponent {
   }
 
   handleDestroy = () => {
-    const { resourceID, deleteResource } = this.props;
-    this.openConfirm('ask', `Project ${destroy}`, ask, () => deleteResource(resourceID));
+    const { deleteResource, resourceID, openConfirm } = this.props;
+    const confirmConfig = {
+      type: 'ask',
+      title: `Resource ${destroy}`,
+      description: ask,
+      confirm: () => deleteResource(resourceID),
+    };
+    openConfirm(confirmConfig);
   }
 
   handleUpdate = async () => {
@@ -119,18 +112,6 @@ class ResourceForm extends PureComponent {
     await updateResource(resourceID, params);
     getAllProjects();
   }
-
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onPickColor = (event) => {
     const pickedColor = event.target.dataset.color;
@@ -146,18 +127,8 @@ class ResourceForm extends PureComponent {
 
   render() {
     const title = this.action === 'new' ? 'Create Resource' : 'Update Resource';
-    const { closeResourceForm } = this.props;
-    const {
-      name,
-      colors,
-      pickedColor,
-      errors,
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
-    } = this.state;
+    const { closeResourceForm, errors } = this.props;
+    const { name, colors, pickedColor } = this.state;
 
     return (
       <div className="modalOverlay" onClick={closeResourceForm}>
@@ -188,15 +159,6 @@ class ResourceForm extends PureComponent {
             </button>
           )}
         </div>
-        {confirmVisible && (
-          <Confirm
-            type={confirmType}
-            closeConfirm={this.closeConfirm}
-            title={confirmTitle}
-            description={confirmDescription}
-            confirm={confirm}
-          />
-        )}
       </div>
     );
   }

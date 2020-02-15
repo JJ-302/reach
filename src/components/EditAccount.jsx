@@ -1,28 +1,32 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
+import axios from 'axios';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
+import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as accountActions from '../store/account/actions';
 import * as projectActions from '../store/project/actions';
+import * as confirmActions from '../store/confirm/actions';
 import ErrorMessage from './Error';
-import Confirm from './Confirm';
 import Utils from '../utils/Utils';
-import {
-  badRequest,
-  checkParams,
-  reload,
-  serverError,
-} from '../utils/Text';
-
 import '../css/Session.scss';
+
+const mapStateToProps = (state) => {
+  const { accountForm } = state;
+  return {
+    errors: accountForm.errors,
+  };
+};
 
 const mapDispatchToProps = (dispatch) => {
   const { closeAccountForm, updateAccount } = accountActions;
   const { getAllProjects } = projectActions;
+  const { openConfirm } = confirmActions;
   return {
     closeAccountForm: () => dispatch(closeAccountForm()),
     updateAccount: (params) => dispatch(updateAccount(params)),
     getAllProjects: () => dispatch(getAllProjects()),
+    openConfirm: (payload) => dispatch(openConfirm(payload)),
   };
 };
 
@@ -34,39 +38,27 @@ class EditAccuount extends Component {
       avatar: null,
       name: '',
       email: '',
-      errors: [],
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
     };
   }
 
   componentDidMount() {
-    this.token = localStorage.getItem('token');
     this.getCurrentAccount();
   }
 
   getCurrentAccount = async () => {
     const url = Utils.buildRequestUrl('/users/edit');
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: { 'X-Reach-token': this.token },
-    }).catch(() => {
-      this.openConfirm('error', serverError, reload, this.closeConfirm);
-    });
+    const token = localStorage.getItem('token');
+    const response = await axios.get(url, {
+      headers: { 'X-Reach-token': token },
+    }).catch((error) => error.response);
 
-    const { is_authenticated, user } = await response.json();
-    if (is_authenticated) {
-      const { avatar, name, email } = user;
-      this.avatar = avatar;
-      this.name = name;
-      this.email = email;
-      this.setState({ uri: avatar, name, email });
-    } else {
-      this.openConfirm('error', badRequest, checkParams, this.closeConfirm);
+    if (response.status !== 200) {
+      const { openConfirm } = this.props;
+      openConfirm(INTERNAL_SERVER_ERROR);
+      return;
     }
+    const { avatar, name, email } = response.data.user;
+    this.setState({ uri: avatar, name, email });
   }
 
   handleUpdate = async () => {
@@ -99,37 +91,15 @@ class EditAccuount extends Component {
     this.setState({ email });
   }
 
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
-
   onClickOverlay = (event) => event.stopPropagation()
 
   render() {
-    const { closeAccountForm } = this.props;
-    const {
-      uri,
-      name,
-      email,
-      errors,
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
-    } = this.state;
+    const { closeAccountForm, errors } = this.props;
+    const { uri, name, email } = this.state;
 
     return (
       <div className="background--edit" onClick={closeAccountForm}>
-        <div className="session" onClick={this.onClickOverlay}>
+        <div className="session--edit" onClick={this.onClickOverlay}>
           <div className="session__title">Edit account</div>
           {errors.length !== 0 && <ErrorMessage action="Registration" errors={errors} />}
           <label htmlFor="avatarForm" className="session__avatar">
@@ -162,18 +132,9 @@ class EditAccuount extends Component {
             Update
           </button>
         </div>
-        {confirmVisible && (
-          <Confirm
-            type={confirmType}
-            closeConfirm={this.closeConfirm}
-            title={confirmTitle}
-            description={confirmDescription}
-            confirm={confirm}
-          />
-        )}
       </div>
     );
   }
 }
 
-export default connect(null, mapDispatchToProps)(EditAccuount);
+export default connect(mapStateToProps, mapDispatchToProps)(EditAccuount);

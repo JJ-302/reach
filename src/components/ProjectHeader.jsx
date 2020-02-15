@@ -5,7 +5,6 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import * as projectActions from '../store/project/actions';
 import * as accountActions from '../store/account/actions';
-import Confirm from './Confirm';
 
 const notExist = -1;
 
@@ -53,11 +52,6 @@ class ProjectHeader extends Component {
       orderExtend: '',
       inCharge: [],
       selectedResources: [],
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
     };
   }
 
@@ -141,18 +135,6 @@ class ProjectHeader extends Component {
         return {};
     }
   }
-
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
 
   onClickResource = () => {
     const { searchByResourceVisible } = this.state;
@@ -373,11 +355,6 @@ class ProjectHeader extends Component {
       orderDuration,
       inCharge,
       selectedResources,
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
     } = this.state;
 
     const resourceIconClass = selectedResources.length === 0 ? 'resourceIcon' : 'resourceIcon--selected';
@@ -494,15 +471,6 @@ class ProjectHeader extends Component {
           <div className="overlay" onClick={this.closeAllModal}>
             <SearchByUsers inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
           </div>
-        )}
-        {confirmVisible && (
-          <Confirm
-            type={confirmType}
-            closeConfirm={this.closeConfirm}
-            title={confirmTitle}
-            description={confirmDescription}
-            confirm={confirm}
-          />
         )}
       </div>
     );

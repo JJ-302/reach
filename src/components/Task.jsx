@@ -1,10 +1,9 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import * as taskActions from '../store/task/actions';
 import * as projectActions from '../store/project/actions';
-import Confirm from './Confirm';
 import '../css/Task.scss';
 
 const mapStateToProps = (state) => {
@@ -35,90 +34,48 @@ const Avatars = ({ members }) => (
   })
 );
 
-class Task extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      confirmVisible: false,
-      confirmType: '',
-      confirmTitle: '',
-      confirmDescription: '',
-      confirm: () => {},
-    };
-  }
-
-  handleDestroy = (event) => {
+const Task = (props) => {
+  const { tasks, deleteButtonVisible } = props;
+  const handleDestroy = (event) => {
     event.stopPropagation();
     const { id } = event.currentTarget.dataset;
-    const { deleteTask } = this.props;
+    const { deleteTask } = props;
     deleteTask(id);
-  }
+  };
 
-  onClick = (event) => {
-    const { openTaskForm } = this.props;
+  const onClick = (event) => {
+    const { openTaskForm } = props;
     const { id } = event.currentTarget.dataset;
     openTaskForm({ taskID: id });
-  }
+  };
 
-  openConfirm = (type, title, description, confirm) => {
-    this.setState({
-      confirmVisible: true,
-      confirmType: type,
-      confirmTitle: title,
-      confirmDescription: description,
-      confirm,
-    });
-  }
-
-  closeConfirm = () => this.setState({ confirmVisible: false })
-
-  render() {
-    const { tasks, deleteButtonVisible } = this.props;
-    const {
-      confirmVisible,
-      confirmType,
-      confirmTitle,
-      confirmDescription,
-      confirm,
-    } = this.state;
-
-    return (
-      tasks.map((task) => {
-        const className = task.percentComplete === 'progress' ? 'task' : 'task--complete';
-        return (
-          <div key={task.id} data-id={task.id} className={className} onClick={this.onClick}>
-            <div className="task__icon">
-              {deleteButtonVisible ? (
-                <FontAwesomeIcon
-                  data-id={task.id}
-                  icon={['fas', 'minus-circle']}
-                  className="task__delete"
-                  onClick={this.handleDestroy}
-                />
-              ) : <div className="task__resource" style={{ backgroundColor: task.resource.color }} />}
-            </div>
-            <div className="task__name">{task.name}</div>
-            <div className="task__startDate">{task.startDate}</div>
-            <div className="task__endDate">{task.endDate}</div>
-            <div className="task__extend">{task.extend}</div>
-            <div className="task__duration">{task.duration}</div>
-            <div className="task__inCharge">
-              <Avatars members={task.users} />
-            </div>
-            {confirmVisible && (
-              <Confirm
-                type={confirmType}
-                closeConfirm={this.closeConfirm}
-                title={confirmTitle}
-                description={confirmDescription}
-                confirm={confirm}
+  return (
+    tasks.map((task) => {
+      const className = task.percentComplete === 'progress' ? 'task' : 'task--complete';
+      return (
+        <div key={task.id} data-id={task.id} className={className} onClick={onClick}>
+          <div className="task__icon">
+            {deleteButtonVisible ? (
+              <FontAwesomeIcon
+                data-id={task.id}
+                icon={['fas', 'minus-circle']}
+                className="task__delete"
+                onClick={handleDestroy}
               />
-            )}
+            ) : <div className="task__resource" style={{ backgroundColor: task.resource.color }} />}
           </div>
-        );
-      })
-    );
-  }
-}
+          <div className="task__name">{task.name}</div>
+          <div className="task__startDate">{task.startDate}</div>
+          <div className="task__endDate">{task.endDate}</div>
+          <div className="task__extend">{task.extend}</div>
+          <div className="task__duration">{task.duration}</div>
+          <div className="task__inCharge">
+            <Avatars members={task.users} />
+          </div>
+        </div>
+      );
+    })
+  );
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(Task);
