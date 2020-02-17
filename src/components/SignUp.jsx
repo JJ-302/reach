@@ -28,7 +28,7 @@ class SignUp extends Component {
       password: '',
       passwordConfirmation: '',
       errors: [],
-      isSignIn: false,
+      isSignUp: false,
     };
   }
 
@@ -58,10 +58,9 @@ class SignUp extends Component {
       return;
     }
 
-    const { is_created, errors, token } = response.data;
+    const { is_created, errors } = response.data;
     if (is_created) {
-      localStorage.setItem('token', token);
-      this.setState({ isSignIn: true });
+      this.setState({ isSignUp: true });
     } else {
       this.setState({ errors });
     }
@@ -101,11 +100,11 @@ class SignUp extends Component {
       password,
       passwordConfirmation,
       errors,
-      isSignIn,
+      isSignUp,
     } = this.state;
 
     return (
-      isSignIn ? <Redirect to="/reach" /> : (
+      isSignUp ? <Redirect to="/reach/signin" /> : (
         <div className="background">
           <div className="session">
             <div className="session__title">Create account</div>
