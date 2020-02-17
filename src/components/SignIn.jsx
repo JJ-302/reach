@@ -5,15 +5,26 @@ import axios from 'axios';
 
 import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as confirmActions from '../store/confirm/actions';
+import * as verificationFormActions from '../store/verification/actions';
+import VerificationForm from './VerificationForm';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
 
 import '../css/Session.scss';
 
+const mapStateToProps = (state) => {
+  const { verificationForm } = state;
+  return {
+    verificationFormVisible: verificationForm.visible,
+  };
+};
+
 const mapDispatchToProps = (dispatch) => {
   const { openConfirm } = confirmActions;
+  const { openVerificationForm } = verificationFormActions;
   return {
     openConfirm: (payload) => dispatch(openConfirm(payload)),
+    openVerificationForm: () => dispatch(openVerificationForm()),
   };
 };
 
@@ -62,6 +73,7 @@ class SignIn extends Component {
   }
 
   render() {
+    const { verificationFormVisible, openVerificationForm } = this.props;
     const {
       email, password, isSignIn, errors,
     } = this.state;
@@ -90,11 +102,13 @@ class SignIn extends Component {
               Sign In
             </button>
             <Link to="/reach/signup" className="session__switch">Create account</Link>
+            <div className="session__openVerification" onClick={openVerificationForm}>Account verification</div>
           </div>
+          {verificationFormVisible && <VerificationForm />}
         </div>
       )
     );
   }
 }
 
-export default connect(null, mapDispatchToProps)(SignIn);
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn);

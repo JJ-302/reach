@@ -13,6 +13,7 @@ import { taskFormReducer, taskReducer } from './task/reducers';
 import scheduleReducer from './schedule/reducers';
 import confirmReducer from './confirm/reducers';
 import { attachmentFormReducer, attachmentReducer } from './attachment/reducers';
+import verificationFormReducer from './verification/reducers';
 
 const rootReducer = combineReducers({
   resourceForm: resourceFormReducer,
@@ -27,6 +28,7 @@ const rootReducer = combineReducers({
   confirm: confirmReducer,
   attachmentForm: attachmentFormReducer,
   attachment: attachmentReducer,
+  verificationForm: verificationFormReducer,
 });
 
 /* eslint-disable no-underscore-dangle */
