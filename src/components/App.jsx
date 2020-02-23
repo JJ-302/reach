@@ -11,11 +11,13 @@ import Main from './Main';
 import SignIn from './SignIn';
 import SignUp from './SignUp';
 import Confirm from './Confirm';
+import Loading from './Loading';
 
 const mapStateToProps = (state) => {
-  const { confirm } = state;
+  const { confirm, loading } = state;
   return {
     confirmVisible: confirm.visible,
+    isLoading: loading.isLoading,
   };
 };
 
@@ -36,7 +38,7 @@ class Home extends Component {
 }
 
 const App = (props) => {
-  const { confirmVisible } = props;
+  const { confirmVisible, isLoading } = props;
   return (
     <>
       <BrowserRouter>
@@ -48,6 +50,7 @@ const App = (props) => {
         </Switch>
       </BrowserRouter>
       {confirmVisible && <Confirm />}
+      {isLoading && <Loading />}
     </>
   );
 };

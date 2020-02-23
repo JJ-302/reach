@@ -6,14 +6,18 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as confirmActions from '../store/confirm/actions';
+import * as loadingActions from '../store/loading/actions';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
 import '../css/Session.scss';
 
 const mapDispatchToProps = (dispatch) => {
   const { openConfirm } = confirmActions;
+  const { loadStart, loadEnd } = loadingActions;
   return {
     openConfirm: (payload) => dispatch(openConfirm(payload)),
+    loadStart: () => dispatch(loadStart()),
+    loadEnd: () => dispatch(loadEnd()),
   };
 };
 
@@ -33,6 +37,8 @@ class SignUp extends Component {
   }
 
   handleSignUp = async () => {
+    const { loadStart, loadEnd } = this.props;
+    loadStart();
     const {
       avatar,
       name,
@@ -55,6 +61,7 @@ class SignUp extends Component {
     if (response.status !== 200) {
       const { openConfirm } = this.props;
       openConfirm(INTERNAL_SERVER_ERROR);
+      loadEnd();
       return;
     }
 
@@ -64,6 +71,7 @@ class SignUp extends Component {
     } else {
       this.setState({ errors });
     }
+    loadEnd();
   }
 
   onChangeFile = (event) => {

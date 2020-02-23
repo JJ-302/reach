@@ -1,0 +1,21 @@
+@import './variables';
+
+.loadingOverlay {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: fixed;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  background: $overlayWhite;
+  z-index: 10;
+}
+
+.loadingIcon {
+  font-size: 40px;
+  color: $indigo;
+}

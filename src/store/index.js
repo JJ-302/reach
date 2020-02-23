@@ -14,6 +14,7 @@ import scheduleReducer from './schedule/reducers';
 import confirmReducer from './confirm/reducers';
 import { attachmentFormReducer, attachmentReducer } from './attachment/reducers';
 import verificationFormReducer from './verification/reducers';
+import loadingReducer from './loading/reducers';
 
 const rootReducer = combineReducers({
   resourceForm: resourceFormReducer,
@@ -29,6 +30,7 @@ const rootReducer = combineReducers({
   attachmentForm: attachmentFormReducer,
   attachment: attachmentReducer,
   verificationForm: verificationFormReducer,
+  loading: loadingReducer,
 });
 
 /* eslint-disable no-underscore-dangle */
