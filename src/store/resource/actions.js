@@ -2,6 +2,7 @@ import axios from 'axios';
 import Utils from '../../utils/Utils';
 import { OPEN_CONFIRM } from '../confirm/actions';
 import { INTERNAL_SERVER_ERROR } from '../confirm/types';
+import { failToDestroy } from '../../utils/Text';
 
 export const OPEN_RESOURCE_FORM = 'OPEN_RESOURCE_FORM';
 export const CLOSE_RESOURCE_FORM = 'CLOSE_RESOURCE_FORM';
@@ -65,9 +66,12 @@ export const deleteResource = (id) => async (dispatch) => {
     dispatch({ type: OPEN_CONFIRM, payload: INTERNAL_SERVER_ERROR });
     return;
   }
-  const { is_delete } = response.data;
+  const { is_delete, errors } = response.data;
   if (is_delete) {
     dispatch({ type: DELETE_RESOURCE, id });
+  } else {
+    const payload = { type: 'error', title: failToDestroy, description: errors[0].error };
+    dispatch({ type: OPEN_CONFIRM, payload });
   }
 };
 

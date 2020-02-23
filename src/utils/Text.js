@@ -11,3 +11,5 @@ export const updated = 'Updated!';
 export const ask = 'Are you sure?';
 
 export const destroy = 'Destroy';
+
+export const failToDestroy = 'Fail to destroy!';
