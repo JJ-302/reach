@@ -63,7 +63,11 @@ export const projectReducer = (state = initialProjectState, action) => {
       const targetProject = state.projects.filter((project) => (
         project.id === action.task.projectID
       ));
-      targetProject[0].tasks = [...targetProject[0].tasks, action.task];
+      if (targetProject[0].tasks === undefined) {
+        targetProject[0].tasks = [action.task];
+      } else {
+        targetProject[0].tasks = [...targetProject[0].tasks, action.task];
+      }
       return {
         ...state,
         projects: state.projects.map((project) => (
