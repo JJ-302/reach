@@ -3,13 +3,16 @@
   "plugins": [
     "react",
     "jsx-a11y",
-    "import"
+    "import",
+    "react-hooks"
   ],
   "rules": {
     "react/prop-types": 0,
     "jsx-a11y/click-events-have-key-events": 0,
     "jsx-a11y/no-static-element-interactions": 0,
-    "camelcase": 0
+    "camelcase": 0,
+    "react-hooks/rules-of-hooks": "error",
+    "react-hooks/exhaustive-deps": "warn"
   },
   "globals": {
     "document": false,
