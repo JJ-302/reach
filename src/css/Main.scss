@@ -185,28 +185,30 @@
 
 .selected {
   display: flex;
+  justify-content: center;
   align-items: center;
-  background-color: $indigo;
-  color: $white;
-  padding: 2px 5px;
-  border-radius: 15px;
-  width: fit-content;
+  color: $pink;
+  &--title {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    color: $pink;
+  }
   &__label {
     cursor: pointer;
-    font-size: 12px;
     &:hover {
-      color: $grey;
+      color: $indigo;
     }
   }
   &__clear {
     font-size: 16px;
-    margin-left: 10px;
+    margin-left: 5px;
     margin-bottom: 2px;
-    color: $white;
+    color: $pink;
     font-weight: bold;
     cursor: pointer;
     &:hover {
-      color: $pink;
+      color: $indigo;
     }
   }
 }

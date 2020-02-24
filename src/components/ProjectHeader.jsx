@@ -371,7 +371,7 @@ class ProjectHeader extends Component {
           {projectId === '' && taskName === ''
             ? <span className="gantt-index-header__label" onClick={this.onClickName}>タイトル</span>
             : (
-              <div className="selected">
+              <div className="selected--title">
                 <span className="selected__label" onClick={this.onClickName}>タイトル</span>
                 <span className="selected__clear" onClick={this.clearSearchName}>×</span>
               </div>
