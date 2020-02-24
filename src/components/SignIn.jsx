@@ -6,6 +6,7 @@ import axios from 'axios';
 import { INTERNAL_SERVER_ERROR } from '../store/confirm/types';
 import * as confirmActions from '../store/confirm/actions';
 import * as verificationFormActions from '../store/verification/actions';
+import * as loadingActions from '../store/loading/actions';
 import VerificationForm from './VerificationForm';
 import ErrorMessage from './Error';
 import Utils from '../utils/Utils';
@@ -22,9 +23,12 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => {
   const { openConfirm } = confirmActions;
   const { openVerificationForm } = verificationFormActions;
+  const { loadStart, loadEnd } = loadingActions;
   return {
     openConfirm: (payload) => dispatch(openConfirm(payload)),
     openVerificationForm: () => dispatch(openVerificationForm()),
+    loadStart: () => dispatch(loadStart()),
+    loadEnd: () => dispatch(loadEnd()),
   };
 };
 
@@ -40,6 +44,8 @@ class SignIn extends Component {
   }
 
   handleSignIn = async () => {
+    const { loadStart, loadEnd } = this.props;
+    loadStart();
     const { email, password } = this.state;
     const url = Utils.buildRequestUrl('/sessions');
     const params = { email, password };
@@ -50,6 +56,7 @@ class SignIn extends Component {
     if (response.status !== 200) {
       const { openConfirm } = this.props;
       openConfirm(INTERNAL_SERVER_ERROR);
+      loadEnd();
       return;
     }
 
@@ -60,6 +67,7 @@ class SignIn extends Component {
     } else {
       this.setState({ errors });
     }
+    loadEnd();
   }
 
   emailOnChange = (event) => {
