@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 
@@ -17,63 +17,52 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-class VerificationForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      email: '',
-      errors: [],
-    };
-  }
+const VerificationForm = (props) => {
+  const { closeVerificationForm, openConfirm } = props;
 
-  onChangeEmail = (event) => {
-    const email = event.target.value;
-    this.setState({ email });
-  }
+  const [email, setEmail] = useState('');
+  const [errors, addErrors] = useState([]);
 
-  onClickOverlay = (event) => event.stopPropagation()
+  const onChangeEmail = (event) => {
+    const { value } = event.target;
+    setEmail(value);
+  };
 
-  handleSubmit = async () => {
-    const { email } = this.state;
+  const onClickOverlay = (event) => event.stopPropagation();
+
+  const handleSubmit = async () => {
     const params = { email };
     const url = Utils.buildRequestUrl('/sessions/new');
     const response = await axios.get(url, { params }).catch((error) => error.response);
     if (response.status !== 200) {
-      const { openConfirm } = this.props;
       openConfirm(INTERNAL_SERVER_ERROR);
       return;
     }
 
-    const { result, errors } = response.data;
+    const { result } = response.data;
     if (result) {
-      const { openConfirm } = this.props;
       openConfirm(SENT_MESSAGE);
     } else {
-      this.setState({ errors });
+      addErrors(response.data.errors);
     }
-  }
+  };
 
-  render() {
-    const { email, errors } = this.state;
-    const { closeVerificationForm } = this.props;
-
-    return (
-      <div className="modalOverlay--verification" onClick={closeVerificationForm}>
-        <div className="modalForm" onClick={this.onClickOverlay}>
-          <div className="modalForm__title">Account verification</div>
-          {errors.length !== 0 && <ErrorMessage action="Resource creation" errors={errors} />}
-          <input
-            type="text"
-            className="modalForm__textInput"
-            placeholder="登録済みメールアドレスを入力"
-            value={email}
-            onChange={this.onChangeEmail}
-          />
-          <button type="button" onClick={this.handleSubmit} className="modalForm__button">Send</button>
-        </div>
+  return (
+    <div className="modalOverlay--verification" onClick={closeVerificationForm}>
+      <div className="modalForm" onClick={onClickOverlay}>
+        <div className="modalForm__title">Account verification</div>
+        {errors.length !== 0 && <ErrorMessage action="Resource creation" errors={errors} />}
+        <input
+          type="text"
+          className="modalForm__textInput"
+          placeholder="登録済みメールアドレスを入力"
+          value={email}
+          onChange={onChangeEmail}
+        />
+        <button type="button" onClick={handleSubmit} className="modalForm__button">Send</button>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default connect(null, mapDispatchToProps)(VerificationForm);

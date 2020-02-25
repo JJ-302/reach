@@ -1,42 +1,51 @@
-import React, { PureComponent } from 'react';
+import React, { useReducer } from 'react';
 
 import '../css/ChartBar.scss';
 
-export default class ChartBar extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      isHover: false,
-      offsetX: 0,
-      offsetY: 0,
-    };
-  }
+const MOUSE_ENTER = 'MOUSE_ENTER';
+const MOUSE_LEAVE = 'MOUSE_LEAVE';
 
-  onMouseEnter = (event) => {
-    const isOverflowX = window.innerWidth < (event.clientX + 300);
-    const isOverflowY = window.innerHeight < (event.clientY + 300);
-    const offsetX = isOverflowX ? event.clientX - 230 : event.clientX;
-    const offsetY = isOverflowY ? event.clientY - 150 : event.clientY;
-    this.setState({ isHover: true, offsetX, offsetY });
-  }
+const initialChatBarState = { isHover: false, offsetX: 0, offsetY: 0 };
 
-  onMouseLeave = () => this.setState({ isHover: false })
-
-  render() {
-    const { chartWidth, data } = this.props;
-    const { isHover, offsetX, offsetY } = this.state;
-    return (
-      <div
-        style={{ width: chartWidth, backgroundColor: data.resource.color }}
-        className="chartbar"
-        onMouseEnter={this.onMouseEnter}
-        onMouseLeave={this.onMouseLeave}
-      >
-        {isHover && <Window data={data} offsetX={offsetX} offsetY={offsetY} />}
-      </div>
-    );
+const chartBarReducer = (state, action) => {
+  switch (action.type) {
+    case MOUSE_ENTER: {
+      const { clientX, clientY } = action.payload;
+      const isOverflowX = window.innerWidth < (clientX + 300);
+      const isOverflowY = window.innerHeight < (clientY + 300);
+      const offsetX = isOverflowX ? clientX - 230 : clientX;
+      const offsetY = isOverflowY ? clientY - 150 : clientY;
+      return { isHover: true, offsetX, offsetY };
+    }
+    case MOUSE_LEAVE:
+      return { ...state, isHover: false };
+    default:
+      return state;
   }
-}
+};
+
+const ChartBar = (props) => {
+  const { chartWidth, data } = props;
+  const [state, dispatch] = useReducer(chartBarReducer, initialChatBarState);
+  const { isHover, offsetX, offsetY } = state;
+
+  const onMouseEnter = (event) => {
+    dispatch({ type: MOUSE_ENTER, payload: { clientX: event.clientX, clientY: event.clientY } });
+  };
+
+  const onMouseLeave = () => dispatch({ type: MOUSE_LEAVE });
+
+  return (
+    <div
+      style={{ width: chartWidth, backgroundColor: data.resource.color }}
+      className="chartbar"
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
+    >
+      {isHover && <Window data={data} offsetX={offsetX} offsetY={offsetY} />}
+    </div>
+  );
+};
 
 const Members = ({ users }) => (
   users.map((user) => <div key={user.name} className="windowMembers__name">{user.name}</div>)
@@ -80,3 +89,5 @@ const Window = ({ data, offsetX, offsetY }) => (
     </div>
   </div>
 );
+
+export default ChartBar;

@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -29,100 +29,97 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-class AttachmentForm extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      name: '',
-      link: '',
-    };
-  }
+const AttachmentForm = (props) => {
+  const {
+    closeAttachmentForm,
+    attachments,
+    errors,
+    getAllAttachment,
+    createAttachment,
+    deleteAttachment,
+    projectID,
+  } = props;
 
-  componentDidMount() {
-    const { projectID, getAllAttachment } = this.props;
+  const [name, setName] = useState('');
+  const [link, setURL] = useState('');
+
+  useEffect(() => {
     getAllAttachment(projectID);
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  handleCreate = () => {
-    const { name, link } = this.state;
-    const { projectID, createAttachment } = this.props;
+  const handleCreate = () => {
     const params = { name, url: link };
     createAttachment(params, projectID);
-  }
+  };
 
-  handleDestroy = async (event) => {
+  const handleDestroy = async (event) => {
     const { id } = event.currentTarget.dataset;
-    const { deleteAttachment } = this.props;
     deleteAttachment(id);
-  }
+  };
 
-  onChangeName = (event) => {
-    const name = event.target.value;
-    this.setState({ name });
-  }
+  const onChangeName = (event) => {
+    const { value } = event.target;
+    setName(value);
+  };
 
-  onChangeUrl = (event) => {
-    const link = event.target.value;
-    this.setState({ link });
-  }
+  const onChangeUrl = (event) => {
+    const { value } = event.target;
+    setURL(value);
+  };
 
-  stopPropagation = (event) => event.stopPropagation()
+  const stopPropagation = (event) => event.stopPropagation();
 
-  render() {
-    const { closeAttachmentForm, attachments, errors } = this.props;
-    const { name, link } = this.state;
-
-    return (
-      <div className="modalOverlay" onClick={closeAttachmentForm}>
-        <div className="modalForm" onClick={this.stopPropagation}>
-          <div className="modalForm__title">Attachments</div>
-          {errors.length !== 0 && <ErrorMessage action="Add link" errors={errors} />}
-          <div className="modalFormUrl">
-            <input
-              type="text"
-              className="modalFormUrl__name"
-              placeholder="Label"
-              value={name}
-              onChange={this.onChangeName}
-            />
-            <input
-              type="text"
-              className="modalFormUrl__url"
-              placeholder="URL"
-              value={link}
-              onChange={this.onChangeUrl}
-            />
-            <FontAwesomeIcon
-              icon={['fas', 'plus-circle']}
-              className="modalFormUrl__add"
-              onClick={this.handleCreate}
-            />
-          </div>
-          <div className="urlIndex">
-            {attachments.map((attachment) => (
-              <div className="urlList" key={attachment.id}>
-                <FontAwesomeIcon icon={['fas', 'link']} className="urlList__icon" />
-                <a
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  href={attachment.url}
-                  className="urlList__link"
-                >
-                  {attachment.name}
-                </a>
-                <FontAwesomeIcon
-                  icon={['fas', 'trash-alt']}
-                  className="urlList__delete"
-                  data-id={attachment.id}
-                  onClick={this.handleDestroy}
-                />
-              </div>
-            ))}
-          </div>
+  return (
+    <div className="modalOverlay" onClick={closeAttachmentForm}>
+      <div className="modalForm" onClick={stopPropagation}>
+        <div className="modalForm__title">Attachments</div>
+        {errors.length !== 0 && <ErrorMessage action="Add link" errors={errors} />}
+        <div className="modalFormUrl">
+          <input
+            type="text"
+            className="modalFormUrl__name"
+            placeholder="Label"
+            value={name}
+            onChange={onChangeName}
+          />
+          <input
+            type="text"
+            className="modalFormUrl__url"
+            placeholder="URL"
+            value={link}
+            onChange={onChangeUrl}
+          />
+          <FontAwesomeIcon
+            icon={['fas', 'plus-circle']}
+            className="modalFormUrl__add"
+            onClick={handleCreate}
+          />
+        </div>
+        <div className="urlIndex">
+          {attachments.map((attachment) => (
+            <div className="urlList" key={attachment.id}>
+              <FontAwesomeIcon icon={['fas', 'link']} className="urlList__icon" />
+              <a
+                target="_blank"
+                rel="noopener noreferrer"
+                href={attachment.url}
+                className="urlList__link"
+              >
+                {attachment.name}
+              </a>
+              <FontAwesomeIcon
+                icon={['fas', 'trash-alt']}
+                className="urlList__delete"
+                data-id={attachment.id}
+                onClick={handleDestroy}
+              />
+            </div>
+          ))}
         </div>
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(AttachmentForm);

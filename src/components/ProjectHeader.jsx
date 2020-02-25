@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import { connect } from 'react-redux';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -28,57 +28,257 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-class ProjectHeader extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      searchByNameVisible: false,
-      searchByDateVisible: false,
-      searchByDurationVisible: false,
-      searchByUsersVisible: false,
-      searchByResourceVisible: false,
-      dateType: '',
-      projectId: '',
-      taskName: '',
-      startDateFrom: '',
-      startDateTo: '',
-      endDateFrom: '',
-      endDateTo: '',
-      extendFrom: '',
-      extendTo: '',
-      orderDuration: '',
-      orderStartDate: '',
-      orderEndDate: '',
-      orderExtend: '',
-      inCharge: [],
-      selectedResources: [],
-    };
-  }
+const ON_CLICK_RESOURCE = 'ON_CLICK_RESOURCE';
+const ON_CLICK_NAME = 'ON_CLICK_NAME';
+const ON_CLICK_START_DATE = 'ON_CLICK_START_DATE';
+const ON_CLICK_END_DATE = 'ON_CLICK_END_DATE';
+const ON_CLICK_EXTEND = 'ON_CLICK_EXTEND';
+const ON_CLICK_DURATION = 'ON_CLICK_DURATION';
+const ON_CLICK_IN_CHARGE = 'ON_CLICK_IN_CHARGE';
+const ON_CHANGE_PROJECT = 'ON_CHANGE_PROJECT';
+const ON_CHANGE_TASK_NAME = 'ON_CHANGE_TASK_NAME';
+const ON_CHANGE_START_DATE_FROM = 'ON_CHANGE_START_DATE_FROM';
+const ON_CHANGE_START_DATE_TO = 'ON_CHANGE_START_DATE_TO';
+const ON_CHANGE_END_DATE_FROM = 'ON_CHANGE_END_DATE_FROM';
+const ON_CHANGE_END_DATE_TO = 'ON_CHANGE_END_DATE_TO';
+const ON_CHANGE_EXTEND_FROM = 'ON_CHANGE_EXTEND_FROM';
+const ON_CHANGE_EXTEND_TO = 'ON_CHANGE_EXTEND_TO';
+const SELECT_AVATAR = 'SELECT_AVATAR';
+const SELECT_RESOURCE = 'SELECT_RESOURCE';
+const CLEAR_NAME = 'CLEAR_NAME';
+const CLEAR_START_DATE = 'CLEAR_START_DATE';
+const CLEAR_END_DATE = 'CLEAR_END_DATE';
+const CLEAR_EXTEND = 'CLEAR_EXTEND';
+const CLEAR_DURATION = 'CLEAR_DURATION';
+const CLEAR_IN_CHARGE = 'CLEAR_IN_CHARGE';
+const ORDER_BY_START_DATE = 'ORDER_BY_START_DATE';
+const ORDER_BY_END_DATE = 'ORDER_BY_END_DATE';
+const ORDER_BY_EXTEND = 'ORDER_BY_EXTEND';
+const ORDER_BY_DURATION = 'ORDER_BY_DURATION';
 
-  componentDidMount() {
-    const { getAllAccount } = this.props;
+const initialProjectHeaderState = {
+  searchByResourceVisible: false,
+  searchByNameVisible: false,
+  searchByStartDateVisible: false,
+  searchByEndDateVisible: false,
+  searchByExtendVisible: false,
+  searchByDurationVisible: false,
+  searchByUsersVisible: false,
+  projectId: '',
+  taskName: '',
+  startDateFrom: '',
+  startDateTo: '',
+  endDateFrom: '',
+  endDateTo: '',
+  extendFrom: '',
+  extendTo: '',
+  inCharge: [],
+  selectedResources: [],
+  orderStartDate: '',
+  orderEndDate: '',
+  orderExtend: '',
+  orderDuration: '',
+};
+
+const projectHeaderReducer = (state, action) => {
+  switch (action.type) {
+    case ON_CLICK_RESOURCE:
+      return {
+        ...state,
+        searchByResourceVisible: !state.searchByResourceVisible,
+      };
+    case ON_CLICK_NAME:
+      return {
+        ...state,
+        searchByNameVisible: !state.searchByNameVisible,
+      };
+    case ON_CLICK_START_DATE:
+      return {
+        ...state,
+        searchByStartDateVisible: !state.searchByStartDateVisible,
+      };
+    case ON_CLICK_END_DATE:
+      return {
+        ...state,
+        searchByEndDateVisible: !state.searchByEndDateVisible,
+      };
+    case ON_CLICK_EXTEND:
+      return {
+        ...state,
+        searchByExtendVisible: !state.searchByExtendVisible,
+      };
+    case ON_CLICK_DURATION:
+      return {
+        ...state,
+        searchByDurationVisible: !state.searchByDurationVisible,
+      };
+    case ON_CLICK_IN_CHARGE:
+      return {
+        ...state,
+        searchByUsersVisible: !state.searchByUsersVisible,
+      };
+    case ON_CHANGE_PROJECT:
+      return {
+        ...state,
+        projectId: action.value,
+      };
+    case ON_CHANGE_TASK_NAME:
+      return {
+        ...state,
+        taskName: action.value,
+      };
+    case ON_CHANGE_START_DATE_FROM:
+      return {
+        ...state,
+        startDateFrom: action.value,
+      };
+    case ON_CHANGE_START_DATE_TO:
+      return {
+        ...state,
+        startDateTo: action.value,
+      };
+    case ON_CHANGE_END_DATE_FROM:
+      return {
+        ...state,
+        endDateFrom: action.value,
+      };
+    case ON_CHANGE_END_DATE_TO:
+      return {
+        ...state,
+        endDateTo: action.value,
+      };
+    case ON_CHANGE_EXTEND_FROM:
+      return {
+        ...state,
+        extendFrom: action.value,
+      };
+    case ON_CHANGE_EXTEND_TO:
+      return {
+        ...state,
+        extendTo: action.value,
+      };
+    case SELECT_AVATAR:
+      return {
+        ...state,
+        inCharge: action.value,
+      };
+    case SELECT_RESOURCE:
+      return {
+        ...state,
+        selectedResources: action.value,
+      };
+    case CLEAR_NAME:
+      return {
+        ...state,
+        taskName: '',
+        projectId: '',
+      };
+    case CLEAR_START_DATE:
+      return {
+        ...state,
+        startDateFrom: '',
+        startDateTo: '',
+        orderStartDate: '',
+      };
+    case CLEAR_END_DATE:
+      return {
+        ...state,
+        endDateFrom: '',
+        endDateTo: '',
+        orderEndDate: '',
+      };
+    case CLEAR_EXTEND:
+      return {
+        ...state,
+        extendFrom: '',
+        extendTo: '',
+        orderExtend: '',
+      };
+    case CLEAR_DURATION:
+      return {
+        ...state,
+        orderDuration: '',
+      };
+    case CLEAR_IN_CHARGE:
+      return {
+        ...state,
+        inCharge: [],
+      };
+    case ORDER_BY_START_DATE:
+      return {
+        ...state,
+        orderStartDate: action.value,
+        orderEndDate: '',
+        orderExtend: '',
+        orderDuration: '',
+      };
+    case ORDER_BY_END_DATE:
+      return {
+        ...state,
+        orderStartDate: '',
+        orderEndDate: action.value,
+        orderExtend: '',
+        orderDuration: '',
+      };
+    case ORDER_BY_EXTEND:
+      return {
+        ...state,
+        orderStartDate: '',
+        orderEndDate: '',
+        orderExtend: action.value,
+        orderDuration: '',
+      };
+    case ORDER_BY_DURATION:
+      return {
+        ...state,
+        orderStartDate: '',
+        orderEndDate: '',
+        orderExtend: '',
+        orderDuration: action.value,
+      };
+    default:
+      return state;
+  }
+};
+
+const ProjectHeader = (props) => {
+  const {
+    getAllAccount,
+    searchProjects,
+  } = props;
+
+  const [state, dispatch] = useReducer(projectHeaderReducer, initialProjectHeaderState);
+  const {
+    searchByNameVisible,
+    searchByStartDateVisible,
+    searchByEndDateVisible,
+    searchByExtendVisible,
+    searchByDurationVisible,
+    searchByUsersVisible,
+    searchByResourceVisible,
+    projectId,
+    taskName,
+    startDateFrom,
+    startDateTo,
+    endDateFrom,
+    endDateTo,
+    extendFrom,
+    extendTo,
+    orderDuration,
+    orderStartDate,
+    orderEndDate,
+    orderExtend,
+    inCharge,
+    selectedResources,
+  } = state;
+
+  useEffect(() => {
     getAllAccount();
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  search = () => {
-    const {
-      projectId,
-      taskName,
-      startDateFrom,
-      startDateTo,
-      endDateFrom,
-      endDateTo,
-      extendFrom,
-      extendTo,
-      orderDuration,
-      orderStartDate,
-      orderEndDate,
-      orderExtend,
-      inCharge,
-      selectedResources,
-    } = this.state;
-
-    const params = {
+  useEffect(() => {
+    searchProjects({
       project_id: projectId,
       task_name: taskName,
       start_date: { from: startDateFrom, to: startDateTo, order: orderStartDate },
@@ -87,167 +287,76 @@ class ProjectHeader extends Component {
       duration: { order: orderDuration },
       in_charge: inCharge,
       resources: selectedResources,
-    };
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    projectId,
+    taskName,
+    startDateFrom,
+    startDateTo,
+    endDateFrom,
+    endDateTo,
+    extendFrom,
+    extendTo,
+    orderDuration,
+    orderStartDate,
+    orderEndDate,
+    orderExtend,
+    inCharge.length,
+    selectedResources.length,
+  ]);
 
-    const { searchProjects } = this.props;
-    searchProjects(params);
-  }
+  const onClickResource = () => {
+    dispatch({ type: ON_CLICK_RESOURCE });
+  };
 
-  sortingByDateRange = (type) => {
-    const {
-      startDateFrom,
-      startDateTo,
-      endDateFrom,
-      endDateTo,
-      extendFrom,
-      extendTo,
-      orderStartDate,
-      orderEndDate,
-      orderExtend,
-    } = this.state;
+  const onClickName = () => {
+    dispatch({ type: ON_CLICK_NAME });
+  };
 
-    switch (type) {
-      case 'start':
-        return {
-          rangeStart: startDateFrom,
-          rangeEnd: startDateTo,
-          onChangeRangeStart: this.onChangeStartDateRangeS,
-          onChangeRangeEnd: this.onChangeStartDateRangeE,
-          order: orderStartDate,
-        };
-      case 'end':
-        return {
-          rangeStart: endDateFrom,
-          rangeEnd: endDateTo,
-          onChangeRangeStart: this.onChangeEndDateRangeS,
-          onChangeRangeEnd: this.onChangeEndDateRangeE,
-          order: orderEndDate,
-        };
-      case 'extend':
-        return {
-          rangeStart: extendFrom,
-          rangeEnd: extendTo,
-          onChangeRangeStart: this.onChangeExtendRangeS,
-          onChangeRangeEnd: this.onChangeExtendRangeE,
-          order: orderExtend,
-        };
-      default:
-        return {};
-    }
-  }
+  const onClickStartDate = () => {
+    dispatch({ type: ON_CLICK_START_DATE });
+  };
 
-  onClickResource = () => {
-    const { searchByResourceVisible } = this.state;
-    this.setState({ searchByResourceVisible: !searchByResourceVisible });
-  }
+  const onClickEndDate = () => {
+    dispatch({ type: ON_CLICK_END_DATE });
+  };
 
-  onClickName = () => {
-    const { searchByNameVisible } = this.state;
-    this.setState({ searchByNameVisible: !searchByNameVisible });
-  }
+  const onClickExtend = () => {
+    dispatch({ type: ON_CLICK_EXTEND });
+  };
 
-  onClickDate = (event) => {
-    const { type } = event.currentTarget.dataset;
-    const { searchByDateVisible } = this.state;
-    this.setState({ searchByDateVisible: !searchByDateVisible, dateType: type });
-  }
+  const onClickDuration = () => {
+    dispatch({ type: ON_CLICK_DURATION });
+  };
 
-  onClickDuration = () => {
-    const { searchByDurationVisible } = this.state;
-    this.setState({ searchByDurationVisible: !searchByDurationVisible });
-  }
+  const onClickInCharge = () => {
+    dispatch({ type: ON_CLICK_IN_CHARGE });
+  };
 
-  onClickInCharge = () => {
-    const { searchByUsersVisible } = this.state;
-    this.setState({ searchByUsersVisible: !searchByUsersVisible });
-  }
+  const onChangeProject = (event) => {
+    const { value } = event.target;
+    dispatch({ type: ON_CHANGE_PROJECT, value });
+  };
 
-  onChangeOrder = async (event) => {
-    const { by } = event.currentTarget.dataset;
-    const order = event.target.value;
+  const onChangeTaskName = (event) => {
+    const { value } = event.target;
+    dispatch({ type: ON_CHANGE_TASK_NAME, value });
+  };
 
-    switch (by) {
-      case 'duration':
-        await this.setState({
-          orderDuration: order,
-          orderStartDate: '',
-          orderEndDate: '',
-          orderExtend: '',
-        });
-        break;
-      case 'start':
-        await this.setState({
-          orderDuration: '',
-          orderStartDate: order,
-          orderEndDate: '',
-          orderExtend: '',
-        });
-        break;
-      case 'end':
-        await this.setState({
-          orderDuration: '',
-          orderStartDate: '',
-          orderEndDate: order,
-          orderExtend: '',
-        });
-        break;
-      case 'extend':
-        await this.setState({
-          orderDuration: '',
-          orderStartDate: '',
-          orderEndDate: '',
-          orderExtend: order,
-        });
-        break;
-      default:
-    }
-    this.search();
-  }
+  const onChangeStartDateFrom = (value) => dispatch({ type: ON_CHANGE_START_DATE_FROM, value });
 
-  onChangeProject = async (event) => {
-    const projectId = event.target.value;
-    await this.setState({ projectId });
-    this.search();
-  }
+  const onChangeStartDateTo = (value) => dispatch({ type: ON_CHANGE_START_DATE_TO, value });
 
-  onChangeTask = async (event) => {
-    const taskName = event.target.value;
-    await this.setState({ taskName });
-    this.search();
-  }
+  const onChangeEndDateFrom = (value) => dispatch({ type: ON_CHANGE_END_DATE_FROM, value });
 
-  onChangeStartDateRangeS = async (startDateFrom) => {
-    await this.setState({ startDateFrom });
-    this.search();
-  }
+  const onChangeEndDateTo = (value) => dispatch({ type: ON_CHANGE_END_DATE_TO, value });
 
-  onChangeStartDateRangeE = async (startDateTo) => {
-    await this.setState({ startDateTo });
-    this.search();
-  }
+  const onChangeExtendFrom = (value) => dispatch({ type: ON_CHANGE_EXTEND_FROM, value });
 
-  onChangeEndDateRangeS = async (endDateFrom) => {
-    await this.setState({ endDateFrom });
-    this.search();
-  }
+  const onChangeExtendTo = (value) => dispatch({ type: ON_CHANGE_EXTEND_TO, value });
 
-  onChangeEndDateRangeE = async (endDateTo) => {
-    this.setState({ endDateTo });
-    this.search();
-  }
-
-  onChangeExtendRangeS = async (extendFrom) => {
-    await this.setState({ extendFrom });
-    this.search();
-  }
-
-  onChangeExtendRangeE = async (extendTo) => {
-    await this.setState({ extendTo });
-    this.search();
-  }
-
-  onClickAvatar = async (event) => {
-    const { inCharge } = this.state;
+  const selectAvatar = (event) => {
     const inChargeCopy = inCharge;
     const { id } = event.currentTarget.dataset;
     const targetIndex = inCharge.indexOf(id);
@@ -256,12 +365,10 @@ class ProjectHeader extends Component {
     } else {
       inChargeCopy.splice(targetIndex, 1);
     }
-    await this.setState({ inCharge: inChargeCopy });
-    this.search();
-  }
+    dispatch({ type: SELECT_AVATAR, value: inChargeCopy });
+  };
 
-  onClickResourceIcon = async (event) => {
-    const { selectedResources } = this.state;
+  const selectResource = (event) => {
     const selectedResourcesCopy = selectedResources;
     const { id } = event.currentTarget.dataset;
     const targetIndex = selectedResources.indexOf(id);
@@ -270,212 +377,182 @@ class ProjectHeader extends Component {
     } else {
       selectedResourcesCopy.splice(targetIndex, 1);
     }
-    await this.setState({ selectedResources: selectedResourcesCopy });
-    this.search();
-  }
+    dispatch({ type: SELECT_RESOURCE, value: selectedResourcesCopy });
+  };
 
-  clearSearchName = async () => {
-    await this.setState({
-      taskName: '',
-      projectId: '',
-      searchByNameVisible: false,
-    });
-    this.search();
-  }
+  const clearName = () => dispatch({ type: CLEAR_NAME });
 
-  clearSearchStartDate = async () => {
-    await this.setState({
-      startDateFrom: '',
-      startDateTo: '',
-      orderStartDate: '',
-      searchByDateVisible: false,
-    });
-    this.search();
-  }
+  const clearStartDate = () => dispatch({ type: CLEAR_START_DATE });
 
-  clearSearchEndDate = async () => {
-    await this.setState({
-      endDateFrom: '',
-      endDateTo: '',
-      orderEndDate: '',
-      searchByDateVisible: false,
-    });
-    this.search();
-  }
+  const clearEndDate = () => dispatch({ type: CLEAR_END_DATE });
 
-  clearSearchExtend = async () => {
-    await this.setState({
-      extendFrom: '',
-      extendTo: '',
-      orderExtend: '',
-      searchByDateVisible: false,
-    });
-    this.search();
-  }
+  const clearExtend = () => dispatch({ type: CLEAR_EXTEND });
 
-  clearSearchDuration = async () => {
-    await this.setState({ orderDuration: '', searchByDurationVisible: false });
-    this.search();
-  }
+  const clearDuration = () => dispatch({ type: CLEAR_DURATION });
 
-  clearSearchInCharge = async () => {
-    await this.setState({ inCharge: [], searchByUsersVisible: false });
-    this.search();
-  }
+  const clearInCharge = () => dispatch({ type: CLEAR_IN_CHARGE });
 
-  closeAllModal = () => {
-    this.setState({
-      searchByNameVisible: false,
-      searchByDateVisible: false,
-      searchByDurationVisible: false,
-      searchByUsersVisible: false,
-      searchByResourceVisible: false,
-    });
-  }
+  const orderByStartDate = (event) => {
+    const { value } = event.target;
+    dispatch({ type: ORDER_BY_START_DATE, value });
+  };
 
-  render() {
-    const {
-      searchByNameVisible,
-      searchByDateVisible,
-      searchByDurationVisible,
-      searchByUsersVisible,
-      searchByResourceVisible,
-      projectId,
-      taskName,
-      dateType,
-      startDateFrom,
-      startDateTo,
-      endDateFrom,
-      endDateTo,
-      extendFrom,
-      extendTo,
-      orderStartDate,
-      orderEndDate,
-      orderExtend,
-      orderDuration,
-      inCharge,
-      selectedResources,
-    } = this.state;
+  const orderByEndDate = (event) => {
+    const { value } = event.target;
+    dispatch({ type: ORDER_BY_END_DATE, value });
+  };
 
-    const resourceIconClass = selectedResources.length === 0 ? 'resourceIcon' : 'resourceIcon--selected';
-    const {
-      rangeStart, rangeEnd, onChangeRangeStart, onChangeRangeEnd, order,
-    } = this.sortingByDateRange(dateType);
+  const orderByExtend = (event) => {
+    const { value } = event.target;
+    dispatch({ type: ORDER_BY_EXTEND, value });
+  };
 
-    return (
-      <div className="gantt-index-header">
-        <div className="gantt-index-header__resource">
-          <div className={resourceIconClass} onClick={this.onClickResource} />
-        </div>
-        <div className="gantt-index-header__name">
-          {projectId === '' && taskName === ''
-            ? <span className="gantt-index-header__label" onClick={this.onClickName}>タイトル</span>
-            : (
-              <div className="selected">
-                <span className="selected__label" onClick={this.onClickName}>タイトル</span>
-                <span className="selected__clear" onClick={this.clearSearchName}>×</span>
-              </div>
-            )}
-        </div>
+  const orderByDuration = (event) => {
+    const { value } = event.target;
+    dispatch({ type: ORDER_BY_DURATION, value });
+  };
 
-        <div className="gantt-index-header__startDate">
-          {startDateFrom === '' && startDateTo === '' && orderStartDate === ''
-            ? <span className="gantt-index-header__label" data-type="start" onClick={this.onClickDate}>開始日</span>
-            : (
-              <div className="selected">
-                <span className="selected__label" data-type="start" onClick={this.onClickDate}>開始日</span>
-                <span className="selected__clear" onClick={this.clearSearchStartDate}>×</span>
-              </div>
-            )}
-        </div>
+  const resourceIconClass = selectedResources.length === 0 ? 'resourceIcon' : 'resourceIcon--selected';
 
-        <div className="gantt-index-header__endDate">
-          {endDateFrom === '' && endDateTo === '' && orderEndDate === ''
-            ? <span className="gantt-index-header__label" data-type="end" onClick={this.onClickDate}>終了日</span>
-            : (
-              <div className="selected">
-                <span className="selected__label" data-type="end" onClick={this.onClickDate}>終了日</span>
-                <span className="selected__clear" onClick={this.clearSearchEndDate}>×</span>
-              </div>
-            )}
-        </div>
-
-        <div className="gantt-index-header__extend">
-          {extendFrom === '' && extendTo === '' && orderExtend === ''
-            ? <span className="gantt-index-header__label" data-type="extend" onClick={this.onClickDate}>延長</span>
-            : (
-              <div className="selected">
-                <span className="selected__label" data-type="extend" onClick={this.onClickDate}>延長</span>
-                <span className="selected__clear" onClick={this.clearSearchExtend}>×</span>
-              </div>
-            )}
-        </div>
-
-        <div className="gantt-index-header__duration">
-          {orderDuration === ''
-            ? <span className="gantt-index-header__label" onClick={this.onClickDuration}>期間</span>
-            : (
-              <div className="selected">
-                <span className="selected__label" onClick={this.onClickDuration}>期間</span>
-                <span className="selected__clear" onClick={this.clearSearchDuration}>×</span>
-              </div>
-            )}
-        </div>
-        <div className="gantt-index-header__inCharge">
-          {inCharge.length === 0
-            ? <span className="gantt-index-header__label" onClick={this.onClickInCharge}>担当</span>
-            : (
-              <div className="selected">
-                <span className="selected__label" onClick={this.onClickInCharge}>担当</span>
-                <span className="selected__clear" onClick={this.clearSearchInCharge}>×</span>
-              </div>
-            )}
-        </div>
-        {searchByResourceVisible && (
-          <div className="overlay" onClick={this.closeAllModal}>
-            <SearchByResource
-              selectedResources={selectedResources}
-              onClickResource={this.onClickResourceIcon}
-            />
-          </div>
-        )}
-        {searchByNameVisible && (
-          <div className="overlay" onClick={this.closeAllModal}>
-            <SearchByName
-              projectId={projectId}
-              onChangeProject={this.onChangeProject}
-              taskName={taskName}
-              onChangeTask={this.onChangeTask}
-            />
-          </div>
-        )}
-        {searchByDateVisible && (
-          <div className="overlay" onClick={this.closeAllModal}>
-            <SearchByDate
-              dateType={dateType}
-              rangeStart={rangeStart}
-              rangeEnd={rangeEnd}
-              onChangeRangeStart={onChangeRangeStart}
-              onChangeRangeEnd={onChangeRangeEnd}
-              onChangeOrder={this.onChangeOrder}
-              selected={order}
-            />
-          </div>
-        )}
-        {searchByDurationVisible && (
-          <div className="overlay" onClick={this.closeAllModal}>
-            <SearchByDuration onChangeOrder={this.onChangeOrder} selected={orderDuration} />
-          </div>
-        )}
-        {searchByUsersVisible && (
-          <div className="overlay" onClick={this.closeAllModal}>
-            <SearchByUsers inCharge={inCharge} onClickAvatar={this.onClickAvatar} />
-          </div>
-        )}
+  return (
+    <div className="gantt-index-header">
+      <div className="gantt-index-header__resource">
+        <div className={resourceIconClass} onClick={onClickResource} />
       </div>
-    );
-  }
-}
+      <div className="gantt-index-header__name">
+        {projectId === '' && taskName === ''
+          ? <span className="gantt-index-header__label" onClick={onClickName}>タイトル</span>
+          : (
+            <div className="selected--title">
+              <span className="selected__label" onClick={onClickName}>タイトル</span>
+              <span className="selected__clear" onClick={clearName}>×</span>
+            </div>
+          )}
+      </div>
+
+      <div className="gantt-index-header__startDate">
+        {startDateFrom === '' && startDateTo === '' && orderStartDate === ''
+          ? <span className="gantt-index-header__label" data-type="start" onClick={onClickStartDate}>開始日</span>
+          : (
+            <div className="selected">
+              <span className="selected__label" data-type="start" onClick={onClickStartDate}>開始日</span>
+              <span className="selected__clear" onClick={clearStartDate}>×</span>
+            </div>
+          )}
+      </div>
+
+      <div className="gantt-index-header__endDate">
+        {endDateFrom === '' && endDateTo === '' && orderEndDate === ''
+          ? <span className="gantt-index-header__label" data-type="end" onClick={onClickEndDate}>終了日</span>
+          : (
+            <div className="selected">
+              <span className="selected__label" data-type="end" onClick={onClickEndDate}>終了日</span>
+              <span className="selected__clear" onClick={clearEndDate}>×</span>
+            </div>
+          )}
+      </div>
+
+      <div className="gantt-index-header__extend">
+        {extendFrom === '' && extendTo === '' && orderExtend === ''
+          ? <span className="gantt-index-header__label" data-type="extend" onClick={onClickExtend}>延長</span>
+          : (
+            <div className="selected">
+              <span className="selected__label" data-type="extend" onClick={onClickExtend}>延長</span>
+              <span className="selected__clear" onClick={clearExtend}>×</span>
+            </div>
+          )}
+      </div>
+
+      <div className="gantt-index-header__duration">
+        {orderDuration === ''
+          ? <span className="gantt-index-header__label" onClick={onClickDuration}>期間</span>
+          : (
+            <div className="selected">
+              <span className="selected__label" onClick={onClickDuration}>期間</span>
+              <span className="selected__clear" onClick={clearDuration}>×</span>
+            </div>
+          )}
+      </div>
+      <div className="gantt-index-header__inCharge">
+        {inCharge.length === 0
+          ? <span className="gantt-index-header__label" onClick={onClickInCharge}>担当</span>
+          : (
+            <div className="selected">
+              <span className="selected__label" onClick={onClickInCharge}>担当</span>
+              <span className="selected__clear" onClick={clearInCharge}>×</span>
+            </div>
+          )}
+      </div>
+      {searchByResourceVisible && (
+        <div className="overlay" onClick={onClickResource}>
+          <SearchByResource
+            selectedResources={selectedResources}
+            selectResource={selectResource}
+          />
+        </div>
+      )}
+      {searchByNameVisible && (
+        <div className="overlay" onClick={onClickName}>
+          <SearchByName
+            projectId={projectId}
+            onChangeProject={onChangeProject}
+            taskName={taskName}
+            onChangeTaskName={onChangeTaskName}
+          />
+        </div>
+      )}
+      {searchByStartDateVisible && (
+        <div className="overlay" onClick={onClickStartDate}>
+          <SearchByDate
+            dateType="start"
+            rangeStart={startDateFrom}
+            rangeEnd={startDateTo}
+            onChangeRangeStart={onChangeStartDateFrom}
+            onChangeRangeEnd={onChangeStartDateTo}
+            onChangeOrder={orderByStartDate}
+            order={orderStartDate}
+          />
+        </div>
+      )}
+      {searchByEndDateVisible && (
+        <div className="overlay" onClick={onClickEndDate}>
+          <SearchByDate
+            dateType="end"
+            rangeStart={endDateFrom}
+            rangeEnd={endDateTo}
+            onChangeRangeStart={onChangeEndDateFrom}
+            onChangeRangeEnd={onChangeEndDateTo}
+            onChangeOrder={orderByEndDate}
+            order={orderEndDate}
+          />
+        </div>
+      )}
+      {searchByExtendVisible && (
+        <div className="overlay" onClick={onClickExtend}>
+          <SearchByDate
+            dateType="extend"
+            rangeStart={extendFrom}
+            rangeEnd={extendTo}
+            onChangeRangeStart={onChangeExtendFrom}
+            onChangeRangeEnd={onChangeExtendTo}
+            onChangeOrder={orderByExtend}
+            order={orderExtend}
+          />
+        </div>
+      )}
+      {searchByDurationVisible && (
+        <div className="overlay" onClick={onClickDuration}>
+          <SearchByDuration onChangeOrder={orderByDuration} order={orderDuration} />
+        </div>
+      )}
+      {searchByUsersVisible && (
+        <div className="overlay" onClick={onClickInCharge}>
+          <SearchByUsers inCharge={inCharge} selectAvatar={selectAvatar} />
+        </div>
+      )}
+    </div>
+  );
+};
 
 const OrderBy = (props) => {
   const { onChangeOrder, by, selected } = props;
@@ -491,11 +568,11 @@ const OrderBy = (props) => {
 };
 
 const SearchByDuration = (props) => {
-  const { onChangeOrder, selected } = props;
+  const { onChangeOrder, order } = props;
   return (
     <div className="search--duration" onClick={stopPropagation}>
       <div className="search__label">並べ替え</div>
-      <OrderBy by="duration" onChangeOrder={onChangeOrder} selected={selected} />
+      <OrderBy onChangeOrder={onChangeOrder} order={order} />
       <div className="search__divide" />
     </div>
   );
@@ -503,11 +580,11 @@ const SearchByDuration = (props) => {
 
 const SearchByDate = (props) => {
   const {
+    dateType,
     rangeStart,
     rangeEnd,
     onChangeRangeStart,
     onChangeRangeEnd,
-    dateType,
     onChangeOrder,
     order,
   } = props;
@@ -516,7 +593,7 @@ const SearchByDate = (props) => {
   return (
     <div className={className} onClick={stopPropagation}>
       <div className="search__label">並べ替え</div>
-      <OrderBy by={dateType} onChangeOrder={onChangeOrder} selected={order} />
+      <OrderBy onChangeOrder={onChangeOrder} order={order} />
       <div className="search__divide" />
       <div className="search__label">表示する期間を指定</div>
       <div className="search__dateWrapper">
@@ -543,7 +620,7 @@ const SearchByDate = (props) => {
 
 const SearchByName = connect(mapStateToProps)((props) => {
   const {
-    projectId, projects, onChangeProject, taskName, onChangeTask,
+    projectId, projects, onChangeProject, taskName, onChangeTaskName,
   } = props;
 
   return (
@@ -557,13 +634,13 @@ const SearchByName = connect(mapStateToProps)((props) => {
       </select>
       <div className="search__divide" />
       <div className="search__label">タスク名で検索</div>
-      <input type="text" className="search__task" value={taskName} onChange={onChangeTask} />
+      <input type="text" className="search__task" value={taskName} onChange={onChangeTaskName} />
     </div>
   );
 });
 
 const SearchByUsers = connect(mapStateToProps)((props) => {
-  const { users, inCharge, onClickAvatar } = props;
+  const { users, inCharge, selectAvatar } = props;
   return (
     <div className="search--user" onClick={stopPropagation}>
       <div className="search__label">担当で絞り込み</div>
@@ -572,7 +649,7 @@ const SearchByUsers = connect(mapStateToProps)((props) => {
           const targetIndex = inCharge.indexOf(String(user.id));
           return (
             <div key={user.id} className="avatar">
-              <div data-id={user.id} onClick={onClickAvatar} className="avatar__wrapper">
+              <div data-id={user.id} onClick={selectAvatar} className="avatar__wrapper">
                 <img src={user.avatar} alt={user.name} className="avatar__image" />
                 {targetIndex !== notExist && <div className="avatar__selected" />}
               </div>
@@ -586,7 +663,7 @@ const SearchByUsers = connect(mapStateToProps)((props) => {
 });
 
 const SearchByResource = connect(mapStateToProps)((props) => {
-  const { resources, selectedResources, onClickResource } = props;
+  const { resources, selectedResources, selectResource } = props;
   return (
     <div className="search--resource" onClick={stopPropagation}>
       <div className="search__label">リソースで絞り込み</div>
@@ -595,7 +672,7 @@ const SearchByResource = connect(mapStateToProps)((props) => {
           const targetIndex = selectedResources.indexOf(String(resource.id));
           return (
             <div key={resource.id} className="resource">
-              <div data-id={resource.id} onClick={onClickResource} className="resource__wrapper">
+              <div data-id={resource.id} onClick={selectResource} className="resource__wrapper">
                 <div className="resource__icon" style={{ backgroundColor: resource.color }} />
                 {targetIndex !== notExist && <div className="resource__selected" />}
               </div>

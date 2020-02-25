@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 
@@ -20,7 +20,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   const { getAllProjects } = projectActions;
-  const { openConfirm } = confirmActions;
+  const { openConfirm, closeConfirm } = confirmActions;
   const {
     closeResourceForm, createResource, deleteResource, updateResource,
   } = resourceActions;
@@ -32,137 +32,183 @@ const mapDispatchToProps = (dispatch) => {
     deleteResource: (resourceID) => dispatch(deleteResource(resourceID)),
     updateResource: (resourceID, params) => dispatch(updateResource(resourceID, params)),
     openConfirm: (payload) => dispatch(openConfirm(payload)),
+    closeConfirm: () => dispatch(closeConfirm()),
   };
 };
 
-class ResourceForm extends PureComponent {
-  constructor(props) {
-    super(props);
-    const { resourceID } = this.props;
-    this.action = resourceID ? 'edit' : 'new';
-    this.submit = resourceID ? this.handleUpdate : this.handleCreate;
-    this.state = {
-      name: '',
-      colors: [],
-      pickedColor: '',
-    };
-  }
+const GET_COLORS = 'GET_COLORS';
+const GET_RESOURCE_VALUES = 'GET_RESOURCE_VALUES';
+const PICK_COLOR = 'PICK_COLOR';
+const ON_CHANGE_NAME = 'ON_CHANGE_NAME';
 
-  componentDidMount() {
-    this.token = localStorage.getItem('token');
-    this.getIndexColors();
-    if (this.action === 'edit') {
-      this.editResourceFormValue();
+const initialResourceLocalState = { name: '', colors: [], pickedColor: '' };
+
+const resourceFormReducer = (state, action) => {
+  switch (action.type) {
+    case GET_COLORS:
+      return {
+        ...state,
+        colors: action.payload,
+      };
+    case GET_RESOURCE_VALUES:
+      return {
+        ...state,
+        name: action.payload.name,
+        pickedColor: action.payload.pickedColor,
+      };
+    case PICK_COLOR:
+      return {
+        ...state,
+        pickedColor: action.color,
+      };
+    case ON_CHANGE_NAME:
+      return {
+        ...state,
+        name: action.value,
+      };
+    default:
+      return state;
+  }
+};
+
+const ResourceForm = (props) => {
+  const {
+    resourceID,
+    createResource,
+    updateResource,
+    deleteResource,
+    closeResourceForm,
+    openConfirm,
+    closeConfirm,
+    getAllProjects,
+    errors,
+  } = props;
+
+  const [state, dispatch] = useReducer(resourceFormReducer, initialResourceLocalState);
+  const { name, colors, pickedColor } = state;
+  const action = resourceID ? 'edit' : 'new';
+
+  useEffect(() => {
+    getColors();
+    if (action === 'edit') {
+      editResourceFormValue();
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  getIndexColors = async () => {
+  const getColors = async () => {
     const url = Utils.buildRequestUrl('/colors');
+    const token = localStorage.getItem('token');
     const response = await axios.get(url, {
-      headers: { 'X-Reach-token': this.token },
+      headers: { 'X-Reach-token': token },
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      const { openConfirm } = this.props;
       openConfirm(INTERNAL_SERVER_ERROR);
       return;
     }
-    const { colors } = response.data;
-    this.setState({ colors });
-  }
+    dispatch({ type: GET_COLORS, payload: response.data.colors });
+  };
 
-  editResourceFormValue = async () => {
-    const { resourceID } = this.props;
+  const editResourceFormValue = async () => {
     const url = Utils.buildRequestUrl(`/resources/${resourceID}/edit`);
+    const token = localStorage.getItem('token');
     const response = await axios.get(url, {
-      headers: { 'X-Reach-token': this.token },
+      headers: { 'X-Reach-token': token },
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      const { openConfirm } = this.props;
       openConfirm(INTERNAL_SERVER_ERROR);
       return;
     }
     const { resource } = response.data;
-    this.setState({ name: resource.name, pickedColor: String(resource.color_id) });
-  }
+    const payload = { name: resource.name, pickedColor: String(resource.color_id) };
+    dispatch({ type: GET_RESOURCE_VALUES, payload });
+  };
 
-  handleCreate = () => {
-    const { createResource } = this.props;
-    const { pickedColor, name } = this.state;
+  const handleCreate = () => {
     const params = { name, color_id: pickedColor };
     createResource(params);
-  }
+  };
 
-  handleDestroy = () => {
-    const { deleteResource, resourceID, openConfirm } = this.props;
+  const handleUpdate = async () => {
+    const params = { name, color_id: pickedColor };
+    await updateResource(resourceID, params);
+    getAllProjects();
+  };
+
+  const handleDestroy = () => {
+    const onConfirm = () => {
+      deleteResource(resourceID);
+      closeConfirm();
+      closeResourceForm();
+    };
+
     const confirmConfig = {
       type: 'ask',
       title: `Resource ${destroy}`,
       description: ask,
-      confirm: () => deleteResource(resourceID),
+      confirm: onConfirm,
     };
     openConfirm(confirmConfig);
-  }
+  };
 
-  handleUpdate = async () => {
-    const { resourceID, updateResource, getAllProjects } = this.props;
-    const { pickedColor, name } = this.state;
-    const params = { name, color_id: pickedColor };
-    await updateResource(resourceID, params);
-    getAllProjects();
-  }
+  const submit = async () => {
+    if (action === 'edit') {
+      await handleUpdate();
+      getAllProjects();
+    } else if (action === 'new') {
+      handleCreate();
+    }
+    closeResourceForm();
+  };
 
-  onPickColor = (event) => {
-    const pickedColor = event.target.dataset.color;
-    this.setState({ pickedColor });
-  }
+  const onPickColor = (event) => {
+    const { color } = event.target.dataset;
+    dispatch({ type: PICK_COLOR, color });
+  };
 
-  onChangeName = (event) => {
-    const name = event.target.value;
-    this.setState({ name });
-  }
+  const onChangeName = (event) => {
+    const { value } = event.target;
+    dispatch({ type: ON_CHANGE_NAME, value });
+  };
 
-  onClickOverlay = (event) => event.stopPropagation()
+  const onClickOverlay = (event) => event.stopPropagation();
 
-  render() {
-    const title = this.action === 'new' ? 'Create Resource' : 'Update Resource';
-    const { closeResourceForm, errors } = this.props;
-    const { name, colors, pickedColor } = this.state;
+  const title = action === 'new' ? 'Create Resource' : 'Update Resource';
 
-    return (
-      <div className="modalOverlay" onClick={closeResourceForm}>
-        <div className="modalForm" onClick={this.onClickOverlay}>
-          <div className="modalForm__title">{title}</div>
-          {errors.length !== 0 && <ErrorMessage action="Resource creation" errors={errors} />}
-          <input
-            type="text"
-            className="modalForm__textInput"
-            placeholder="リソース名を入力"
-            value={name}
-            onChange={this.onChangeName}
+  return (
+    <div className="modalOverlay" onClick={closeResourceForm}>
+      <div className="modalForm" onClick={onClickOverlay}>
+        <div className="modalForm__title">{title}</div>
+        {errors.length !== 0 && <ErrorMessage action="Resource creation" errors={errors} />}
+        <input
+          type="text"
+          className="modalForm__textInput"
+          placeholder="リソース名を入力"
+          value={name}
+          onChange={onChangeName}
+        />
+        <div className="modalForm__label">ラベルの色を選択</div>
+        <div className="colorPallet">
+          <ColorPallets
+            colors={colors}
+            pickedColor={pickedColor}
+            onPickColor={onPickColor}
           />
-          <div className="modalForm__label">ラベルの色を選択</div>
-          <div className="colorPallet">
-            <ColorPallets
-              colors={colors}
-              pickedColor={pickedColor}
-              onPickColor={this.onPickColor}
-            />
-          </div>
-          <button type="button" onClick={this.submit} className="modalForm__button">
-            {title}
-          </button>
-          {this.action === 'edit' && (
-            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
-              Delete Resource
-            </button>
-          )}
         </div>
+        <button type="button" onClick={submit} className="modalForm__button">
+          {title}
+        </button>
+        {action === 'edit' && (
+          <button type="button" onClick={handleDestroy} className="modalForm__button--delete">
+            Delete Resource
+          </button>
+        )}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 const ColorPallets = ({ colors, pickedColor, onPickColor }) => (
   colors.map((color) => {

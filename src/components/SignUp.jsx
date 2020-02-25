@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import { Link, Redirect } from 'react-router-dom';
 import axios from 'axios';
@@ -21,32 +21,24 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-class SignUp extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      uri: '',
-      avatar: null,
-      name: '',
-      email: '',
-      password: '',
-      passwordConfirmation: '',
-      errors: [],
-      isSignUp: false,
-    };
-  }
+const SignUp = (props) => {
+  const {
+    loadStart,
+    loadEnd,
+    openConfirm,
+  } = props;
 
-  handleSignUp = async () => {
-    const { loadStart, loadEnd } = this.props;
+  const [uri, setURI] = useState('');
+  const [avatar, setAvatar] = useState(null);
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [passwordConfirmation, setPasswordConfirmation] = useState('');
+  const [errors, addErrors] = useState([]);
+  const [isSignUp, signUp] = useState(false);
+
+  const handleSignUp = async () => {
     loadStart();
-    const {
-      avatar,
-      name,
-      email,
-      password,
-      passwordConfirmation,
-    } = this.state;
-
     const params = new FormData();
     params.append('user[name]', name);
     params.append('user[email]', email);
@@ -59,113 +51,101 @@ class SignUp extends Component {
     const url = Utils.buildRequestUrl('/users');
     const response = await axios.post(url, params).catch((error) => error.response);
     if (response.status !== 200) {
-      const { openConfirm } = this.props;
       openConfirm(INTERNAL_SERVER_ERROR);
       loadEnd();
       return;
     }
 
-    const { is_created, errors } = response.data;
+    const { is_created } = response.data;
     if (is_created) {
-      this.setState({ isSignUp: true });
+      signUp(true);
     } else {
-      this.setState({ errors });
+      addErrors(response.data.errors);
     }
     loadEnd();
-  }
+  };
 
-  onChangeFile = (event) => {
-    const avatar = event.target.files[0];
-    const uri = URL.createObjectURL(avatar);
-    this.setState({ uri, avatar });
-  }
+  const onChangeFile = (event) => {
+    const avatarFile = event.target.files[0];
+    const avatarURI = URL.createObjectURL(avatarFile);
+    setURI(avatarURI);
+    setAvatar(avatarFile);
+  };
 
-  onChangeName = (event) => {
-    const name = event.target.value;
-    this.setState({ name });
-  }
+  const onChangeName = (event) => {
+    const { value } = event.target;
+    setName(value);
+  };
 
-  onChangeEmail = (event) => {
-    const email = event.target.value;
-    this.setState({ email });
-  }
+  const onChangeEmail = (event) => {
+    const { value } = event.target.value;
+    setEmail(value);
+  };
 
-  onChangePassword = (event) => {
-    const password = event.target.value;
-    this.setState({ password });
-  }
+  const onChangePassword = (event) => {
+    const { value } = event.target;
+    setPassword(value);
+  };
 
-  onChangePasswordConfirmation = (event) => {
-    const passwordConfirmation = event.target.value;
-    this.setState({ passwordConfirmation });
-  }
+  const onChangePasswordConfirmation = (event) => {
+    const { value } = event.target;
+    setPasswordConfirmation(value);
+  };
 
-  render() {
-    const {
-      uri,
-      name,
-      email,
-      password,
-      passwordConfirmation,
-      errors,
-      isSignUp,
-    } = this.state;
-
-    return (
-      isSignUp ? <Redirect to="/reach/signin" /> : (
-        <div className="background">
-          <div className="session">
-            <div className="session__title">Create account</div>
-            {errors.length !== 0 && <ErrorMessage action="Registration" errors={errors} />}
-            <label htmlFor="avatarForm" className="session__avatar">
-              <input
-                id="avatarForm"
-                type="file"
-                className="session__fileField"
-                onChange={this.onChangeFile}
-              />
-              {uri === ''
-                ? <FontAwesomeIcon icon={['fas', 'user']} className="session__fileIcon" />
-                : <img src={uri} alt="avatar" className="session__preview" />}
-            </label>
-            <div className="session__fileLabel">Upload your avatar</div>
+  return (
+    isSignUp ? <Redirect to="/reach/signin" /> : (
+      <div className="background">
+        <div className="session">
+          <div className="session__title">Create account</div>
+          {errors.length !== 0 && <ErrorMessage action="Registration" errors={errors} />}
+          <label htmlFor="avatarForm" className="session__avatar">
             <input
-              type="text"
-              className="session__name"
-              placeholder="Name"
-              value={name}
-              onChange={this.onChangeName}
+              id="avatarForm"
+              type="file"
+              className="session__fileField"
+              onChange={onChangeFile}
             />
-            <input
-              type="text"
-              className="session__email"
-              placeholder="Email"
-              value={email}
-              onChange={this.onChangeEmail}
-            />
-            <input
-              type="password"
-              className="session__password"
-              placeholder="Password"
-              value={password}
-              onChange={this.onChangePassword}
-            />
-            <input
-              type="password"
-              className="session__password"
-              placeholder="Password confirmation"
-              value={passwordConfirmation}
-              onChange={this.onChangePasswordConfirmation}
-            />
-            <button type="button" onClick={this.handleSignUp} className="session__submit">
-              Sign Up
-            </button>
-            <Link to="/reach/signin" className="session__switch">Move to Sign In</Link>
-          </div>
+            {uri === ''
+              ? <FontAwesomeIcon icon={['fas', 'user']} className="session__fileIcon" />
+              : <img src={uri} alt="avatar" className="session__preview" />}
+          </label>
+          <div className="session__fileLabel">Upload your avatar</div>
+          <input
+            type="text"
+            className="session__name"
+            placeholder="Name"
+            value={name}
+            onChange={onChangeName}
+          />
+          <input
+            type="text"
+            className="session__email"
+            placeholder="Email"
+            value={email}
+            onChange={onChangeEmail}
+          />
+          <input
+            type="password"
+            className="session__password"
+            placeholder="Password"
+            value={password}
+            onChange={onChangePassword}
+          />
+          <input
+            type="password"
+            className="session__password"
+            placeholder="Password confirmation"
+            value={passwordConfirmation}
+            onChange={onChangePasswordConfirmation}
+          />
+          <button type="button" onClick={handleSignUp} className="session__submit">
+            Sign Up
+          </button>
+          <Link to="/reach/signin" className="session__switch">Move to Sign In</Link>
         </div>
-      )
-    );
-  }
-}
+      </div>
+    )
+  );
+};
 
 export default connect(null, mapDispatchToProps)(SignUp);

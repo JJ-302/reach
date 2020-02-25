@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useReducer, useEffect } from 'react';
 import { connect } from 'react-redux';
 import axios from 'axios';
 
@@ -20,7 +20,7 @@ const mapStateToProps = (state) => {
 };
 
 const mapDispatchToProps = (dispatch) => {
-  const { openConfirm } = confirmActions;
+  const { openConfirm, closeConfirm } = confirmActions;
   const {
     closeProjectForm, createProject, deleteProject, updateProject,
   } = projectActions;
@@ -31,29 +31,62 @@ const mapDispatchToProps = (dispatch) => {
     deleteProject: (projectID) => dispatch(deleteProject(projectID)),
     updateProject: (projectID, params) => dispatch(updateProject(projectID, params)),
     openConfirm: (payload) => dispatch(openConfirm(payload)),
+    closeConfirm: () => dispatch(closeConfirm()),
   };
 };
 
-class ProjectForm extends PureComponent {
-  constructor(props) {
-    super(props);
-    const { projectID } = this.props;
-    this.action = projectID ? 'edit' : 'new';
-    this.submit = projectID ? this.handleUpdate : this.handleCreate;
-    this.state = {
-      name: '',
-      description: '',
-    };
-  }
+const GET_PROJECT_VALUES = 'GET_PROJECT_VALUES';
+const ON_CHANGE_NAME = 'ON_CHANGE_NAME';
+const ON_CHANGE_DESCRIPTION = 'ON_CHANGE_DESCRIPTION';
 
-  componentDidMount() {
-    if (this.action === 'edit') {
-      this.editProjectFormValue();
+const initialProjectLocalState = { name: '', description: '' };
+
+const projectFormReducer = (state, action) => {
+  switch (action.type) {
+    case GET_PROJECT_VALUES:
+      return {
+        name: action.payload.name,
+        description: action.payload.description,
+      };
+    case ON_CHANGE_NAME:
+      return {
+        ...state,
+        name: action.value,
+      };
+    case ON_CHANGE_DESCRIPTION:
+      return {
+        ...state,
+        description: action.value,
+      };
+    default:
+      return state;
+  }
+};
+
+const ProjectForm = (props) => {
+  const {
+    projectID,
+    createProject,
+    updateProject,
+    deleteProject,
+    closeProjectForm,
+    openConfirm,
+    closeConfirm,
+    errors,
+  } = props;
+
+  const action = projectID ? 'edit' : 'new';
+  const [state, dispatch] = useReducer(projectFormReducer, initialProjectLocalState);
+  const { name, description } = state;
+
+  useEffect(() => {
+    if (action === 'edit') {
+      editProjectFormValue();
     }
-  }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  editProjectFormValue = async () => {
-    const { projectID } = this.props;
+  const editProjectFormValue = async () => {
     const url = Utils.buildRequestUrl(`/projects/${projectID}/edit`);
     const token = localStorage.getItem('token');
     const response = await axios.get(url, {
@@ -61,86 +94,91 @@ class ProjectForm extends PureComponent {
     }).catch((error) => error.response);
 
     if (response.status !== 200) {
-      const { openConfirm } = this.props;
       openConfirm(INTERNAL_SERVER_ERROR);
       return;
     }
-    const { name, description } = response.data.project;
-    this.setState({ name, description });
-  }
+    const { project } = response.data;
+    const payload = { name: project.name, description: project.description };
+    dispatch({ type: GET_PROJECT_VALUES, payload });
+  };
 
-  handleCreate = () => {
-    const { createProject } = this.props;
-    const { name, description } = this.state;
+  const handleCreate = () => {
     const params = { name, description };
     createProject(params);
-  }
+  };
 
-  handleDestroy = () => {
-    const { deleteProject, projectID, openConfirm } = this.props;
+  const handleUpdate = () => {
+    const params = { name, description };
+    updateProject(projectID, params);
+  };
+
+  const handleDestroy = () => {
+    const onConfirm = () => {
+      deleteProject(projectID);
+      closeConfirm();
+      closeProjectForm();
+    };
+
     const confirmConfig = {
       type: 'ask',
       title: `Project ${destroy}`,
       description: ask,
-      confirm: () => deleteProject(projectID),
+      confirm: onConfirm,
     };
     openConfirm(confirmConfig);
-  }
+  };
 
-  handleUpdate = () => {
-    const { updateProject, projectID } = this.props;
-    const { name, description } = this.state;
-    const params = { name, description };
-    updateProject(projectID, params);
-  }
+  const submit = () => {
+    if (action === 'edit') {
+      handleUpdate();
+    } else if (action === 'new') {
+      handleCreate();
+    }
+    closeProjectForm();
+  };
 
-  onChangeName = (event) => {
-    const name = event.target.value;
-    this.setState({ name });
-  }
+  const onChangeName = (event) => {
+    const { value } = event.target;
+    dispatch({ type: ON_CHANGE_NAME, value });
+  };
 
-  onChangeDescription = (event) => {
-    const description = event.target.value;
-    this.setState({ description });
-  }
+  const onChangeDescription = (event) => {
+    const { value } = event.target;
+    dispatch({ type: ON_CHANGE_DESCRIPTION, value });
+  };
 
-  onClickOverlay = (event) => event.stopPropagation()
+  const onClickOverlay = (event) => event.stopPropagation();
 
-  render() {
-    const { closeProjectForm, errors } = this.props;
-    const { name, description } = this.state;
-
-    const title = this.action === 'new' ? 'Create Project' : 'Update Project';
-    return (
-      <div className="modalOverlay" onClick={closeProjectForm}>
-        <div className="modalForm" onClick={this.onClickOverlay}>
-          <div className="modalForm__title">{title}</div>
-          {errors.length !== 0 && <ErrorMessage action="Project creation" errors={errors} />}
-          <input
-            type="text"
-            className="modalForm__textInput"
-            placeholder="プロジェクト名を入力"
-            value={name}
-            onChange={this.onChangeName}
-          />
-          <textarea
-            className="modalForm__textarea"
-            placeholder="プロジェクトの説明を入力"
-            value={description}
-            onChange={this.onChangeDescription}
-          />
-          <button type="button" onClick={this.submit} className="modalForm__button">
-            {title}
+  const title = action === 'new' ? 'Create Project' : 'Update Project';
+  return (
+    <div className="modalOverlay" onClick={closeProjectForm}>
+      <div className="modalForm" onClick={onClickOverlay}>
+        <div className="modalForm__title">{title}</div>
+        {errors.length !== 0 && <ErrorMessage action="Project creation" errors={errors} />}
+        <input
+          type="text"
+          className="modalForm__textInput"
+          placeholder="プロジェクト名を入力"
+          value={name}
+          onChange={onChangeName}
+        />
+        <textarea
+          className="modalForm__textarea"
+          placeholder="プロジェクトの説明を入力"
+          value={description}
+          onChange={onChangeDescription}
+        />
+        <button type="button" onClick={submit} className="modalForm__button">
+          {title}
+        </button>
+        {action === 'edit' && (
+          <button type="button" onClick={handleDestroy} className="modalForm__button--delete">
+            Delete Project
           </button>
-          {this.action === 'edit' && (
-            <button type="button" onClick={this.handleDestroy} className="modalForm__button--delete">
-              Delete Project
-            </button>
-          )}
-        </div>
+        )}
       </div>
-    );
-  }
-}
+    </div>
+  );
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(ProjectForm);
