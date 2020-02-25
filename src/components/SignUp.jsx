@@ -78,7 +78,7 @@ const SignUp = (props) => {
   };
 
   const onChangeEmail = (event) => {
-    const { value } = event.target.value;
+    const { value } = event.target;
     setEmail(value);
   };
 
