@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React from 'react';
 import { connect } from 'react-redux';
 import {
   BrowserRouter,
@@ -21,21 +21,12 @@ const mapStateToProps = (state) => {
   };
 };
 
-class Home extends Component {
-  constructor(props) {
-    super(props);
-    const token = localStorage.getItem('token');
-    const isAuthenticated = token !== null;
-    this.state = {
-      isAuthenticated,
-    };
-  }
+const Home = () => {
+  const token = localStorage.getItem('token');
+  const isAuthenticated = token !== null;
 
-  render() {
-    const { isAuthenticated } = this.state;
-    return isAuthenticated ? <Main /> : <Redirect to="/reach/signin" />;
-  }
-}
+  return isAuthenticated ? <Main /> : <Redirect to="/reach/signin" />;
+};
 
 const App = (props) => {
   const { confirmVisible, isLoading } = props;

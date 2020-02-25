@@ -1,4 +1,4 @@
-import React, { PureComponent } from 'react';
+import React, { useState } from 'react';
 import { Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -30,59 +30,48 @@ const mapDispatchToProps = (dispatch) => {
   };
 };
 
-class SideBar extends PureComponent {
-  constructor(props) {
-    super(props);
-    this.state = {
-      accountMenuVisible: false,
-      isSignOut: false,
-    };
-  }
+const SideBar = (props) => {
+  const {
+    openResourceForm, openProjectForm, openAccountForm, accountFormVisible, toggleDeleteButton,
+  } = props;
 
-  toggleAccountMenu = () => {
-    const { accountMenuVisible } = this.state;
-    this.setState({ accountMenuVisible: !accountMenuVisible });
-  }
+  const [accountMenuVisible, toggleAccountMenu] = useState(false);
+  const [isSignOut, signOut] = useState(false);
 
-  signOut = () => {
+  const onClickAccountMenu = () => toggleAccountMenu(!accountMenuVisible);
+
+  const handleSignOut = () => {
     localStorage.removeItem('token');
-    this.setState({ isSignOut: true });
-  }
+    signOut(true);
+  };
 
-  render() {
-    const { accountMenuVisible, isSignOut } = this.state;
-    const {
-      openResourceForm, openProjectForm, openAccountForm, accountFormVisible, toggleDeleteButton,
-    } = this.props;
-
-    return (
-      isSignOut ? <Redirect to="/reach/signin" /> : (
-        <div className="sidebar">
-          <div className="sidebar__iconWrapper--plus" onClick={openProjectForm}>
-            <FontAwesomeIcon icon={['fas', 'plus']} className="sidebar__icon" />
-          </div>
-          <div className="sidebar__iconWrapper--minus" onClick={toggleDeleteButton}>
-            <FontAwesomeIcon icon={['fas', 'minus']} className="sidebar__icon" />
-          </div>
-          <div className="sidebar__iconWrapper--resource" onClick={openResourceForm}>
-            <FontAwesomeIcon icon={['fas', 'tags']} className="sidebar__icon" />
-          </div>
-          <div className="sidebar__iconWrapper--account" onClick={this.toggleAccountMenu}>
-            <FontAwesomeIcon icon={['fas', 'user']} className="sidebar__icon" />
-          </div>
-          {accountMenuVisible && (
-            <div className="overlay" onClick={this.toggleAccountMenu}>
-              <div className="accountMenu">
-                <div className="accountMenu__edit" onClick={openAccountForm}>アカウント編集</div>
-                <div className="accountMenu__signout" onClick={this.signOut}>サインアウト</div>
-              </div>
-            </div>
-          )}
-          {accountFormVisible && <EditAccount />}
+  return (
+    isSignOut ? <Redirect to="/reach/signin" /> : (
+      <div className="sidebar">
+        <div className="sidebar__iconWrapper--plus" onClick={openProjectForm}>
+          <FontAwesomeIcon icon={['fas', 'plus']} className="sidebar__icon" />
         </div>
-      )
-    );
-  }
-}
+        <div className="sidebar__iconWrapper--minus" onClick={toggleDeleteButton}>
+          <FontAwesomeIcon icon={['fas', 'minus']} className="sidebar__icon" />
+        </div>
+        <div className="sidebar__iconWrapper--resource" onClick={openResourceForm}>
+          <FontAwesomeIcon icon={['fas', 'tags']} className="sidebar__icon" />
+        </div>
+        <div className="sidebar__iconWrapper--account" onClick={onClickAccountMenu}>
+          <FontAwesomeIcon icon={['fas', 'user']} className="sidebar__icon" />
+        </div>
+        {accountMenuVisible && (
+          <div className="overlay" onClick={onClickAccountMenu}>
+            <div className="accountMenu">
+              <div className="accountMenu__edit" onClick={openAccountForm}>アカウント編集</div>
+              <div className="accountMenu__signout" onClick={handleSignOut}>サインアウト</div>
+            </div>
+          </div>
+        )}
+        {accountFormVisible && <EditAccount />}
+      </div>
+    )
+  );
+};
 
 export default connect(mapStateToProps, mapDispatchToProps)(SideBar);
